@@ -103,6 +103,12 @@ static void SetDefaultOptions(void)
     gSaveBlock2Ptr->regionMapZoom = FALSE;
 }
 
+static void SetDefaultData(void)
+{
+	gSaveBlock1Ptr->gameMode = GAME_MODE_STORY;
+	gSaveBlock1Ptr->nuzlockeMode = NUZLOCKE_MODE_OFF;
+}
+
 static void ClearPokedexFlags(void)
 {
     gUnusedPokedexU8 = 0;
@@ -136,7 +142,9 @@ static void WarpToTruck(void)
 void Sav2_ClearSetDefault(void)
 {
     ClearSav2();
-    SetDefaultOptions();
+	//In vanilla, default options are set here
+	//but it's bugged so nothing happens. lol
+    //SetDefaultOptions();
 }
 
 void ResetMenuAndMonGlobals(void)
@@ -207,6 +215,9 @@ void NewGameInitData(void)
     WipeTrainerNameRecords();
     ResetTrainerHillResults();
     ResetContestLinkResults();
+	// Default options is now set here
+	SetDefaultOptions();
+	SetDefaultData();
 }
 
 static void ResetMiniGamesResults(void)

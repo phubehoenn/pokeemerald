@@ -59,6 +59,18 @@
 
 #define POKEMON_SLOTS_NUMBER 412
 
+// Game mode
+#define GAME_MODE_STORY 0
+#define GAME_MODE_SANDBOX 1
+#define GAME_MODE_RANDOM 2
+#define GAME_MODE_SUPER_RANDOM 3
+
+// Nuzlocke mode
+#define NUZLOCKE_MODE_OFF 0
+#define NUZLOCKE_MODE_NUZLOCKE 1
+#define NUZLOCKE_MODE_HARDLOCKE 2
+#define NUZLOCKE_MODE_DEADLOCKE 3
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) >= (b) ? (a) : (b))
 
@@ -968,7 +980,10 @@ struct SaveBlock1
     /*0x3B58*/ LilycoveLady lilycoveLady;
     /*0x3B98*/ struct TrainerNameRecord trainerNameRecords[20];
     /*0x3C88*/ u8 unk3C88[10][21];
-    /*0x3D5A*/ u8 filler3D5A[0xA];
+	/*0x3D5A*/ u8 gameMode:2;
+	/*0x3D5A*/ u8 nuzlockeMode:2;
+	/*0x3D5A*/ u8 filler4b:4;
+    /*0x3D5B*/ u8 filler3D5B[0x9];
     /*0x3D64*/ struct SaveTrainerHill trainerHill;
     /*0x3D70*/ struct WaldaPhrase waldaPhrase;
     // sizeof: 0x3D88

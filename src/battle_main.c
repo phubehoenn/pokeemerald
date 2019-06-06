@@ -33,6 +33,7 @@
 #include "pokeball.h"
 #include "pokedex.h"
 #include "pokemon.h"
+#include "pokemon_storage_system.h"
 #include "random.h"
 #include "recorded_battle.h"
 #include "roamer.h"
@@ -5136,6 +5137,23 @@ static void HandleEndTurn_MonFled(void)
 
 static void HandleEndTurn_FinishBattle(void)
 {
+	int i;
+	
+	// Delete mons with 0 HP if on nuzlocke mode
+	if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+	{
+		// Loop through party
+		for (i = 0; i < PARTY_SIZE; i++)
+		{
+			// Mon has 0 HP, so delete
+			if (GetMonData(&gPlayerParty[i], MON_DATA_HP, 0) == 0)
+			{
+				ZeroMonData(&gPlayerParty[i]);
+				CompactPartySlots();
+			}
+		}
+	}
+	
     if (gCurrentActionFuncId == 0xB || gCurrentActionFuncId == 0xC)
     {
         if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK
