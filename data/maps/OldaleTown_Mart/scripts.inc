@@ -29,6 +29,9 @@ OldaleTown_Mart_EventScript_1FC26C:: @ 81FC26C
 
 	.align 2
 OldaleTown_Mart_Pokemart_1FC27C: @ 81FC27C
+	.2byte ITEM_MASTER_BALL
+	.2byte ITEM_REVIVE
+	.2byte ITEM_MAX_REVIVE
 	.2byte ITEM_POKE_BALL
 	.2byte ITEM_POTION
 	.2byte ITEM_ANTIDOTE

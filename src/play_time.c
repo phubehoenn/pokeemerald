@@ -35,8 +35,6 @@ void PlayTimeCounter_Stop(void)
 
 void PlayTimeCounter_Update(void)
 {
-	gSaveBlock1Ptr->nuzlockeMode = 1;
-	
     if (sPlayTimeCounterState == RUNNING)
     {
         gSaveBlock2Ptr->playTimeVBlanks++;

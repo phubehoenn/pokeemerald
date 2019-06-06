@@ -167,6 +167,12 @@ void DisplayDadsAdviceCannotUseItemMessage(u8 taskId, bool8 isUsingRegisteredKey
     DisplayCannotUseItemMessage(taskId, isUsingRegisteredKeyItemOnField, gText_DadsAdvice);
 }
 
+// Used when attempting to use a revive item on the field in Nuzlocke mode
+void DisplayCannotUseReviveMessage(u8 taskId, bool8 isUsingRegisteredKeyItemOnField)
+{
+    DisplayCannotUseItemMessage(taskId, isUsingRegisteredKeyItemOnField, gText_CantUseRevive);
+}
+
 void DisplayCannotDismountBikeMessage(u8 taskId, bool8 isUsingRegisteredKeyItemOnField)
 {
     DisplayCannotUseItemMessage(taskId, isUsingRegisteredKeyItemOnField, gText_CantDismountBike);

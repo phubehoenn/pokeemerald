@@ -1648,7 +1648,11 @@ void ItemMenu_UseOutOfBattle(u8 taskId)
         {
             FillWindowPixelBuffer(1, PIXEL_FILL(0));
             schedule_bg_copy_tilemap_to_vram(0);
-            if (gBagPositionStruct.pocket != BERRIES_POCKET)
+			// Can't use revives in Nuzlocke mode
+			if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF
+				&& (gSpecialVar_ItemId == ITEM_REVIVE || gSpecialVar_ItemId == ITEM_MAX_REVIVE)) // add full revive eventually
+				DisplayCannotUseReviveMessage(taskId, gTasks[taskId].data[3]);
+            else if (gBagPositionStruct.pocket != BERRIES_POCKET)
                 ItemId_GetFieldFunc(gSpecialVar_ItemId)(taskId);
             else
                 sub_80FDD10(taskId);
@@ -1833,11 +1837,15 @@ void ItemMenu_Cancel(u8 taskId)
 
 void ItemMenu_UseInBattle(u8 taskId)
 {
-    if (ItemId_GetBattleFunc(gSpecialVar_ItemId))
-    {
-        BagMenu_RemoveSomeWindow();
+	BagMenu_RemoveSomeWindow();
+	
+	// Can't use revive items in Nuzlocke mode
+	if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF
+		&& (gSpecialVar_ItemId == ITEM_REVIVE || gSpecialVar_ItemId == ITEM_MAX_REVIVE)) // add full revive eventually
+		// Print revives can't be used in nuzlocke message
+		DisplayCannotUseReviveMessage(taskId, gTasks[taskId].data[3]);
+    else if (ItemId_GetBattleFunc(gSpecialVar_ItemId))
         ItemId_GetBattleFunc(gSpecialVar_ItemId)(taskId);
-    }
 }
 
 void bag_menu_mail_related(void)
