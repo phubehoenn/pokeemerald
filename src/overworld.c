@@ -1557,19 +1557,34 @@ void CB2_WhiteOut(void)
 
     if (++gMain.state >= 120)
     {
-        FieldClearVBlankHBlankCallbacks();
-        StopMapMusic();
-        ResetSafariZoneFlag_();
-        DoWhiteOut();
-        ResetInitialPlayerAvatarState();
-        ScriptContext1_Init();
-        ScriptContext2_Disable();
-        gFieldCallback = sub_80AF3C8;
-        val = 0;
-        do_load_map_stuff_loop(&val);
-        SetFieldVBlankCallback();
-        SetMainCallback1(CB1_Overworld);
-        SetMainCallback2(CB2_Overworld);
+		// Check nuzlocke mode
+		switch(gSaveBlock1Ptr->nuzlockeMode)
+		{
+			// Do normal whiteout if not on nuzlocke mode
+			case NUZLOCKE_MODE_OFF:
+				FieldClearVBlankHBlankCallbacks();
+				StopMapMusic();
+				ResetSafariZoneFlag_();
+				DoWhiteOut();
+				ResetInitialPlayerAvatarState();
+				ScriptContext1_Init();
+				ScriptContext2_Disable();
+				gFieldCallback = sub_80AF3C8;
+				val = 0;
+				do_load_map_stuff_loop(&val);
+				SetFieldVBlankCallback();
+				SetMainCallback1(CB1_Overworld);
+				SetMainCallback2(CB2_Overworld);
+				break;
+			// Delete save file (unless different one is saved) in deadlocke then fall through
+			case NUZLOCKE_MODE_DEADLOCKE:
+				if (!gDifferentSaveFile)
+					ClearSaveData();
+			// Nuzlocke & hardlocke - reset game
+			default:
+				DoSoftReset();
+				break;
+		}
     }
 }
 
