@@ -740,6 +740,52 @@ static void Task_WaitForBatteryDryErrorWindow(u8 taskId)
     }
 }
 
+// Spacer in between game mode and nuzlocke mode strings
+const u8 StringSpacer[] = _(" - ");
+
+// Stores the continue game string in gStringVar4. Example: CONTINUE - STORY - NUZLOCKE
+static void CreateContinueString(void)
+{
+	// Add "CONTINUE - " to the start of the string. Always needs to be present
+	StringExpandPlaceholders(gStringVar4, gText_MainMenuContinue);
+	
+	// Always append the game mode string
+	switch(gSaveBlock1Ptr->gameMode)
+	{
+		default:
+			StringAppend(gStringVar4, gText_MainMenuStory);
+			break;
+		case GAME_MODE_SANDBOX:
+			StringAppend(gStringVar4, gText_MainMenuSandbox);
+			break;
+		case GAME_MODE_RANDOM:
+			StringAppend(gStringVar4, gText_MainMenuRandom);
+			break;
+		case GAME_MODE_SUPER_RANDOM:
+			StringAppend(gStringVar4, gText_MainMenuSuperRandom);
+			break;
+	}
+	
+	// If a nuzlocke game, append a spacer and the relevant string
+	if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+	{
+		StringAppend(gStringVar4, StringSpacer);
+		
+		switch(gSaveBlock1Ptr->nuzlockeMode)
+		{
+			case NUZLOCKE_MODE_NUZLOCKE:
+				StringAppend(gStringVar4, gText_MainMenuNuzlocke);
+				break;
+			case NUZLOCKE_MODE_HARDLOCKE:
+				StringAppend(gStringVar4, gText_MainMenuHardlocke);
+				break;
+			case NUZLOCKE_MODE_DEADLOCKE:
+				StringAppend(gStringVar4, gText_MainMenuDeadlocke);
+				break;
+		}
+	}
+}
+
 static void Task_DisplayMainMenu(u8 taskId)
 {
     s16* data = gTasks[taskId].data;
@@ -799,7 +845,8 @@ static void Task_DisplayMainMenu(u8 taskId)
                 FillWindowPixelBuffer(2, PIXEL_FILL(0xA));
                 FillWindowPixelBuffer(3, PIXEL_FILL(0xA));
                 FillWindowPixelBuffer(4, PIXEL_FILL(0xA));
-                AddTextPrinterParameterized3(2, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuContinue);
+				CreateContinueString();
+                AddTextPrinterParameterized3(2, 1, 0, 1, sTextColor_Headers, -1, gStringVar4);
                 AddTextPrinterParameterized3(3, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuNewGame);
                 AddTextPrinterParameterized3(4, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuOption);
                 MainMenu_FormatSavegameText();
@@ -818,7 +865,8 @@ static void Task_DisplayMainMenu(u8 taskId)
                 FillWindowPixelBuffer(3, PIXEL_FILL(0xA));
                 FillWindowPixelBuffer(4, PIXEL_FILL(0xA));
                 FillWindowPixelBuffer(5, PIXEL_FILL(0xA));
-                AddTextPrinterParameterized3(2, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuContinue);
+				CreateContinueString();
+                AddTextPrinterParameterized3(2, 1, 0, 1, sTextColor_Headers, -1, gStringVar4);
                 AddTextPrinterParameterized3(3, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuNewGame);
                 AddTextPrinterParameterized3(4, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuMysteryGift);
                 AddTextPrinterParameterized3(5, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuOption);
@@ -842,7 +890,8 @@ static void Task_DisplayMainMenu(u8 taskId)
                 FillWindowPixelBuffer(4, PIXEL_FILL(0xA));
                 FillWindowPixelBuffer(5, PIXEL_FILL(0xA));
                 FillWindowPixelBuffer(6, PIXEL_FILL(0xA));
-                AddTextPrinterParameterized3(2, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuContinue);
+				CreateContinueString();
+                AddTextPrinterParameterized3(2, 1, 0, 1, sTextColor_Headers, -1, gStringVar4);
                 AddTextPrinterParameterized3(3, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuNewGame);
                 AddTextPrinterParameterized3(4, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuMysteryGift2);
                 AddTextPrinterParameterized3(5, 1, 0, 1, sTextColor_Headers, -1, gText_MainMenuMysteryEvents);
