@@ -3064,7 +3064,12 @@ static void BattleStartClearSetData(void)
     else if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_x2000000)) && GetBattleSceneInRecordedBattle())
         gHitMarker |= HITMARKER_NO_ANIMATIONS;
 
-    gBattleScripting.battleStyle = gSaveBlock2Ptr->optionsBattleStyle;
+	// Read battle style option if not nuzlocke
+	if (gSaveBlock1Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
+		gBattleScripting.battleStyle = gSaveBlock2Ptr->optionsBattleStyle;
+	// Ignore and always use SET battle style in a nuzlocke game
+	else
+		gBattleScripting.battleStyle = OPTIONS_BATTLE_STYLE_SET;
 
     gMultiHitCounter = 0;
     gBattleOutcome = 0;
