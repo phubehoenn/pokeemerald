@@ -440,13 +440,20 @@ struct SaveBlock2
     /*0x10*/ u8 playTimeMinutes;
     /*0x11*/ u8 playTimeSeconds;
     /*0x12*/ u8 playTimeVBlanks;
-    /*0x13*/ u8 filler13;
-    /*0x14*/ u16 filler3b:3;
-             u16 optionsWindowFrameType:5; // Specifies one of the 20 decorative borders for text boxes
-             u16 optionsSound:1; // OPTIONS_SOUND_[MONO/STEREO]
-             u16 optionsBattleStyle:1; // OPTIONS_BATTLE_STYLE_[SHIFT/SET]
-             u16 optionsBattleSceneOff:1; // whether battle animations are disabled
-             u16 regionMapZoom:1; // whether the map is zoomed in
+	/*0x13*/ u8 optionsBikeMode:1;		   // OPTIONS_BIKE_MODE_[HOLD_B/AUTO]
+	/*0x13*/ u8 optionsFullParty:1;		   // OPTIONS_FULL_PARTY_[SWAP/SEND_TO_PC]
+	/*0x13*/ u8 optionsFont:2;			   // 0 = ROCKET, 1 = MAGMA, 2 = AQUA, 3 = GALACTIC
+	/*0x13*/ u8 optionsKeyboard:4;		   // 0 = QWERTY, 1 = QWERTY+, 2 = ABC, 3 = ABC+, 4 = AZERTY, 5 = AZERTY+, 6 = DVORAK, 7 = DVORAK+, 8 = COLEMAK, 9 = COLEMAK+, 10 = VANILLA
+    /*0x14*/ u16 optionsQuickFlee:1;       // OPTIONS_BIKE_MODE_[HOLD_B/AUTO]
+	/*0x14*/ u16 optionsLowHPSound:1;	   // [ON/OFF] stops beeping sound on low HP
+	/*0x14*/ u16 optionsKeypadSound:1;     // [ON/OFF] stops keypad beeping sound
+    /*0x14*/ u16 optionsWindowFrameType:5; // Specifies one of the 20 decorative borders for text boxes
+    /*0x15*/ u16 optionsSound:1; 		   // OPTIONS_SOUND_[MONO/STEREO]
+    /*0x15*/ u16 optionsBattleStyle:1; 	   // OPTIONS_BATTLE_STYLE_[SHIFT/SET]
+    /*0x15*/ u16 optionsBattleSceneOff:1;  // [ON/OFF] whether battle animations are disabled
+    /*0x15*/ u16 regionMapZoom:1; 		   // whether the map is zoomed in
+	/*0x15*/ u16 nuzlockeMode:2;		   // 0-3 Off/Nuzlocke/Hardlocke/Deadlocke
+	/*0x15*/ u16 gameMode:2;			   // 0-3 Story/Sandbox/Random/Super Random
     /*0x18*/ struct Pokedex pokedex;
     /*0x90*/ u8 filler_90[0x3];
 	/*0x93*/ u8 freezeNuzlocke:1;		   // UNUSED RIGHT NOW - Nuzlocke mode can't be changed when this is enabled
@@ -459,11 +466,8 @@ struct SaveBlock2
 	/*0x95*/ u8 timeHour:5;			       // 0-23 for 12AM to 11PM
 	/*0x95*/ u8 timeDay:3;				   // 0-6 for Monday to Sunday
     /*0x96*/ u8 timeSeconds:6;			   // 0-59
-	/*0x96*/ u8 filler2b2:2;			   // Unused
-	/*0x97*/ u8 nuzlockeMode:2;			   // 0-3 Off/Nuzlocke/Hardlocke/Deadlocke
-	/*0x97*/ u8 gameMode:2;				   // 0-3 Story/Sandbox/Random/Super Random
 	/*0x97*/ u8 dayNightStatus:2;		   // 0 = DAWN, 1 = DAY, 2 = DUSK, 3 = NIGHT
-	/*0x97*/ u8 filler2b:2;
+	/*0x97*/ u8 filler4b:4;
     /*0x98*/ struct Time localTimeOffset;
     /*0xA0*/ struct Time lastBerryTreeUpdate;
     /*0xA8*/ u32 field_A8; // Written to, but never read.
