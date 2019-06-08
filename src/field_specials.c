@@ -4161,3 +4161,9 @@ u8 sub_813BF7C(void)
 {
     return sub_813BADC(gSpecialVar_0x8004);
 }
+
+// Returns nuzlocke mode
+u8 GetNuzlockeMode(void)
+{
+	return gSaveBlock1Ptr->nuzlockeMode;
+}

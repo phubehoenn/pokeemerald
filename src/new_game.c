@@ -103,6 +103,7 @@ static void SetDefaultOptions(void)
     gSaveBlock2Ptr->regionMapZoom = FALSE;
 }
 
+// Sets default game data, like game modes and in-game time
 static void SetDefaultData(void)
 {
 	gSaveBlock1Ptr->gameMode = GAME_MODE_STORY;

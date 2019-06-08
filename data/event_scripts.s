@@ -1249,6 +1249,21 @@ TrainerHill_Entrance_EventScript_27191E:: @ 827191E
 VerdanturfTown_PokemonCenter_1F_EventScript_27191E:: @ 827191E
 	lock
 	faceplayer
+
+@ Check if on Hardlocke mode or above, save game instead of heal if true
+	specialvar VAR_RESULT, GetNuzlockeMode
+	compare VAR_RESULT, 0
+	goto_if_eq nurse_joy_heal
+	compare VAR_RESULT, 1
+	goto_if_eq nurse_joy_heal
+	msgbox gWelcomeToPokemonCenterNuzlocke
+	call Common_EventScript_SaveGame
+	msgbox gUnknown_082727DB
+	release
+	end
+	
+@ Heal mon at Pokecenter as usual
+nurse_joy_heal::
 	setvar VAR_0x8004, 0
 	specialvar VAR_RESULT, CountPlayerTrainerStars
 	compare VAR_RESULT, 4
@@ -2519,6 +2534,10 @@ gText_AccessedLanettesPC:: @ 82726D4
 
 gUnknown_082726EB:: @ 82726EB
 	.string "Hello, and welcome to\nthe POKéMON CENTER.\pWe restore your tired POKéMON\nto full health.\pWould you like to rest your POKéMON?$"
+	
+@ Short version, called in Hardlocke or Deadlocke mode
+gWelcomeToPokemonCenterNuzlocke:: @ 82726EB
+	.string "Hello, and welcome to\nthe POKéMON CENTER.$"
 
 gUnknown_08272768:: @ 8272768
 	.string "Okay, I'll take your POKéMON\nfor a few seconds.$"
