@@ -239,10 +239,7 @@ static void HandleInputChooseAction(void)
     DoBounceEffect(gActiveBattler, BOUNCE_HEALTHBOX, 7, 1);
     DoBounceEffect(gActiveBattler, BOUNCE_MON, 7, 1);
 
-    if (gMain.newAndRepeatedKeys & DPAD_ANY && gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_L_EQUALS_A)
-        gPlayerDpadHoldFrames++;
-    else
-        gPlayerDpadHoldFrames = 0;
+    gPlayerDpadHoldFrames = 0;
 
     if (gMain.newKeys & A_BUTTON)
     {
@@ -358,10 +355,7 @@ static void HandleInputChooseTarget(void)
         } while (i < gBattlersCount);
     }
 
-    if (gMain.heldKeys & DPAD_ANY && gSaveBlock2Ptr->optionsButtonMode == 2)
-        gPlayerDpadHoldFrames++;
-    else
-        gPlayerDpadHoldFrames = 0;
+    gPlayerDpadHoldFrames = 0;
 
     if (gMain.newKeys & A_BUTTON)
     {
@@ -471,10 +465,7 @@ static void HandleInputChooseMove(void)
     bool32 canSelectTarget = FALSE;
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct*)(&gBattleBufferA[gActiveBattler][4]);
 
-    if (gMain.heldKeys & DPAD_ANY && gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_L_EQUALS_A)
-        gPlayerDpadHoldFrames++;
-    else
-        gPlayerDpadHoldFrames = 0;
+    gPlayerDpadHoldFrames = 0;
 
     if (gMain.newKeys & A_BUTTON)
     {

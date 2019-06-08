@@ -253,26 +253,20 @@ bool8 AdjustQuantityAccordingToDPadInput(s16 *arg0, u16 arg1)
 
 u8 GetLRKeysState(void)
 {
-    if (gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_LR)
-    {
-        if (gMain.newKeys & L_BUTTON)
-            return 1;
-        if (gMain.newKeys & R_BUTTON)
-            return 2;
-    }
+	if (gMain.newKeys & L_BUTTON)
+		return 1;
+	if (gMain.newKeys & R_BUTTON)
+		return 2;
 
     return 0;
 }
 
 u8 sub_812210C(void)
 {
-    if (gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_LR)
-    {
-        if (gMain.newAndRepeatedKeys & L_BUTTON)
-            return 1;
-        if (gMain.newAndRepeatedKeys & R_BUTTON)
-            return 2;
-    }
+	if (gMain.newAndRepeatedKeys & L_BUTTON)
+		return 1;
+	if (gMain.newAndRepeatedKeys & R_BUTTON)
+		return 2;
 
     return 0;
 }

@@ -7040,13 +7040,10 @@ static u8 InBoxInput_Normal(void)
         if (gMain.newKeys & B_BUTTON)
             return 19;
 
-        if (gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_LR)
-        {
-            if (gMain.heldKeys & L_BUTTON)
-                return 10;
-            if (gMain.heldKeys & R_BUTTON)
-                return 9;
-        }
+		if (gMain.heldKeys & L_BUTTON)
+			return 10;
+		if (gMain.heldKeys & R_BUTTON)
+			return 9;
 
         if (gMain.newKeys & SELECT_BUTTON)
         {
@@ -7512,13 +7509,10 @@ static u8 InBoxInput_MovingMultiple(void)
     }
     else
     {
-        if (gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_LR)
-        {
-            if (gMain.heldKeys & L_BUTTON)
-                return 10;
-            if (gMain.heldKeys & R_BUTTON)
-                return 9;
-        }
+		if (gMain.heldKeys & L_BUTTON)
+			return 10;
+		if (gMain.heldKeys & R_BUTTON)
+			return 9;
 
         return 0;
     }
@@ -7950,13 +7944,10 @@ static u8 HandleInput_OnBox(void)
         if (gMain.heldKeys & DPAD_RIGHT)
             return 9;
 
-        if (gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_LR)
-        {
-            if (gMain.heldKeys & L_BUTTON)
-                return 10;
-            if (gMain.heldKeys & R_BUTTON)
-                return 9;
-        }
+		if (gMain.heldKeys & L_BUTTON)
+			return 10;
+		if (gMain.heldKeys & R_BUTTON)
+			return 9;
 
         if (gMain.newKeys & A_BUTTON)
         {
