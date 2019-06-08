@@ -344,18 +344,7 @@ void sub_8020FC4(struct BerryCrushGame *arg0)
         arg0->unk84.players[i].unk14[PLAYER_NAME_LENGTH] = EOS;
     }
 
-    switch (gSaveBlock2Ptr->optionsTextSpeed)
-    {
-    case OPTIONS_TEXT_SPEED_SLOW:
-        arg0->unkB = 8;
-        break;
-    case OPTIONS_TEXT_SPEED_MID:
-        arg0->unkB = 4;
-        break;
-    case OPTIONS_TEXT_SPEED_FAST:
-        arg0->unkB = 1;
-        break;
-    }
+    arg0->unkB = 1;
 }
 #else
 NAKED

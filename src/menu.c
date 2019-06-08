@@ -469,17 +469,14 @@ void DisplayYesNoMenuWithDefault(u8 initialCursorPos)
 u32 GetPlayerTextSpeed(void)
 {
     if (gTextFlags.forceMidTextSpeed)
-        return OPTIONS_TEXT_SPEED_MID;
-    return gSaveBlock2Ptr->optionsTextSpeed;
+        return 2; // Text speed has been removed, so return 2 (mid)
+    return 1; // Otherwise return 1 (fast)
 }
 
 u8 GetPlayerTextSpeedDelay(void)
 {
-    u32 speed;
-    if (gSaveBlock2Ptr->optionsTextSpeed > OPTIONS_TEXT_SPEED_FAST)
-        gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_MID;
-    speed = GetPlayerTextSpeed();
-    return gUnknown_0860F094[speed];
+	// Text speed has been removed, so always return 1 (fast)
+    return 1;
 }
 
 u8 sub_81979C4(u8 a1)
