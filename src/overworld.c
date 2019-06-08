@@ -1558,7 +1558,7 @@ void CB2_WhiteOut(void)
     if (++gMain.state >= 120)
     {
 		// Check nuzlocke mode
-		switch(gSaveBlock1Ptr->nuzlockeMode)
+		switch(gSaveBlock2Ptr->nuzlockeMode)
 		{
 			// Do normal whiteout if not on nuzlocke mode
 			case NUZLOCKE_MODE_OFF:

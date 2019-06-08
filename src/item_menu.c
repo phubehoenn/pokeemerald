@@ -1649,7 +1649,7 @@ void ItemMenu_UseOutOfBattle(u8 taskId)
             FillWindowPixelBuffer(1, PIXEL_FILL(0));
             schedule_bg_copy_tilemap_to_vram(0);
 			// Can't use revives in Nuzlocke mode
-			if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF
+			if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF
 				&& (gSpecialVar_ItemId == ITEM_REVIVE || gSpecialVar_ItemId == ITEM_MAX_REVIVE || gSpecialVar_ItemId == ITEM_REVIVAL_HERB)) // add full revive eventually
 				DisplayCannotUseReviveMessage(taskId, gTasks[taskId].data[3]);
             else if (gBagPositionStruct.pocket != BERRIES_POCKET)
@@ -1840,7 +1840,7 @@ void ItemMenu_UseInBattle(u8 taskId)
 	BagMenu_RemoveSomeWindow();
 	
 	// Can't use revive items in Nuzlocke mode
-	if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF
+	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF
 		&& (gSpecialVar_ItemId == ITEM_REVIVE || gSpecialVar_ItemId == ITEM_MAX_REVIVE || gSpecialVar_ItemId == ITEM_REVIVAL_HERB)) // add full revive eventually
 		// Print revives can't be used in nuzlocke message
 		DisplayCannotUseReviveMessage(taskId, gTasks[taskId].data[3]);

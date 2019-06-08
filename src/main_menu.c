@@ -750,7 +750,7 @@ static void CreateContinueString(void)
 	StringExpandPlaceholders(gStringVar4, gText_MainMenuContinue);
 	
 	// Always append the game mode string
-	switch(gSaveBlock1Ptr->gameMode)
+	switch(gSaveBlock2Ptr->gameMode)
 	{
 		default:
 			StringAppend(gStringVar4, gText_MainMenuStory);
@@ -767,11 +767,11 @@ static void CreateContinueString(void)
 	}
 	
 	// If a nuzlocke game, append a spacer and the relevant string
-	if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
 	{
 		StringAppend(gStringVar4, StringSpacer);
 		
-		switch(gSaveBlock1Ptr->nuzlockeMode)
+		switch(gSaveBlock2Ptr->nuzlockeMode)
 		{
 			case NUZLOCKE_MODE_NUZLOCKE:
 				StringAppend(gStringVar4, gText_MainMenuNuzlocke);

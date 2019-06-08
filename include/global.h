@@ -460,7 +460,22 @@ struct SaveBlock2
              u16 optionsBattleSceneOff:1; // whether battle animations are disabled
              u16 regionMapZoom:1; // whether the map is zoomed in
     /*0x18*/ struct Pokedex pokedex;
-    /*0x90*/ u8 filler_90[0x8];
+    /*0x90*/ u8 filler_90[0x3];
+	/*0x93*/ u8 freezeNuzlocke:1;		   // UNUSED RIGHT NOW - Nuzlocke mode can't be changed when this is enabled
+	/*0x93*/ u8 waitStatus:1;			   // UNUSED RIGHT NOW - 0 = WAIT_UNABLE, 1 = WAIT_ABLE
+	/*0x93*/ u8 waitTime:6;				   // UNUSED RIGHT NOW - Holds the amount of time the player can wait
+	/*0x94*/ u8 timeYear:3;			       // 0-7. Randomised at the start of the game. Different world events happen depending on the current year. Rolls over to 0
+	/*0x94*/ u8 timeSeason:2;			   // 0 = SPRING, 1 = SUMMER, 2 = FALL, 3 = WINTER
+	/*0x94*/ u8 timeWeek:1;			       // 0 = First half of season, 1 = second half of season
+	/*0x94*/ u8 timeMinute:2;			   // 0-2. 3 real minutes in 1 hour
+	/*0x95*/ u8 timeHour:5;			       // 0-23 for 12AM to 11PM
+	/*0x95*/ u8 timeDay:3;				   // 0-6 for Monday to Sunday
+    /*0x96*/ u8 timeSeconds:6;			   // 0-59
+	/*0x96*/ u8 filler2b2:2;			   // Unused
+	/*0x97*/ u8 nuzlockeMode:2;			   // 0-3 Off/Nuzlocke/Hardlocke/Deadlocke
+	/*0x97*/ u8 gameMode:2;				   // 0-3 Story/Sandbox/Random/Super Random
+	/*0x97*/ u8 dayNightStatus:2;		   // 0 = DAWN, 1 = DAY, 2 = DUSK, 3 = NIGHT
+	/*0x97*/ u8 filler2b:2;
     /*0x98*/ struct Time localTimeOffset;
     /*0xA0*/ struct Time lastBerryTreeUpdate;
     /*0xA8*/ u32 field_A8; // Written to, but never read.
@@ -980,10 +995,7 @@ struct SaveBlock1
     /*0x3B58*/ LilycoveLady lilycoveLady;
     /*0x3B98*/ struct TrainerNameRecord trainerNameRecords[20];
     /*0x3C88*/ u8 unk3C88[10][21];
-	/*0x3D5A*/ u8 gameMode:2;
-	/*0x3D5A*/ u8 nuzlockeMode:2;
-	/*0x3D5A*/ u8 filler4b:4;
-    /*0x3D5B*/ u8 filler3D5B[0x9];
+    /*0x3D5B*/ u8 filler3D5A[0xA];
     /*0x3D64*/ struct SaveTrainerHill trainerHill;
     /*0x3D70*/ struct WaldaPhrase waldaPhrase;
     // sizeof: 0x3D88

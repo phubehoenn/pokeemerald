@@ -106,8 +106,8 @@ static void SetDefaultOptions(void)
 // Sets default game data, like game modes and in-game time
 static void SetDefaultData(void)
 {
-	gSaveBlock1Ptr->gameMode = GAME_MODE_STORY;
-	gSaveBlock1Ptr->nuzlockeMode = NUZLOCKE_MODE_OFF;
+	gSaveBlock2Ptr->gameMode = GAME_MODE_STORY;
+	gSaveBlock2Ptr->nuzlockeMode = NUZLOCKE_MODE_OFF;
 }
 
 static void ClearPokedexFlags(void)

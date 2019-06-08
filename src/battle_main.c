@@ -3065,7 +3065,7 @@ static void BattleStartClearSetData(void)
         gHitMarker |= HITMARKER_NO_ANIMATIONS;
 
 	// Read battle style option if not nuzlocke
-	if (gSaveBlock1Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
+	if (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
 		gBattleScripting.battleStyle = gSaveBlock2Ptr->optionsBattleStyle;
 	// Ignore and always use SET battle style in a nuzlocke game
 	else
@@ -5145,7 +5145,7 @@ static void HandleEndTurn_FinishBattle(void)
 	int i;
 	
 	// Delete mons with 0 HP if on nuzlocke mode
-	if (gSaveBlock1Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
 	{
 		// Loop through party
 		for (i = 0; i < gSaveBlock1Ptr->playerPartyCount; i++)

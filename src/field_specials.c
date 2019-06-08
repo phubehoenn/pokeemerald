@@ -4165,5 +4165,5 @@ u8 sub_813BF7C(void)
 // Returns nuzlocke mode
 u8 GetNuzlockeMode(void)
 {
-	return gSaveBlock1Ptr->nuzlockeMode;
+	return gSaveBlock2Ptr->nuzlockeMode;
 }
