@@ -44,8 +44,8 @@ enum
 // Window Ids
 enum
 {
-    WIN_TEXT_OPTION,
-    WIN_OPTIONS
+	WIN_OPTIONS,
+    WIN_DESCRIPTION
 };
 
 // this file's functions
@@ -92,22 +92,22 @@ static const u8 *const sOptionMenuItemsNames[MENUITEM_COUNT] =
 static const struct WindowTemplate sOptionMenuWinTemplates[] =
 {
     {
-        .bg = 1,
+        .bg = 0,
         .tilemapLeft = 2,
         .tilemapTop = 1,
         .width = 26,
-        .height = 2,
+        .height = 12,
         .paletteNum = 1,
         .baseBlock = 2
     },
     {
-        .bg = 0,
+        .bg = 1,
         .tilemapLeft = 2,
-        .tilemapTop = 5,
+        .tilemapTop = 15,
         .width = 26,
-        .height = 14,
+        .height = 4,
         .paletteNum = 1,
-        .baseBlock = 0x36
+        .baseBlock = 0x13A //26 * 12 + 2 (width * height of options box + 2)
     },
     DUMMY_WIN_TEMPLATE
 };
@@ -115,7 +115,7 @@ static const struct WindowTemplate sOptionMenuWinTemplates[] =
 static const struct BgTemplate sOptionMenuBgTemplates[] =
 {
    {
-       .bg = 1,
+       .bg = 0,
        .charBaseIndex = 1,
        .mapBaseIndex = 30,
        .screenSize = 0,
@@ -124,7 +124,7 @@ static const struct BgTemplate sOptionMenuBgTemplates[] =
        .baseTile = 0
    },
    {
-       .bg = 0,
+       .bg = 1,
        .charBaseIndex = 1,
        .mapBaseIndex = 31,
        .screenSize = 0,
@@ -134,7 +134,8 @@ static const struct BgTemplate sOptionMenuBgTemplates[] =
    }
 };
 
-static const u16 sUnknown_0855C6A0[] = {0x7E51};
+// BG color
+static const u16 sUnknown_0855C6A0[] = {0x7FFF};
 
 // code
 static void MainCB2(void)
@@ -280,12 +281,12 @@ static void Task_OptionMenuProcessInput(u8 taskId)
         if (gTasks[taskId].data[TD_MENUSELECTION] > 0)
             gTasks[taskId].data[TD_MENUSELECTION]--;
         else
-            gTasks[taskId].data[TD_MENUSELECTION] = 6;
+            gTasks[taskId].data[TD_MENUSELECTION] = 5;
         HighlightOptionMenuItem(gTasks[taskId].data[TD_MENUSELECTION]);
     }
     else if (gMain.newKeys & DPAD_DOWN)
     {
-        if (gTasks[taskId].data[TD_MENUSELECTION] <= 5)
+        if (gTasks[taskId].data[TD_MENUSELECTION] <= 4)
             gTasks[taskId].data[TD_MENUSELECTION]++;
         else
             gTasks[taskId].data[TD_MENUSELECTION] = 0;
@@ -375,7 +376,7 @@ static void Task_OptionMenuFadeOut(u8 taskId)
 static void HighlightOptionMenuItem(u8 index)
 {
     SetGpuReg(REG_OFFSET_WIN0H, WIN_RANGE(16, 224));
-    SetGpuReg(REG_OFFSET_WIN0V, WIN_RANGE(index * 16 + 40, index * 16 + 56));
+    SetGpuReg(REG_OFFSET_WIN0V, WIN_RANGE(index * 16 + 8, index * 16 + 24));
 }
 
 static void DrawOptionMenuChoice(const u8 *text, u8 x, u8 y, u8 style)
@@ -618,9 +619,9 @@ static void ButtonMode_DrawChoices(u8 selection)
 
 static void DrawTextOption(void)
 {
-    FillWindowPixelBuffer(WIN_TEXT_OPTION, PIXEL_FILL(1));
-    AddTextPrinterParameterized(WIN_TEXT_OPTION, 1, gText_Option, 8, 1, TEXT_SPEED_FF, NULL);
-    CopyWindowToVram(WIN_TEXT_OPTION, 3);
+    FillWindowPixelBuffer(WIN_DESCRIPTION, PIXEL_FILL(1));
+    AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gText_Option, 8, 1, TEXT_SPEED_FF, NULL);
+    CopyWindowToVram(WIN_DESCRIPTION, 3);
 }
 
 static void DrawOptionMenuTexts(void)
@@ -638,22 +639,22 @@ static void DrawOptionMenuTexts(void)
 static void sub_80BB154(void)
 {
     //                   bg, tileNum, x,    y,    width, height,  pal
-    FillBgTilemapBufferRect(1, 0x1A2, 1,    0,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A3, 2,    0,      0x1B,   1,      7);
-    FillBgTilemapBufferRect(1, 0x1A4, 28,   0,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A5, 1,    1,      1,      2,      7);
-    FillBgTilemapBufferRect(1, 0x1A7, 28,   1,      1,      2,      7);
-    FillBgTilemapBufferRect(1, 0x1A8, 1,    3,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A9, 2,    3,      0x1B,   1,      7);
-    FillBgTilemapBufferRect(1, 0x1AA, 28,   3,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A2, 1,    4,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A3, 2,    4,      0x1A,   1,      7);
-    FillBgTilemapBufferRect(1, 0x1A4, 28,   4,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A5, 1,    5,      1,      0x12,   7);
-    FillBgTilemapBufferRect(1, 0x1A7, 28,   5,      1,      0x12,   7);
+    FillBgTilemapBufferRect(1, 0x1A2, 1,    14,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A3, 2,    14,     0x1A,   1,      7);
+    FillBgTilemapBufferRect(1, 0x1A4, 28,   14,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A5, 1,    15,     1,      4,      7);
+    FillBgTilemapBufferRect(1, 0x1A7, 28,   15,     1,      4,      7);
     FillBgTilemapBufferRect(1, 0x1A8, 1,    19,     1,      1,      7);
     FillBgTilemapBufferRect(1, 0x1A9, 2,    19,     0x1A,   1,      7);
     FillBgTilemapBufferRect(1, 0x1AA, 28,   19,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A2, 1,    0,      1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A3, 2,    0,      0x1B,   1,      7);
+    FillBgTilemapBufferRect(1, 0x1A4, 28,   0,      1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A5, 1,    1,      1,      12,     7);
+    FillBgTilemapBufferRect(1, 0x1A7, 28,   1,      1,      12,     7);
+    FillBgTilemapBufferRect(1, 0x1A8, 1,    13,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A9, 2,    13,     0x1B,   1,      7);
+    FillBgTilemapBufferRect(1, 0x1AA, 28,   13,     1,      1,      7);
 
     CopyBgTilemapBufferToVram(1);
 }
