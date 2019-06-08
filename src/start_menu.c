@@ -80,6 +80,7 @@ bool8 (*gMenuCallback)(void);
 // EWRAM
 EWRAM_DATA static u8 sSafariBallsWindowId = 0;
 EWRAM_DATA static u8 sBattlePyramidFloorWindowId = 0;
+EWRAM_DATA static u8 sNuzlockeWindowId = 0;
 EWRAM_DATA static u8 sStartMenuCursorPos = 0;
 EWRAM_DATA static u8 sNumStartMenuActions = 0;
 EWRAM_DATA static u8 sCurrentStartMenuActions[9] = {0};
@@ -156,6 +157,9 @@ static const u8* const sPyramindFloorNames[] =
 static const struct WindowTemplate sPyramidFloorWindowTemplate_2 = {0, 1, 1, 0xA, 4, 0xF, 8};
 static const struct WindowTemplate sPyramidFloorWindowTemplate_1 = {0, 1, 1, 0xC, 4, 0xF, 8};
 
+// Window to count fainted mons in Nuzlocke mode
+static const struct WindowTemplate sNuzlockeWindowTemplate = {0, 1, 1, 6, 4, 0xF, 8};
+
 static const struct MenuAction sStartMenuItems[] =
 {
     {gText_MenuPokedex, {.u8_void = StartMenuPokedexCallback}},
@@ -206,6 +210,7 @@ static void BuildBattlePyramidStartMenu(void);
 static void BuildMultiBattleRoomStartMenu(void);
 static void ShowSafariBallsWindow(void);
 static void ShowPyramidFloorWindow(void);
+static void ShowNuzlockeWindow(void);
 static void RemoveExtraStartMenuWindows(void);
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count);
 static bool32 InitStartMenuStep(void);
@@ -392,6 +397,41 @@ static void ShowPyramidFloorWindow(void)
     CopyWindowToVram(sBattlePyramidFloorWindowId, 2);
 }
 
+// Color themes for each nuzlocke mode
+const u8 gNuzlockeColors[] = _("{COLOR_HIGHLIGHT_SHADOW GREEN WHITE LIGHT_GREY}");
+const u8 gHardlockeColors[] = _("{COLOR_HIGHLIGHT_SHADOW BLUE WHITE LIGHT_GREY}");
+const u8 gDeadlockeColors[] = _("{COLOR_HIGHLIGHT_SHADOW RED WHITE LIGHT_GREY}");
+
+// Creates the window to show the number of Pokemon lost in nuzlocke mode
+static void ShowNuzlockeWindow(void)
+{
+    sNuzlockeWindowId = AddWindow(&sNuzlockeWindowTemplate);
+    PutWindowTilemap(sNuzlockeWindowId);
+    DrawStdWindowFrame(sNuzlockeWindowId, FALSE);
+	// Start string with relevant text colors (above) to reflect the nuzlocke mode you're on
+	switch(gSaveBlock2Ptr->nuzlockeMode)
+	{
+		case NUZLOCKE_MODE_NUZLOCKE:
+			StringExpandPlaceholders(gStringVar4, gNuzlockeColors);
+			break;
+		case NUZLOCKE_MODE_HARDLOCKE:
+			StringExpandPlaceholders(gStringVar4, gHardlockeColors);
+			break;
+		case NUZLOCKE_MODE_DEADLOCKE:
+			StringExpandPlaceholders(gStringVar4, gDeadlockeColors);
+			break;
+	}
+	// Append "FAINTED:\n"
+    StringAppend(gStringVar4, gText_Fainted);
+	// Convert fainted counter to string, store in gStringVar1
+	ConvertIntToDecimalStringN(gStringVar1, gSaveBlock1Ptr->nuzlockeCounter, STR_CONV_MODE_LEFT_ALIGN, 5);
+	// Append the counter to the gStringVar4
+	StringAppend(gStringVar4, gStringVar1);
+	// Finally print
+    AddTextPrinterParameterized(sNuzlockeWindowId, 1, gStringVar4, 0, 1, 0xFF, NULL);
+    CopyWindowToVram(sNuzlockeWindowId, 2);
+}
+
 static void RemoveExtraStartMenuWindows(void)
 {
     if (GetSafariZoneFlag())
@@ -405,6 +445,12 @@ static void RemoveExtraStartMenuWindows(void)
         ClearStdWindowAndFrameToTransparent(sBattlePyramidFloorWindowId, FALSE);
         RemoveWindow(sBattlePyramidFloorWindowId);
     }
+	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+	{
+		ClearStdWindowAndFrameToTransparent(sNuzlockeWindowId, FALSE);
+		CopyWindowToVram(sNuzlockeWindowId, 2);
+        RemoveWindow(sNuzlockeWindowId);
+	}
 }
 
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count)
@@ -460,8 +506,11 @@ static bool32 InitStartMenuStep(void)
     case 3:
         if (GetSafariZoneFlag())
             ShowSafariBallsWindow();
-        if (InBattlePyramid())
+        else if (InBattlePyramid())
             ShowPyramidFloorWindow();
+		// Show nuzlocke window if in Nuzlocke mode
+		else if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+			ShowNuzlockeWindow();
         sUnknown_02037619[0]++;
         break;
     case 4:

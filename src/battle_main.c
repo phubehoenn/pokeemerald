@@ -5148,14 +5148,16 @@ static void HandleEndTurn_FinishBattle(void)
 	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
 	{
 		// Loop through party
-		for (i = 0; i < gSaveBlock1Ptr->playerPartyCount; i++)
+		for (i = 0; i < PARTY_SIZE; i++)
 		{
-			// Mon has 0 HP, so delete
-			if (GetMonData(&gPlayerParty[i], MON_DATA_HP, 0) == 0)
+			// Mon has 0 HP, so delete (if it's not an empty slot)
+			if (GetMonData(&gPlayerParty[i], MON_DATA_HP, 0) == 0
+				&& GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, 0) != SPECIES_NONE)
 			{
 				ZeroMonData(&gPlayerParty[i]);
 				CompactPartySlots();
-				//faintedMonCounter++; count fainted mons here eventually
+				if (gSaveBlock1Ptr->nuzlockeCounter != 0xFFFF)
+					gSaveBlock1Ptr->nuzlockeCounter++; // Add 1 to fainted mon counter unless it's maxed out
 			}
 		}
 	}

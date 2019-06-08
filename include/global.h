@@ -995,7 +995,8 @@ struct SaveBlock1
     /*0x3B58*/ LilycoveLady lilycoveLady;
     /*0x3B98*/ struct TrainerNameRecord trainerNameRecords[20];
     /*0x3C88*/ u8 unk3C88[10][21];
-    /*0x3D5B*/ u8 filler3D5A[0xA];
+	/*0x3D5A*/ u16 nuzlockeCounter; // Counter of mons that faint in Nuzlocke mode
+    /*0x3D5C*/ u8 filler3D5C[0x8];
     /*0x3D64*/ struct SaveTrainerHill trainerHill;
     /*0x3D70*/ struct WaldaPhrase waldaPhrase;
     // sizeof: 0x3D88
