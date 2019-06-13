@@ -647,7 +647,9 @@ static void PlayerNotOnBikeMoving(u8 direction, u16 heldKeys)
         return;
     }
 
-    if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER) && (heldKeys & B_BUTTON) && FlagGet(FLAG_SYS_B_DASH)
+	// Run automatically if optionsBikeMode = OPTIONS_BIKE_MODE_AUTO
+    if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER)
+	 && ((heldKeys & B_BUTTON) || gSaveBlock2Ptr->optionsBikeMode == OPTIONS_BIKE_MODE_AUTO) && FlagGet(FLAG_SYS_B_DASH)
      && IsRunningDisallowed(gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior) == 0)
     {
         PlayerRun(direction);
