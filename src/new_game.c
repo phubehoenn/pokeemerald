@@ -92,20 +92,34 @@ static void InitPlayerTrainerId(void)
     SetTrainerId(trainerId, gSaveBlock2Ptr->playerTrainerId);
 }
 
-static void SetDefaultOptions(void)
+void SetDefaultOptions(void)
 {
     gSaveBlock2Ptr->optionsWindowFrameType = 0;
-    gSaveBlock2Ptr->optionsSound = OPTIONS_SOUND_MONO;
-    gSaveBlock2Ptr->optionsBattleStyle = OPTIONS_BATTLE_STYLE_SHIFT;
+    gSaveBlock2Ptr->optionsSound = OPTIONS_SOUND_STEREO;
+	// Battle style must be locked to SET in nuzlocke mode
+	if (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
+		gSaveBlock2Ptr->optionsBattleStyle = OPTIONS_BATTLE_STYLE_SHIFT;
+	else
+		gSaveBlock2Ptr->optionsBattleStyle = OPTIONS_BATTLE_STYLE_SET;
     gSaveBlock2Ptr->optionsBattleSceneOff = FALSE;
-    gSaveBlock2Ptr->regionMapZoom = FALSE;
+	gSaveBlock2Ptr->optionsQuickFlee = OPTIONS_OFF;
+	gSaveBlock2Ptr->optionsLowHPSound = OPTIONS_ON;
+	gSaveBlock2Ptr->optionsKeypadSound = OPTIONS_ON;
+	gSaveBlock2Ptr->optionsBikeMode = OPTIONS_BIKE_MODE_HOLD_B;
+	gSaveBlock2Ptr->optionsFullParty = OPTIONS_FULL_PARTY_SWAP;
+	gSaveBlock2Ptr->optionsKeyboard = OPTIONS_KEYBOARD_QWERTY;
+	gSaveBlock2Ptr->optionsFont = OPTIONS_FONT_ROCKET;
 }
 
 // Sets default game data, like game modes and in-game time
 static void SetDefaultData(void)
 {
-	gSaveBlock2Ptr->gameMode = GAME_MODE_STORY;
-	gSaveBlock2Ptr->nuzlockeMode = NUZLOCKE_MODE_OFF;
+	gSaveBlock2Ptr->nuzlockeMode = NUZLOCKE_MODE_OFF;			//defaults to standard, non-nuzlocke mode
+	gSaveBlock2Ptr->freezeNuzlocke = FALSE;
+	gSaveBlock2Ptr->gameMode = GAME_MODE_STORY;					//defaults to story mode
+	gSaveBlock2Ptr->regionMapZoom = FALSE;
+	gSaveBlock2Ptr->waitStatus = WAIT_UNABLE;
+	gSaveBlock2Ptr->waitTime = 60;
 }
 
 static void ClearPokedexFlags(void)
