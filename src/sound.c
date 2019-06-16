@@ -568,6 +568,10 @@ void PlayBGM(u16 songNum)
 
 void PlaySE(u16 songNum)
 {
+	// Don't play keypad beep if keypad sound is off
+	if (gSaveBlock2Ptr->optionsKeypadSound == OPTIONS_OFF
+	 && songNum == SE_SELECT)
+		return;
     m4aSongNumStart(songNum);
 }
 

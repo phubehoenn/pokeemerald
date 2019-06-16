@@ -456,7 +456,7 @@ struct SaveBlock2
 	/*0x15*/ u16 gameMode:2;			   // 0-3 Story/Sandbox/Random/Super Random
     /*0x18*/ struct Pokedex pokedex;
     /*0x90*/ u8 filler_90[0x3];
-	/*0x93*/ u8 freezeNuzlocke:1;		   // UNUSED RIGHT NOW - Nuzlocke mode can't be changed when this is enabled
+	/*0x93*/ u8 freezeNuzlocke:1;		   // Nuzlocke mode can't be changed when this is enabled
 	/*0x93*/ u8 waitStatus:1;			   // UNUSED RIGHT NOW - 0 = WAIT_UNABLE, 1 = WAIT_ABLE
 	/*0x93*/ u8 waitTime:6;				   // UNUSED RIGHT NOW - Holds the amount of time the player can wait
 	/*0x94*/ u8 timeYear:3;			       // 0-7. Randomised at the start of the game. Different world events happen depending on the current year. Rolls over to 0
