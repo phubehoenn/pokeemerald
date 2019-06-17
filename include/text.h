@@ -230,6 +230,7 @@ extern TextFlags gTextFlags;
 extern u8 gUnknown_03002F84;
 extern struct Struct_03002F90 gUnknown_03002F90;
 
+u8 GetFont(u8 fontId);
 void SetFontsPointer(const struct FontInfo *fonts);
 void DeactivateAllTextPrinters(void);
 u16 AddTextPrinterParameterized(u8 windowId, u8 fontId, const u8 *str, u8 x, u8 y, u8 speed, void (*callback)(struct TextPrinterTemplate *, u16));
@@ -280,6 +281,8 @@ void DecompressGlyphFont7(u16 glyphId, bool32 isJapanese);
 u32 GetGlyphWidthFont7(u16 glyphId, bool32 isJapanese);
 void DecompressGlyphFont8(u16 glyphId, bool32 isJapanese);
 u32 GetGlyphWidthFont8(u16 glyphId, bool32 isJapanese);
+void DecompressGlyphFont3(u16 glyphId, bool32 isJapanese);
+u32 GetGlyphWidthFont3(u16 glyphId, bool32 isJapanese);
 void DecompressGlyphFont2(u16 glyphId, bool32 isJapanese);
 u32 GetGlyphWidthFont2(u16 glyphId, bool32 isJapanese);
 void DecompressGlyphFont1(u16 glyphId, bool32 isJapanese);

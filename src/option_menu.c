@@ -180,10 +180,10 @@ const u8 *gKeyboardNameList[] =
 
 // Font names
 const u8 *gFontNameList[] = 
-{
-	gFontText_Rocket, 
-	gFontText_Magma, 
+{ 
 	gFontText_Aqua, 
+	gFontText_Magma, 
+	gFontText_Rocket,
 	gFontText_Galactic
 };
 
@@ -398,8 +398,10 @@ static void Task_OptionMenuProcessInput(u8 taskId)
 				PlaySE(SE_SELECT);	
 				SetDefaultOptions();
 				Task_CopyOptionsToTask(taskId);
+				// Reload frames
 				LoadBgTiles(1, GetWindowFrameTilesPal(gTasks[taskId].data[TD_FRAMETYPE])->tiles, 0x120, 0x1A2);
 				LoadPalette(GetWindowFrameTilesPal(gTasks[taskId].data[TD_FRAMETYPE])->pal, 0x70, 0x20);
+				// Reprint options
 				Task_PrintOptions(taskId);
 				break;
 			case MENUITEM_LOWERNUZLOCKE:
@@ -981,7 +983,7 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 	{
 		if (gMain.newKeys & DPAD_RIGHT)
 		{
-			if (selection < 3) //4 types of keyboard
+			if (selection < 2) //3 types of font - set this to 3 to enable galactic font!
 				selection++;
 			else
 				selection = 0;
@@ -991,10 +993,14 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 			if (selection > 0)
 				selection--;
 			else
-				selection = 3;
+				selection = 2; //set this to 3 to enable galactic font!
 		}
 		sArrowPressed = TRUE;
 	}
+	// Write selection to option immediately to redraw text
+	gSaveBlock2Ptr->optionsFont = selection;
+	// Redraw description window too
+	Task_DrawDescriptionWindow(taskId);
     return selection;
 }
 
