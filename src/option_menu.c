@@ -1005,8 +1005,9 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 }
 
 #define CHAR_0 0xA1 //Character code of '0' character
-#define CHAR_LEFT_ARROW 0x7B //Character code of right arrow character
-#define CHAR_RIGHT_ARROW 0x7C //Character code of right arrow character
+#define CHAR_F9 0xF9 //Must come before left or right arrows
+#define CHAR_LEFT_ARROW_2 0x02 //Character code of left arrow 2 character
+#define CHAR_RIGHT_ARROW_2 0x03 //Character code of right arrow 2 character
 
 static void FrameType_DrawChoices(u8 selection, int yPos)
 {
@@ -1017,9 +1018,9 @@ static void FrameType_DrawChoices(u8 selection, int yPos)
     for (i = 0; gText_FrameTypeNumber[i] != EOS && i < 6; i++)
         text[i] = gText_FrameTypeNumber[i];
 	
-	text[i] = CHAR_LEFT_ARROW;
+	text[i] = CHAR_F9;
 	i++;
-	text[i] = CHAR_SPACE;
+	text[i] = CHAR_LEFT_ARROW_2;
 	i++;
 
     //Convert number to decimal string
@@ -1040,7 +1041,9 @@ static void FrameType_DrawChoices(u8 selection, int yPos)
         i++;
     }
 	
-	text[i] = CHAR_RIGHT_ARROW;
+	text[i] = CHAR_F9;
+	i++;
+	text[i] = CHAR_RIGHT_ARROW_2;
 	i++;
     text[i] = EOS;
 
