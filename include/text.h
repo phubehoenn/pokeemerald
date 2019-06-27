@@ -283,6 +283,8 @@ void DecompressGlyphFont8(u16 glyphId, bool32 isJapanese);
 u32 GetGlyphWidthFont8(u16 glyphId, bool32 isJapanese);
 void DecompressGlyphFont3(u16 glyphId, bool32 isJapanese);
 u32 GetGlyphWidthFont3(u16 glyphId, bool32 isJapanese);
+void DecompressGlyphFont4(u16 glyphId, bool32 isJapanese);
+u32 GetGlyphWidthFont4(u16 glyphId, bool32 isJapanese);
 void DecompressGlyphFont2(u16 glyphId, bool32 isJapanese);
 u32 GetGlyphWidthFont2(u16 glyphId, bool32 isJapanese);
 void DecompressGlyphFont1(u16 glyphId, bool32 isJapanese);

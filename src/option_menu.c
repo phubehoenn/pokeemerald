@@ -181,9 +181,9 @@ const u8 *gKeyboardNameList[] =
 // Font names
 const u8 *gFontNameList[] = 
 { 
+	gFontText_Rocket,
 	gFontText_Aqua, 
 	gFontText_Magma, 
-	gFontText_Rocket,
 	gFontText_Galactic
 };
 
@@ -983,7 +983,7 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 	{
 		if (gMain.newKeys & DPAD_RIGHT)
 		{
-			if (selection < 2) //3 types of font - set this to 3 to enable galactic font!
+			if (selection < 3) //4 types of font
 				selection++;
 			else
 				selection = 0;
@@ -993,7 +993,7 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 			if (selection > 0)
 				selection--;
 			else
-				selection = 2; //set this to 3 to enable galactic font!
+				selection = 3;
 		}
 		sArrowPressed = TRUE;
 	}

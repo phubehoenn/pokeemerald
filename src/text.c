@@ -58,8 +58,8 @@ const struct GlyphWidthFunc gGlyphWidthFuncs[] =
     { 0x1, GetGlyphWidthFont1 },
     { 0x2, GetGlyphWidthFont2 },
     { 0x3, GetGlyphWidthFont3 },
-    { 0x4, GetGlyphWidthFont3 },
-    { 0x5, GetGlyphWidthFont3 },
+    { 0x4, GetGlyphWidthFont4 },
+    { 0x5, GetGlyphWidthFont4 },
     { 0x6, GetGlyphWidthFont6 },
     { 0x7, GetGlyphWidthFont7 },
     { 0x8, GetGlyphWidthFont8 }
@@ -90,7 +90,7 @@ const struct FontInfo gFontInfos[] =
     { Font1Func, 0x6, 0x10, 0x0, 0x0, 0x0, 0x2, 0x1, 0x3 },
     { Font2Func, 0x6, 0x10, 0x0, 0x2, 0x0, 0x2, 0x1, 0x3 },
     { Font3Func, 0x6, 0x10, 0x0, 0x2, 0x0, 0x2, 0x1, 0x3 },
-    { Font4Func, 0x6,  0xE, 0x0, 0x0, 0x0, 0x2, 0x1, 0x3 },
+	{ Font4Func, 0x6, 0x10, 0x0, 0x2, 0x0, 0x2, 0x1, 0x3 },
     { Font5Func, 0x6,  0xE, 0x0, 0x0, 0x0, 0x2, 0x1, 0x3 },
     { Font6Func, 0x8, 0x10, 0x0, 0x8, 0x0, 0x2, 0x1, 0x3 },
     { Font7Func, 0x5, 0x10, 0x0, 0x0, 0x0, 0x2, 0x1, 0x3 },
@@ -124,6 +124,10 @@ extern const u16 gFont3LatinGlyphs[];
 extern const u8 gFont3LatinGlyphWidths[];
 extern const u16 gFont3JapaneseGlyphs[];
 extern const u8 gFont3JapaneseGlyphWidths[];
+extern const u16 gFont4LatinGlyphs[];
+extern const u8 gFont4LatinGlyphWidths[];
+extern const u16 gFont4JapaneseGlyphs[];
+extern const u8 gFont4JapaneseGlyphWidths[];
 extern const u16 gFont2LatinGlyphs[];
 extern const u8 gFont2LatinGlyphWidths[];
 extern const u16 gFont1LatinGlyphs[];
@@ -148,29 +152,33 @@ u8 GetFont(u8 fontId)
 	switch(gSaveBlock2Ptr->optionsFont)
 	{
 		default:
-		case OPTIONS_FONT_AQUA:
-			if (fontId == 7)
-				return 7;
-			else
-				return 1;
-			break;
-		case OPTIONS_FONT_MAGMA:
-			// Magma/Aqua uses same small font
-			if (fontId == 7
-			 || fontId == 8)
-				return 7;
-			else
-				return 3;
-			break;
 		case OPTIONS_FONT_ROCKET:
-			// Account for vanilla small font too
 			if (fontId == 7
 			 || fontId == 8)
 				return 8;
 			else
 				return 2;
 			break;
+		case OPTIONS_FONT_AQUA:
+			if (fontId == 7
+			 || fontId == 8)
+				return 7;
+			else
+				return 1;
+			break;
+		case OPTIONS_FONT_MAGMA:
+			if (fontId == 7
+			 || fontId == 8)
+				return 7;
+			else
+				return 3;
+			break;
 		case OPTIONS_FONT_GALACTIC:
+			if (fontId == 7
+			 || fontId == 8)
+				return 8;
+			else
+				return 4;
 			break;
 	}
 }
@@ -1705,9 +1713,10 @@ u16 RenderText(struct TextPrinter *textPrinter)
 			DecompressGlyphFont2(currChar, textPrinter->japanese);
             break;
         case 3:
+			DecompressGlyphFont3(currChar, textPrinter->japanese);
         case 4:
         case 5:
-            DecompressGlyphFont3(currChar, textPrinter->japanese);
+            DecompressGlyphFont4(currChar, textPrinter->japanese);
             break;
         case 7:
             DecompressGlyphFont7(currChar, textPrinter->japanese);
@@ -2390,6 +2399,7 @@ u32 GetGlyphWidthFont8(u16 glyphId, bool32 isJapanese)
         return gFont8LatinGlyphWidths[glyphId];
 }
 
+// Magma (ruby) font
 void DecompressGlyphFont3(u16 glyphId, bool32 isJapanese)
 {
     const u16* glyphs;
@@ -2434,6 +2444,52 @@ u32 GetGlyphWidthFont3(u16 glyphId, bool32 isJapanese)
         return gFont3LatinGlyphWidths[glyphId];
 }
 
+// Galactic (DPPt) font
+void DecompressGlyphFont4(u16 glyphId, bool32 isJapanese)
+{
+    const u16* glyphs;
+
+    if (isJapanese == TRUE)
+    {
+        glyphs = gFont4JapaneseGlyphs + (0x100 * (glyphId >> 0x3)) + (0x10 * (glyphId & 0x7));
+        DecompressGlyphTile(glyphs, gUnknown_03002F90.unk0);
+        DecompressGlyphTile(glyphs + 0x8, gUnknown_03002F90.unk20);    // gUnknown_03002F90 + 0x40
+        DecompressGlyphTile(glyphs + 0x80, gUnknown_03002F90.unk40);    // gUnknown_03002F90 + 0x20
+        DecompressGlyphTile(glyphs + 0x88, gUnknown_03002F90.unk60);    // gUnknown_03002F90 + 0x60
+        gUnknown_03002F90.unk80 = gFont4JapaneseGlyphWidths[glyphId];     // gGlyphWidth
+        gUnknown_03002F90.unk81 = 15;    // gGlyphHeight
+    }
+    else
+    {
+        glyphs = gFont4LatinGlyphs + (0x20 * glyphId);
+        gUnknown_03002F90.unk80 = gFont4LatinGlyphWidths[glyphId];
+
+        if (gUnknown_03002F90.unk80 <= 8)
+        {
+            DecompressGlyphTile(glyphs, gUnknown_03002F90.unk0);
+            DecompressGlyphTile(glyphs + 0x10, gUnknown_03002F90.unk40);
+        }
+        else
+        {
+            DecompressGlyphTile(glyphs, gUnknown_03002F90.unk0);
+            DecompressGlyphTile(glyphs + 0x8, gUnknown_03002F90.unk20);
+            DecompressGlyphTile(glyphs + 0x10, gUnknown_03002F90.unk40);
+            DecompressGlyphTile(glyphs + 0x18, gUnknown_03002F90.unk60);
+        }
+
+        gUnknown_03002F90.unk81 = 15;
+    }
+}
+
+u32 GetGlyphWidthFont4(u16 glyphId, bool32 isJapanese)
+{
+    if (isJapanese == TRUE)
+        return gFont4JapaneseGlyphWidths[glyphId];
+    else
+        return gFont4LatinGlyphWidths[glyphId];
+}
+
+// Rocket (FrLg) font
 void DecompressGlyphFont2(u16 glyphId, bool32 isJapanese)
 {
     const u16* glyphs;
