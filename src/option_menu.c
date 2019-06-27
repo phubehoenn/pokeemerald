@@ -983,7 +983,7 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 	{
 		if (gMain.newKeys & DPAD_RIGHT)
 		{
-			if (selection < 3) //4 types of font
+			if (selection < 2) //4 types of font
 				selection++;
 			else
 				selection = 0;
@@ -993,7 +993,7 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 			if (selection > 0)
 				selection--;
 			else
-				selection = 3;
+				selection = 2;
 		}
 		sArrowPressed = TRUE;
 	}
