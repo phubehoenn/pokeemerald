@@ -160,7 +160,7 @@ extern const u8 gText_DowngradeToHardlockeMode[];
 extern const u8 gText_DowngradeToNuzlockeMode[];
 extern const u8 gText_AreYouSure[];
 extern const u8 gText_Nuzlocke[];
-extern const u8 gText_Deadlocke[];
+extern const u8 gText_HardlockeOrDeadlocke[];
 
 // Keyboard names
 const u8 *gKeyboardNameList[] = 
@@ -884,8 +884,8 @@ static u8 FullParty_ProcessInput(u8 selection, u8 taskId)
 {
 	if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
 	{
-		// Change option as normal if not in Deadlocke mode
-		if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_DEADLOCKE)
+		// Change option as normal if not in Hardlocke or Deadlocke mode
+		if (gSaveBlock2Ptr->nuzlockeMode < NUZLOCKE_MODE_HARDLOCKE)
 		{
 			selection ^= 1;
 			sArrowPressed = TRUE;
@@ -895,7 +895,7 @@ static u8 FullParty_ProcessInput(u8 selection, u8 taskId)
 		else
 		{
 			FillWindowPixelBuffer(WIN_DESCRIPTION, 0x11);
-			StringCopy(gStringVar1, gText_Deadlocke);
+			StringCopy(gStringVar1, gText_HardlockeOrDeadlocke);
 			StringExpandPlaceholders(gStringVar4, gText_CantBeChanged);
 			AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gStringVar4, 8, 1, TEXT_SPEED_FF, NULL);
 			CopyWindowToVram(WIN_DESCRIPTION, 3);

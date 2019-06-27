@@ -1251,15 +1251,23 @@ VerdanturfTown_PokemonCenter_1F_EventScript_27191E:: @ 827191E
 	lock
 	faceplayer
 
-@ Check if on Hardlocke mode or above, save game instead of heal if true
+@ Check if on Deadlocke mode, save game instead of heal if true
 	specialvar VAR_RESULT, GetNuzlockeMode
 	compare VAR_RESULT, 0
 	goto_if_eq nurse_joy_heal
 	compare VAR_RESULT, 1
 	goto_if_eq nurse_joy_heal
-	msgbox gWelcomeToPokemonCenterNuzlocke
+	compare VAR_RESULT, 2 @display another different message if on hardlocke mode
+	goto_if_eq nurse_joy_hardlocke
+	msgbox gWelcomeToPokemonCenterDeadlocke
 	call Common_EventScript_SaveGame
 	msgbox gUnknown_082727DB
+	release
+	end
+	
+@ Display unhelpful message and do nothing
+nurse_joy_hardlocke::
+	msgbox gWelcomeToPokemonCenterHardlocke
 	release
 	end
 	
@@ -1635,15 +1643,17 @@ EventScript_PC:: @ 8271D92
 	playse SE_PC_ON
 	msgbox Text_BootUpPC, MSGBOX_DEFAULT
 	
-	@ Can only use player pc in deadlocke mode
+	@ Can only use player pc in hardlocke and deadlocke modes
 	specialvar VAR_RESULT, GetNuzlockeMode
+	compare VAR_RESULT, 2 @hardlocke
+	goto_if_eq PC_PlayerOnly
 	compare VAR_RESULT, 3 @deadlocke
-	goto_if_eq PC_Deadlocke
+	goto_if_eq PC_PlayerOnly
 	
 	goto EventScript_271DAC
 	end
 	
-PC_Deadlocke:
+PC_PlayerOnly:
 	special PlayerPC
 	waitstate
 	goto EventScript_271E47
@@ -2549,8 +2559,12 @@ gText_AccessedLanettesPC:: @ 82726D4
 gUnknown_082726EB:: @ 82726EB
 	.string "Hello, and welcome to\nthe POKéMON CENTER.\pWe restore your tired POKéMON\nto full health.\pWould you like to rest your POKéMON?$"
 	
-@ Short version, called in Hardlocke or Deadlocke mode
-gWelcomeToPokemonCenterNuzlocke:: @ 82726EB
+@ Unhelpful version, called in Hardlocke mode
+gWelcomeToPokemonCenterHardlocke:: @ 82726EB
+	.string "Hello, and welcome to\nthe POKéMON CENTER.\pI'm afraid there is nothing\nI can do for you right now...\pYou can only heal your POKéMON\nhere if you lower your Nuzlocke level.\pWe hope to see you again!$"
+	
+@ Short version, called in Deadlocke mode
+gWelcomeToPokemonCenterDeadlocke:: @ 82726EB
 	.string "Hello, and welcome to\nthe POKéMON CENTER.$"
 
 gUnknown_08272768:: @ 8272768

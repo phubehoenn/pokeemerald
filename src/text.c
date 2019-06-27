@@ -1714,6 +1714,7 @@ u16 RenderText(struct TextPrinter *textPrinter)
             break;
         case 3:
 			DecompressGlyphFont3(currChar, textPrinter->japanese);
+			break;
         case 4:
         case 5:
             DecompressGlyphFont4(currChar, textPrinter->japanese);
