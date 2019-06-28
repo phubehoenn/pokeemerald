@@ -54,6 +54,7 @@ enum
     MENU_ACTION_POKEMON,
     MENU_ACTION_BAG,
     MENU_ACTION_POKENAV,
+	MENU_ACTION_WAIT,
     MENU_ACTION_PLAYER,
     MENU_ACTION_SAVE,
     MENU_ACTION_OPTION,
@@ -82,6 +83,7 @@ EWRAM_DATA static u8 sSafariBallsWindowId = 0;
 EWRAM_DATA static u8 sBattlePyramidFloorWindowId = 0;
 EWRAM_DATA static u8 sNuzlockeWindowId = 0;
 EWRAM_DATA static u8 sStartMenuCursorPos = 0;
+EWRAM_DATA static u8 sStartMenuScroll = 0;
 EWRAM_DATA static u8 sNumStartMenuActions = 0;
 EWRAM_DATA static u8 sCurrentStartMenuActions[9] = {0};
 EWRAM_DATA static u8 sUnknown_02037619[2] = {0};
@@ -166,6 +168,7 @@ static const struct MenuAction sStartMenuItems[] =
     {gText_MenuPokemon, {.u8_void = StartMenuPokemonCallback}},
     {gText_MenuBag, {.u8_void = StartMenuBagCallback}},
     {gText_MenuPokenav, {.u8_void = StartMenuPokeNavCallback}},
+	{gText_MenuWait, {.u8_void = StartMenuPlayerNameCallback}},
     {gText_MenuPlayer, {.u8_void = StartMenuPlayerNameCallback}},
     {gText_MenuSave, {.u8_void = StartMenuSaveCallback}},
     {gText_MenuOption, {.u8_void = StartMenuOptionCallback}},
@@ -214,7 +217,7 @@ static void ShowNuzlockeWindow(void);
 static void RemoveExtraStartMenuWindows(void);
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count);
 static bool32 InitStartMenuStep(void);
-static void InitStartMenu(void);
+static void InitStartMenu(u8 step);
 static void CreateStartMenuTask(TaskFunc followupFunc);
 static void InitSave(void);
 static u8 RunSaveCallback(void);
@@ -296,8 +299,15 @@ static void BuildNormalStartMenu(void)
         AddStartMenuAction(MENU_ACTION_POKENAV);
     }
 
+	AddStartMenuAction(MENU_ACTION_WAIT);
     AddStartMenuAction(MENU_ACTION_PLAYER);
-    AddStartMenuAction(MENU_ACTION_SAVE);
+	
+	// No save option on Deadlocke mode
+	if (gSaveBlock2Ptr->nuzlockeMode < NUZLOCKE_MODE_DEADLOCKE)
+	{
+		AddStartMenuAction(MENU_ACTION_SAVE);
+	}
+	
     AddStartMenuAction(MENU_ACTION_OPTION);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
@@ -308,6 +318,7 @@ static void BuildSafariZoneStartMenu(void)
     AddStartMenuAction(MENU_ACTION_POKEDEX);
     AddStartMenuAction(MENU_ACTION_POKEMON);
     AddStartMenuAction(MENU_ACTION_BAG);
+	AddStartMenuAction(MENU_ACTION_WAIT);
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_OPTION);
     AddStartMenuAction(MENU_ACTION_EXIT);
@@ -459,14 +470,14 @@ static bool32 PrintStartMenuActions(s8 *pIndex, u32 count)
 
     do
     {
-        if (sStartMenuItems[sCurrentStartMenuActions[index]].func.u8_void == StartMenuPlayerNameCallback)
+        if (sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].func.u8_void == StartMenuPlayerNameCallback)
         {
-            PrintPlayerNameOnWindow(GetStartMenuWindowId(), sStartMenuItems[sCurrentStartMenuActions[index]].text, 8, (index << 4) + 9);
+            PrintPlayerNameOnWindow(GetStartMenuWindowId(), sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text, 8, (index << 4) + 1);
         }
         else
         {
-            StringExpandPlaceholders(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index]].text);
-            AddTextPrinterParameterized(GetStartMenuWindowId(), 1, gStringVar4, 8, (index << 4) + 9, 0xFF, NULL);
+            StringExpandPlaceholders(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text);
+            AddTextPrinterParameterized(GetStartMenuWindowId(), 1, gStringVar4, 8, (index << 4) + 1, 0xFF, NULL);
         }
 
         index++;
@@ -487,6 +498,7 @@ static bool32 PrintStartMenuActions(s8 *pIndex, u32 count)
 static bool32 InitStartMenuStep(void)
 {
     s8 value = sUnknown_02037619[0];
+	u8 length;
 
     switch (value)
     {
@@ -499,7 +511,8 @@ static bool32 InitStartMenuStep(void)
         break;
     case 2:
         sub_81973A4();
-        DrawStdWindowFrame(sub_81979C4(sNumStartMenuActions), FALSE);
+		// Create start menu window
+        DrawStdWindowFrame(sub_81979C4(sNumStartMenuActions), FALSE); // Never more than 7 options
         sUnknown_02037619[1] = 0;
         sUnknown_02037619[0]++;
         break;
@@ -518,7 +531,12 @@ static bool32 InitStartMenuStep(void)
             sUnknown_02037619[0]++;
         break;
     case 5:
-        sStartMenuCursorPos = sub_81983AC(GetStartMenuWindowId(), 1, 0, 9, 16, sNumStartMenuActions, sStartMenuCursorPos);
+		// Create no more than 7 options
+		if (sNumStartMenuActions > 7)
+			length = 7;
+		else
+			length = sNumStartMenuActions;
+        sStartMenuCursorPos = sub_81983AC(GetStartMenuWindowId(), 1, 0, 1, 16, length, sStartMenuCursorPos);
         CopyWindowToVram(GetStartMenuWindowId(), TRUE);
         return TRUE;
     }
@@ -526,9 +544,9 @@ static bool32 InitStartMenuStep(void)
     return FALSE;
 }
 
-static void InitStartMenu(void)
+static void InitStartMenu(u8 step)
 {
-    sUnknown_02037619[0] = 0;
+    sUnknown_02037619[0] = step; // Step = 4 when updating the start menu whilst scrolling
     sUnknown_02037619[1] = 0;
     while (!InitStartMenuStep())
         ;
@@ -605,25 +623,49 @@ static bool8 HandleStartMenuInput(void)
     if (gMain.newKeys & DPAD_UP)
     {
         PlaySE(SE_SELECT);
-        sStartMenuCursorPos = Menu_MoveCursor(-1);
+		// If cursor is at the top & menu is scrolled down, decrease scroll counter by 1
+		if (sStartMenuCursorPos == 0
+		 && sStartMenuScroll != 0)
+		{
+			sStartMenuScroll--;
+			// Clear start menu
+			FillWindowPixelBuffer(GetStartMenuWindowId(), PIXEL_FILL(1));
+			// Update text
+			InitStartMenu(4);
+		}
+		// Try to move cursor up
+		else
+			sStartMenuCursorPos = Menu_MoveCursorNoWrapAround(-1);
     }
 
     if (gMain.newKeys & DPAD_DOWN)
     {
         PlaySE(SE_SELECT);
-        sStartMenuCursorPos = Menu_MoveCursor(1);
+		// If cursor is at the bottom & last menu item isn't exit, increase scroll counter by 1
+		if (sStartMenuCursorPos > 5
+		 && sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll]].func.u8_void != StartMenuExitCallback)
+		{
+			sStartMenuScroll++;
+			// Clear start menu
+			FillWindowPixelBuffer(GetStartMenuWindowId(), PIXEL_FILL(1));
+			// Update text
+			InitStartMenu(4);
+		}
+		// Try to move cursor down
+		else
+			sStartMenuCursorPos = Menu_MoveCursorNoWrapAround(1);
     }
 
     if (gMain.newKeys & A_BUTTON)
     {
         PlaySE(SE_SELECT);
-        if (sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos]].func.u8_void == StartMenuPokedexCallback)
+        if (sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll]].func.u8_void == StartMenuPokedexCallback)
         {
             if (GetNationalPokedexCount(0) == 0)
                 return FALSE;
         }
 
-        gMenuCallback = sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos]].func.u8_void;
+        gMenuCallback = sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll]].func.u8_void;
 
         if (gMenuCallback != StartMenuSaveCallback
             && gMenuCallback != StartMenuExitCallback
@@ -831,7 +873,7 @@ static bool8 SaveCallback(void)
         return FALSE;
     case SAVE_CANCELED: // Back to start menu
         ClearDialogWindowAndFrameToTransparent(0, FALSE);
-        InitStartMenu();
+        InitStartMenu(0);
         gMenuCallback = HandleStartMenuInput;
         return FALSE;
     case SAVE_SUCCESS:
@@ -856,7 +898,7 @@ static bool8 BattlePyramidRetireStartCallback(void)
 
 static bool8 BattlePyramidRetireReturnCallback(void)
 {
-    InitStartMenu();
+    InitStartMenu(0);
     gMenuCallback = HandleStartMenuInput;
 
     return FALSE;

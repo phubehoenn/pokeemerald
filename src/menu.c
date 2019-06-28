@@ -479,10 +479,15 @@ u8 GetPlayerTextSpeedDelay(void)
     return 1;
 }
 
+// Calculates start menu size
 u8 sub_81979C4(u8 a1)
 {
+	// Never more than 7 options
+	if (a1 > 7)
+		a1 = 7;
+	
     if (sStartMenuWindowId == 0xFF)
-        sStartMenuWindowId = sub_8198AA4(0, 0x16, 1, 7, (a1 * 2) + 2, 0xF, 0x139);
+        sStartMenuWindowId = sub_8198AA4(0, 0x16, 1, 7, (a1 * 2), 0xF, 0x139);
     return sStartMenuWindowId;
 }
 
