@@ -120,6 +120,7 @@ static void SetDefaultData(void)
 	gSaveBlock2Ptr->regionMapZoom = FALSE;
 	gSaveBlock2Ptr->waitStatus = WAIT_UNABLE;
 	gSaveBlock2Ptr->waitTime = 60;
+	gSaveBlock2Ptr->startMenuRegister = 0xF;					//0xF means no registered option
 }
 
 static void ClearPokedexFlags(void)

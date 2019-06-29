@@ -1688,6 +1688,15 @@ void CB2_ReturnToFieldFromMultiplayer(void)
 
 void CB2_ReturnToFieldWithOpenMenu(void)
 {
+	// If start menu option is called via SELECT don't open start menu, just return to overworld
+	if (gMain.optionRegister)
+	{
+		// Also allow clock to update again
+		gMain.stopClockUpdating = FALSE;
+		gMain.optionRegister = FALSE;
+		CB2_ReturnToField();
+		return;
+    }
     FieldClearVBlankHBlankCallbacks();
     gFieldCallback2 = sub_80AF6A4;
     CB2_ReturnToField();

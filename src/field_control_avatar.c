@@ -83,6 +83,8 @@ void FieldClearPlayerInput(struct FieldInput *input)
     input->input_field_1_2 = FALSE;
     input->input_field_1_3 = FALSE;
     input->dpadDirection = 0;
+	input->pressedLButton = FALSE;
+    input->pressedRButton = FALSE;
 }
 
 void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
@@ -103,6 +105,10 @@ void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
                 input->pressedAButton = TRUE;
             if (newKeys & B_BUTTON)
                 input->pressedBButton = TRUE;
+			if (newKeys & L_BUTTON)
+                input->pressedLButton = TRUE;
+			if (newKeys & R_BUTTON)
+                input->pressedRButton = TRUE;
         }
 
         if (heldKeys & (DPAD_UP | DPAD_DOWN | DPAD_LEFT | DPAD_RIGHT))
@@ -184,7 +190,11 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
         ShowStartMenu();
         return TRUE;
     }
-    if (input->pressedSelectButton && UseRegisteredKeyItemOnField() == TRUE)
+	// Select pressed - use registered start menu option
+    if (input->pressedSelectButton && UseRegisteredMenuOption() == TRUE)
+        return TRUE;
+	// L or R button pressed - use registered key item (will be updated to use any item rather than just key items, & seperate items for L and R)
+	if ((input->pressedLButton || input->pressedRButton) && UseRegisteredKeyItemOnField() == TRUE)
         return TRUE;
 
     return FALSE;

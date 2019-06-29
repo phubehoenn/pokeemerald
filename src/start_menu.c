@@ -21,6 +21,7 @@
 #include "link.h"
 #include "load_save.h"
 #include "main.h"
+#include "map_name_popup.h"
 #include "menu.h"
 #include "new_game.h"
 #include "option_menu.h"
@@ -58,7 +59,7 @@ enum
     MENU_ACTION_PLAYER,
     MENU_ACTION_SAVE,
     MENU_ACTION_OPTION,
-    MENU_ACTION_EXIT,
+    MENU_ACTION_EXIT, //options past this point can't be registered - this is option 8
     MENU_ACTION_RETIRE_SAFARI,
     MENU_ACTION_PLAYER_LINK,
     MENU_ACTION_REST_FRONTIER,
@@ -85,7 +86,7 @@ EWRAM_DATA static u8 sNuzlockeWindowId = 0;
 EWRAM_DATA static u8 sStartMenuCursorPos = 0;
 EWRAM_DATA static u8 sStartMenuScroll = 0;
 EWRAM_DATA static u8 sNumStartMenuActions = 0;
-EWRAM_DATA static u8 sCurrentStartMenuActions[9] = {0};
+EWRAM_DATA static u8 sCurrentStartMenuActions[10] = {0};
 EWRAM_DATA static u8 sUnknown_02037619[2] = {0};
 
 EWRAM_DATA static u8 (*sSaveDialogCallback)(void) = NULL;
@@ -142,6 +143,9 @@ static void sub_80A08A4(u8 taskId);
 // Some other callback
 static bool8 sub_809FA00(void);
 
+// Script
+extern const u8 EventScript_NoRegisteredMenuOption[];
+
 static const struct WindowTemplate sSafariBallsWindowTemplate = {0, 1, 1, 9, 4, 0xF, 8};
 
 static const u8* const sPyramindFloorNames[] =
@@ -168,7 +172,7 @@ static const struct MenuAction sStartMenuItems[] =
     {gText_MenuPokemon, {.u8_void = StartMenuPokemonCallback}},
     {gText_MenuBag, {.u8_void = StartMenuBagCallback}},
     {gText_MenuPokenav, {.u8_void = StartMenuPokeNavCallback}},
-	{gText_MenuWait, {.u8_void = StartMenuPlayerNameCallback}},
+	{gText_MenuWait, {.u8_void = StartMenuPokedexCallback}},
     {gText_MenuPlayer, {.u8_void = StartMenuPlayerNameCallback}},
     {gText_MenuSave, {.u8_void = StartMenuSaveCallback}},
     {gText_MenuOption, {.u8_void = StartMenuOptionCallback}},
@@ -409,9 +413,9 @@ static void ShowPyramidFloorWindow(void)
 }
 
 // Color themes for each nuzlocke mode
-const u8 gNuzlockeColors[] = _("{COLOR_HIGHLIGHT_SHADOW GREEN WHITE LIGHT_GREY}");
-const u8 gHardlockeColors[] = _("{COLOR_HIGHLIGHT_SHADOW BLUE WHITE LIGHT_GREY}");
-const u8 gDeadlockeColors[] = _("{COLOR_HIGHLIGHT_SHADOW RED WHITE LIGHT_GREY}");
+const u8 gGreen[] = _("{COLOR GREEN}");
+const u8 gBlue[] = _("{COLOR BLUE}"); //also used for coloring the registered option text
+const u8 gRed[] = _("{COLOR RED}");
 
 // Creates the window to show the number of Pokemon lost in nuzlocke mode
 static void ShowNuzlockeWindow(void)
@@ -423,13 +427,13 @@ static void ShowNuzlockeWindow(void)
 	switch(gSaveBlock2Ptr->nuzlockeMode)
 	{
 		case NUZLOCKE_MODE_NUZLOCKE:
-			StringExpandPlaceholders(gStringVar4, gNuzlockeColors);
+			StringExpandPlaceholders(gStringVar4, gGreen);
 			break;
 		case NUZLOCKE_MODE_HARDLOCKE:
-			StringExpandPlaceholders(gStringVar4, gHardlockeColors);
+			StringExpandPlaceholders(gStringVar4, gBlue);
 			break;
 		case NUZLOCKE_MODE_DEADLOCKE:
-			StringExpandPlaceholders(gStringVar4, gDeadlockeColors);
+			StringExpandPlaceholders(gStringVar4, gRed);
 			break;
 	}
 	// Append "FAINTED:\n"
@@ -467,16 +471,29 @@ static void RemoveExtraStartMenuWindows(void)
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count)
 {
     s8 index = *pIndex;
+	bool8 blue = FALSE;
 
     do
     {
+		// is it the player's name being printed?
         if (sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].func.u8_void == StartMenuPlayerNameCallback)
         {
-            PrintPlayerNameOnWindow(GetStartMenuWindowId(), sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text, 8, (index << 4) + 1);
+			// make it blue if trainer card is registered
+			if (gSaveBlock2Ptr->startMenuRegister == sCurrentStartMenuActions[index + sStartMenuScroll])
+				blue = TRUE;
+			PrintPlayerNameOnWindow(GetStartMenuWindowId(), sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text, 8, (index << 4) + 1, blue);
         }
+		// any other menu option
         else
         {
-            StringExpandPlaceholders(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text);
+			// make blue if registered
+			if (gSaveBlock2Ptr->startMenuRegister == sCurrentStartMenuActions[index + sStartMenuScroll])
+			{
+				StringExpandPlaceholders(gStringVar4, gBlue);
+				StringAppend(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text);
+			}
+			else
+				StringExpandPlaceholders(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text);
             AddTextPrinterParameterized(GetStartMenuWindowId(), 1, gStringVar4, 8, (index << 4) + 1, 0xFF, NULL);
         }
 
@@ -548,6 +565,8 @@ static void InitStartMenu(u8 step)
 {
     sUnknown_02037619[0] = step; // Step = 4 when updating the start menu whilst scrolling
     sUnknown_02037619[1] = 0;
+	// Stop clock updating when menu is opened
+	gMain.stopClockUpdating = TRUE;
     while (!InitStartMenuStep())
         ;
 }
@@ -677,8 +696,38 @@ static bool8 HandleStartMenuInput(void)
 
         return FALSE;
     }
-
-    if (gMain.newKeys & (START_BUTTON | B_BUTTON))
+	
+	// Try to register option when select is pressed
+	if (gMain.newKeys & SELECT_BUTTON)
+    {
+		// Exit, retire (safari zone & pyramid), pyramid bag and link player name cannot be registered. These are options 0x8 onwards
+        if (sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll] > 7)
+        {
+			// Give player feedback by playing a sound effect
+			PlaySE(SE_BOO);
+        }
+		else
+		{
+			// Clear registered option if select is pressed over the same option that is registered
+			if (gSaveBlock2Ptr->startMenuRegister == sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll])
+			{
+				gSaveBlock2Ptr->startMenuRegister = 0xF; // 0xF means no option is registered
+			}
+			// Any other option will be registered
+			else
+			{
+				// Stores the option where the cursor is to saveblock 2
+				gSaveBlock2Ptr->startMenuRegister = sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll];
+			}
+			PlaySE(SE_SELECT);
+			// Clear start menu
+			FillWindowPixelBuffer(GetStartMenuWindowId(), PIXEL_FILL(1));
+			// Update text - this is needed to display the option as blue when it is registered instantly
+			InitStartMenu(4);
+		}
+    }
+	
+	if (gMain.newKeys & (START_BUTTON | B_BUTTON))
     {
         RemoveExtraStartMenuWindows();
         HideStartMenu();
@@ -978,6 +1027,10 @@ static void SaveGameTask(u8 taskId)
 
     DestroyTask(taskId);
     EnableBothScriptContexts();
+	// Allow clock to update again
+	gMain.stopClockUpdating = FALSE;
+	// Clear option register
+	gMain.optionRegister = FALSE;
 }
 
 static void sub_80A0014(void)
@@ -1418,7 +1471,7 @@ static void ShowSaveInfoWindow(void)
     AddTextPrinterParameterized(sSaveInfoWindowId, 1, gText_SavingPlayer, 0, yOffset, 0xFF, NULL);
     sub_819A344(0, gStringVar4, color);
     xOffset = GetStringRightAlignXOffset(1, gStringVar4, 0x70);
-    PrintPlayerNameOnWindow(sSaveInfoWindowId, gStringVar4, xOffset, yOffset);
+    PrintPlayerNameOnWindow(sSaveInfoWindowId, gStringVar4, xOffset, yOffset, FALSE);
 
     // Print badge count
     yOffset = 0x21;
@@ -1473,6 +1526,8 @@ static void HideStartMenuWindow(void)
 {
     ClearStdWindowAndFrame(GetStartMenuWindowId(), TRUE);
     RemoveStartMenuWindow();
+	// Clock can run again
+	gMain.stopClockUpdating = FALSE;
     ScriptUnfreezeEventObjects();
     ScriptContext2_Disable();
 }
@@ -1487,4 +1542,64 @@ void AppendToList(u8 *list, u8 *pos, u8 newEntry)
 {
     list[*pos] = newEntry;
     (*pos)++;
+}
+
+// Select is pressed in the overworld
+bool32 UseRegisteredMenuOption(void)
+{
+	// Hide map name in case it's being shown
+	HideMapNamePopUpWindow();
+	
+	// 0xF means no option is registered
+	if (gSaveBlock2Ptr->startMenuRegister != 0xF)
+	{
+		gMain.optionRegister = TRUE;
+		PlaySE(SE_SELECT);
+		RunRegisteredStartOption();
+		return;
+	}
+	// If nothing is registered, run script
+	else
+		ScriptContext1_SetupScript(EventScript_NoRegisteredMenuOption);
+	return TRUE;
+}
+
+// Runs the start menu option that is bound to select
+void RunRegisteredStartOption(void)
+{
+	// Stop clock updating as an option is run
+	gMain.stopClockUpdating = TRUE;
+	ScriptContext2_Enable();
+	
+	if (!gPaletteFade.active)
+    {	
+		// Save/wait are called differently
+		if (sStartMenuItems[gSaveBlock2Ptr->startMenuRegister].func.u8_void == StartMenuSaveCallback)
+			SaveGame();
+		// Create task if not save/wait
+		else
+			CreateTask(RegisteredOptionTask, 0x50);	
+	}
+
+	// No need to fade screen for save/wait
+	if (sStartMenuItems[gSaveBlock2Ptr->startMenuRegister].func.u8_void != StartMenuSaveCallback)
+		FadeScreen(1, 0);
+}
+
+// Creates the task itself
+void RegisteredOptionTask(u8 taskId)
+{
+    struct Task *task = &gTasks[taskId];
+
+    switch (task->data[0])
+    {
+    case 0:
+        gMenuCallback = sStartMenuItems[gSaveBlock2Ptr->startMenuRegister].func.u8_void;
+        task->data[0]++;
+        break;
+    case 1:
+        if (gMenuCallback() == 1)
+            DestroyTask(taskId);
+        break;
+    }
 }

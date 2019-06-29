@@ -39,6 +39,7 @@ struct Main
     /*0x439*/ u8 inBattle:1;
     /*0x439*/ u8 field_439_x4:1;
 	/*0x439*/ u8 stopClockUpdating:1; // In-game clock won't update if this is true
+	/*0x439*/ u8 optionRegister:1; 	  // True if the start menu option is being called using select button
 };
 
 extern const u8 gGameVersion;

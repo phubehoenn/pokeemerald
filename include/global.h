@@ -467,7 +467,7 @@ struct SaveBlock2
 	/*0x95*/ u8 timeDay:3;				   // 0-6 for Monday to Sunday
     /*0x96*/ u8 timeSeconds:6;			   // 0-59
 	/*0x97*/ u8 dayNightStatus:2;		   // 0 = DAWN, 1 = DAY, 2 = DUSK, 3 = NIGHT
-	/*0x97*/ u8 filler4b:4;
+	/*0x97*/ u8 startMenuRegister:4;	   // Stores the registered start menu option
     /*0x98*/ struct Time localTimeOffset;
     /*0xA0*/ struct Time lastBerryTreeUpdate;
     /*0xA8*/ u32 field_A8; // Written to, but never read.
