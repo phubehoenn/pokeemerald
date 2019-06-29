@@ -3,8 +3,6 @@
 
 extern bool8 (*gMenuCallback)(void);
 
-#define NUM_INFO_WINDOWS 3 // Time, weather, climate
-
 void sub_809FA18(void);
 void sub_809FA34(u8 taskId);
 void ShowStartMenu(void);

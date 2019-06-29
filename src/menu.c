@@ -2004,17 +2004,17 @@ void AddTextPrinterParameterized5(u8 windowId, u8 fontId, const u8 *str, u8 left
     AddTextPrinter(&printer, speed, callback);
 }
 
-const u8 gBlueText[] = _("{COLOR BLUE}");
+const u8 gRedText[] = _("{COLOR RED}");
 
-void PrintPlayerNameOnWindow(u8 windowId, const u8 *src, u16 x, u16 y, bool8 blue)
+void PrintPlayerNameOnWindow(u8 windowId, const u8 *src, u16 x, u16 y, bool8 red)
 {
     int count = 0;
     while (gSaveBlock2Ptr->playerName[count] != EOS)
         count++;
 	
-	if (blue) // Turns player name blue. Only used on start menu when trainer card is registered
+	if (red) // Turns player name red. Only used on start menu when trainer card is registered
 	{
-		StringExpandPlaceholders(gStringVar4, gBlueText);
+		StringExpandPlaceholders(gStringVar4, gRedText);
 		// For some reason, using src doesn't work here... but seeing as it's always the player's name this shouldn't be a problem??
 		StringAppend(gStringVar4, gSaveBlock2Ptr->playerName);
 	}
