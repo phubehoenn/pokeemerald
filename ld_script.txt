@@ -120,6 +120,7 @@ SECTIONS {
         src/clock.o(.text);
         src/reset_rtc_screen.o(.text);
         src/start_menu.o(.text);
+		src/start_menu.o(.data);
         src/tileset_anims.o(.text);
         src/palette.o(.text);
         src/sound.o(.text);

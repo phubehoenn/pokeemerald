@@ -123,6 +123,19 @@ static void SetDefaultData(void)
 	gSaveBlock2Ptr->startMenuRegister = 0xF;					//0xF means no registered option
 }
 
+// Sets default game time - 9AM Tuesday, Week 1, Spring, random year
+void SetDefaultGameTime(void)
+{
+	gSaveBlock2Ptr->timeSeconds = 0;
+	gSaveBlock2Ptr->timeMinute = 0;
+	gSaveBlock2Ptr->timeHour = TIME_HOUR_9AM;
+	UpdateDayNightStatus();
+	gSaveBlock2Ptr->timeDay = TIME_DAY_TUESDAY;
+	gSaveBlock2Ptr->timeWeek = TIME_WEEK_1;
+	gSaveBlock2Ptr->timeSeason = TIME_SEASON_SPRING;
+	gSaveBlock2Ptr->timeYear = Random() % 8;
+}
+
 static void ClearPokedexFlags(void)
 {
     gUnusedPokedexU8 = 0;
@@ -232,6 +245,7 @@ void NewGameInitData(void)
 	// Default options is now set here
 	SetDefaultOptions();
 	SetDefaultData();
+	SetDefaultGameTime();
 }
 
 static void ResetMiniGamesResults(void)

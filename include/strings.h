@@ -242,6 +242,34 @@ extern const u8 gText_MenuOptionSave[];
 extern const u8 gText_MenuOptionOption[];
 extern const u8 gText_MenuOptionExit[];
 
+// Clock strings
+extern const u8 gText_TimeAM[];
+extern const u8 gText_TimePM[];
+
+extern const u8 gText_TimeDNSpacer[];
+extern const u8 gText_TimeDawn[];
+extern const u8 gText_TimeDay[];
+extern const u8 gText_TimeDusk[];
+extern const u8 gText_TimeNight[];
+	
+extern const u8 gText_TimeDaySpacer[];
+extern const u8 gText_TimeMonday[];
+extern const u8 gText_TimeTuesday[];
+extern const u8 gText_TimeWednesday[];
+extern const u8 gText_TimeThursday[];
+extern const u8 gText_TimeFriday[];
+extern const u8 gText_TimeSaturday[];
+extern const u8 gText_TimeSunday[];
+
+extern const u8 gText_TimeSeasonSpacer[];
+extern const u8 gText_TimeEarly[];
+extern const u8 gText_TimeLate[];
+	
+extern const u8 gText_TimeSpring[];
+extern const u8 gText_TimeSummer[];
+extern const u8 gText_TimeFall[];
+extern const u8 gText_TimeWinter[];
+
 // save menu texts
 extern const u8 gText_ConfirmSave[];
 extern const u8 gText_ConfirmSaveNuzlocke[];

@@ -28,6 +28,7 @@
 #include "overworld.h"
 #include "palette.h"
 #include "party_menu.h"
+#include "play_time.h"
 #include "pokedex.h"
 #include "pokenav.h"
 #include "safari_zone.h"
@@ -67,6 +68,14 @@ enum
     MENU_ACTION_PYRAMID_BAG
 };
 
+// Info windows
+enum
+{
+	INFO_TIME,
+	INFO_WEATHER,
+	INFO_CLIMATE
+};
+
 // Save status
 enum
 {
@@ -76,6 +85,18 @@ enum
     SAVE_ERROR
 };
 
+// Clock strings
+const u8 *gAMPMLookup[2] = { gText_TimeAM, gText_TimePM };
+const u8 *gDayLookup[7] = { gText_TimeMonday, gText_TimeTuesday, gText_TimeWednesday, gText_TimeThursday, gText_TimeFriday, gText_TimeSaturday, gText_TimeSunday };
+const u8 *gDNStatusLookup[4] = { gText_TimeDawn, gText_TimeDay, gText_TimeDusk, gText_TimeNight };
+const u8 *gEarlyLateLookup[2] = { gText_TimeEarly, gText_TimeLate };
+const u8 *gSeasonLookup[4] = { gText_TimeSpring, gText_TimeSummer, gText_TimeFall, gText_TimeWinter };
+
+extern const u8 gText_TimeDNSpacer[];
+extern const u8 gText_TimeDaySpacer[];
+
+extern const u8 gText_TimeSeasonSpacer[];
+
 // IWRAM common
 bool8 (*gMenuCallback)(void);
 
@@ -83,6 +104,8 @@ bool8 (*gMenuCallback)(void);
 EWRAM_DATA static u8 sSafariBallsWindowId = 0;
 EWRAM_DATA static u8 sBattlePyramidFloorWindowId = 0;
 EWRAM_DATA static u8 sNuzlockeWindowId = 0;
+EWRAM_DATA static u8 sInfoWindowId = 0;
+EWRAM_DATA static u8 sActiveInfoWindow = 0;
 EWRAM_DATA static u8 sStartMenuCursorPos = 0;
 EWRAM_DATA static u8 sStartMenuScroll = 0;
 EWRAM_DATA static u8 sNumStartMenuActions = 0;
@@ -163,8 +186,11 @@ static const u8* const sPyramindFloorNames[] =
 static const struct WindowTemplate sPyramidFloorWindowTemplate_2 = {0, 1, 1, 0xA, 4, 0xF, 8};
 static const struct WindowTemplate sPyramidFloorWindowTemplate_1 = {0, 1, 1, 0xC, 4, 0xF, 8};
 
+// Information pane at the bottom
+static const struct WindowTemplate sInfoWindowTemplate = {0, 2, 17, 26, 2, 0xF, 8};
+
 // Window to count fainted mons in Nuzlocke mode
-static const struct WindowTemplate sNuzlockeWindowTemplate = {0, 1, 1, 6, 4, 0xF, 8};
+static const struct WindowTemplate sNuzlockeWindowTemplate = {0, 1, 1, 6, 4, 0xF, 62};
 
 static const struct MenuAction sStartMenuItems[] =
 {
@@ -218,6 +244,7 @@ static void BuildMultiBattleRoomStartMenu(void);
 static void ShowSafariBallsWindow(void);
 static void ShowPyramidFloorWindow(void);
 static void ShowNuzlockeWindow(void);
+static void ShowInfoWindow(void);
 static void RemoveExtraStartMenuWindows(void);
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count);
 static bool32 InitStartMenuStep(void);
@@ -415,7 +442,7 @@ static void ShowPyramidFloorWindow(void)
 // Color themes for each nuzlocke mode
 const u8 gGreen[] = _("{COLOR GREEN}");
 const u8 gBlue[] = _("{COLOR BLUE}"); //also used for coloring the registered option text
-const u8 gRed[] = _("{COLOR RED}");
+const u8 gRed[] = _("{COLOR RED}"); //also used for coloring info pane stuff
 
 // Creates the window to show the number of Pokemon lost in nuzlocke mode
 static void ShowNuzlockeWindow(void)
@@ -447,8 +474,92 @@ static void ShowNuzlockeWindow(void)
     CopyWindowToVram(sNuzlockeWindowId, 2);
 }
 
+// Creates the information pane at the bottom which displays time, weather etc
+static void ShowInfoWindow(void)
+{
+	int hour;
+	bool8 isPM = FALSE; //FALSE = AM, TRUE = PM
+	bool8 isLate = FALSE; //FALSE = early season, TRUE = late season
+	
+    sInfoWindowId = AddWindow(&sInfoWindowTemplate);
+    PutWindowTilemap(sInfoWindowId);
+    DrawStdWindowFrame(sInfoWindowId, FALSE);
+	
+	// Get text to print
+	switch (sActiveInfoWindow)
+	{
+		case INFO_TIME:
+			// Begin by turning hour red
+			StringExpandPlaceholders(gStringVar4, gRed);
+			// Get current hour
+			hour = gSaveBlock2Ptr->timeHour;
+			// If hour = 0, add 12 for 12AM (midnight)
+			if (hour == 0)
+				hour += 12;
+			else
+			{
+				// If 1pm or after, subtract 12 then set it to PM
+				if (hour > 12)
+				{
+					hour -= 12;
+					isPM = TRUE;
+				}
+				// If 12pm or earlier, enable PM
+				else if (hour == 12)
+					isPM = TRUE;
+				// Otherwise is below 12pm, do nothing
+			}
+			// Finally convert to integer, store in gStringVar1
+			ConvertIntToDecimalStringN(gStringVar1, hour, STR_CONV_MODE_RIGHT_ALIGN, 2);
+			// Then append to gStringVar4
+			StringAppend(gStringVar4, gStringVar1);
+			// Then append AM or PM
+			StringAppend(gStringVar4, gAMPMLookup[isPM]);
+			// Append day/night status spacer
+			StringAppend(gStringVar4, gText_TimeDNSpacer);
+			// Append day/night status
+			StringAppend(gStringVar4, gDNStatusLookup[gSaveBlock2Ptr->dayNightStatus]);
+			// Append day spacer
+			StringAppend(gStringVar4, gText_TimeDaySpacer);
+			// Append day
+			StringAppend(gStringVar4, gDayLookup[gSaveBlock2Ptr->timeDay]);
+			// Append season spacer
+			StringAppend(gStringVar4, gText_TimeSeasonSpacer);
+			// If Friday-Sunday & Week 1, it's late season
+			if (gSaveBlock2Ptr->timeDay > TIME_DAY_THURSDAY
+			 && gSaveBlock2Ptr->timeWeek == TIME_WEEK_1)
+			{
+				isLate = TRUE;
+				StringAppend(gStringVar4, gEarlyLateLookup[isLate]);
+			}
+			// If Monday-Wednesday & Week 0, it's early season
+			else if (gSaveBlock2Ptr->timeDay < TIME_DAY_THURSDAY
+			 && gSaveBlock2Ptr->timeWeek == TIME_WEEK_0)
+			{
+				StringAppend(gStringVar4, gEarlyLateLookup[isLate]);
+			}
+			// Make season text red
+			StringAppend(gStringVar4, gRed);
+			// Append season
+			StringAppend(gStringVar4, gSeasonLookup[gSaveBlock2Ptr->timeSeason]);
+			break;
+		case INFO_WEATHER:
+			break;
+		case INFO_CLIMATE:
+			break;
+	}
+	
+	// Print text
+    AddTextPrinterParameterized(sInfoWindowId, 1, gStringVar4, 0, 1, 0xFF, NULL);
+    CopyWindowToVram(sInfoWindowId, 2);
+}
+
 static void RemoveExtraStartMenuWindows(void)
 {
+	// Remove info window
+	ClearStdWindowAndFrameToTransparent(sInfoWindowId, FALSE);
+    RemoveWindow(sInfoWindowId);
+		
     if (GetSafariZoneFlag())
     {
         ClearStdWindowAndFrameToTransparent(sSafariBallsWindowId, FALSE);
@@ -463,7 +574,6 @@ static void RemoveExtraStartMenuWindows(void)
 	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
 	{
 		ClearStdWindowAndFrameToTransparent(sNuzlockeWindowId, FALSE);
-		CopyWindowToVram(sNuzlockeWindowId, 2);
         RemoveWindow(sNuzlockeWindowId);
 	}
 }
@@ -521,6 +631,8 @@ static bool32 InitStartMenuStep(void)
     {
     case 0:
         sUnknown_02037619[0]++;
+		// Stop clock updating when menu is opened
+		gMain.stopClockUpdating = TRUE;
         break;
     case 1:
         BuildStartMenuActions();
@@ -541,6 +653,8 @@ static bool32 InitStartMenuStep(void)
 		// Show nuzlocke window if in Nuzlocke mode
 		else if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
 			ShowNuzlockeWindow();
+		// Always show info window
+		ShowInfoWindow();
         sUnknown_02037619[0]++;
         break;
     case 4:
@@ -565,8 +679,6 @@ static void InitStartMenu(u8 step)
 {
     sUnknown_02037619[0] = step; // Step = 4 when updating the start menu whilst scrolling
     sUnknown_02037619[1] = 0;
-	// Stop clock updating when menu is opened
-	gMain.stopClockUpdating = TRUE;
     while (!InitStartMenuStep())
         ;
 }

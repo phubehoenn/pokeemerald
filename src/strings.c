@@ -1589,6 +1589,35 @@ const u8 gText_Floor5[] = _("Floor 5");
 const u8 gText_Floor6[] = _("Floor 6");
 const u8 gText_Floor7[] = _("Floor 7");
 const u8 gText_Peak[] = _("Peak");
+
+// Clock strings
+const u8 gText_TimeAM[] = _("AM$");
+const u8 gText_TimePM[] = _("PM$");
+
+const u8 gText_TimeDNSpacer[] = _("{COLOR DARK_GREY} (");
+const u8 gText_TimeDawn[] = _("dawn$");
+const u8 gText_TimeDay[] = _("day$");
+const u8 gText_TimeDusk[] = _("dusk$");
+const u8 gText_TimeNight[] = _("night$");
+
+const u8 gText_TimeDaySpacer[] = _("), {COLOR RED}$");
+const u8 gText_TimeMonday[] = _("Monday$");
+const u8 gText_TimeTuesday[] = _("Tuesday$");
+const u8 gText_TimeWednesday[] = _("Wednesday$");
+const u8 gText_TimeThursday[] = _("Thursday$");
+const u8 gText_TimeFriday[] = _("Friday$");
+const u8 gText_TimeSaturday[] = _("Saturday$");
+const u8 gText_TimeSunday[] = _("Sunday$");
+
+const u8 gText_TimeSeasonSpacer[] = _("{COLOR DARK_GREY}, $");
+const u8 gText_TimeEarly[] = _("early $");
+const u8 gText_TimeLate[] = _("late $");
+	
+const u8 gText_TimeSpring[] = _("Spring$");
+const u8 gText_TimeSummer[] = _("Summer$");
+const u8 gText_TimeFall[] = _("Fall$");
+const u8 gText_TimeWinter[] = _("Winter$");
+
 const u8 gText_LinkStandby2[] = _("Link standby…\n… … B Button: Cancel");
 const u8 gText_PressAToLoadEvent[] = _("Press the A Button to load event.\n… … B Button: Cancel");
 const u8 gText_LoadingEvent[] = _("Loading event…");
