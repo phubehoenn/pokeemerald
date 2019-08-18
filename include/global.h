@@ -457,8 +457,8 @@ struct SaveBlock2
     /*0x18*/ struct Pokedex pokedex;
     /*0x90*/ u8 filler_90[0x3];
 	/*0x93*/ u8 freezeNuzlocke:1;		   // Nuzlocke mode can't be changed when this is enabled
-	/*0x93*/ u8 waitStatus:1;			   // UNUSED RIGHT NOW - 0 = WAIT_UNABLE, 1 = WAIT_ABLE
-	/*0x93*/ u8 waitTime:6;				   // UNUSED RIGHT NOW - Holds the amount of time the player can wait
+	/*0x93*/ u8 waitStatus:1;			   // 0 = WAIT_UNABLE, 1 = WAIT_ABLE
+	/*0x93*/ u8 waitTime:6;				   // Holds the amount of time the player can wait
 	/*0x94*/ u8 timeYear:3;			       // 0-7. Randomised at the start of the game. Different world events happen depending on the current year. Rolls over to 0
 	/*0x94*/ u8 timeSeason:2;			   // 0 = SPRING, 1 = SUMMER, 2 = FALL, 3 = WINTER
 	/*0x94*/ u8 timeWeek:1;			       // 0 = First half of season, 1 = second half of season

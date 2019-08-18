@@ -57,6 +57,7 @@ void PlayTimeCounter_Update()
         {
             gSaveBlock2Ptr->playTimeVBlanks = 0;
             gSaveBlock2Ptr->playTimeSeconds++;
+			gSaveBlock2Ptr->waitStatus = 1;
 
 			if (!gMain.stopClockUpdating && !gMain.inBattle) //stops clock updating in battle & in start menu/submenus such as bag
 				IncrementClockSecond(TRUE);

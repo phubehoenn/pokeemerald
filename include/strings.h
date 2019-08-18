@@ -270,6 +270,15 @@ extern const u8 gText_TimeSummer[];
 extern const u8 gText_TimeFall[];
 extern const u8 gText_TimeWinter[];
 
+// wait menu texts
+extern const u8 gText_HowLongToWait[];
+extern const u8 gText_YouCantWaitNow[];
+extern const u8 gText_WaitingTooOften[];
+extern const u8 gText_HoursRemaining[];
+extern const u8 gText_Hour[];
+extern const u8 gText_S[];
+extern const u8 gText_NotEnoughTime[];
+
 // save menu texts
 extern const u8 gText_ConfirmSave[];
 extern const u8 gText_ConfirmSaveNuzlocke[];
