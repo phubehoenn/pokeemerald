@@ -542,8 +542,6 @@ static void ShowClockWindow(void)
 	StringExpandPlaceholders(gStringVar4, gRed);
 	// Copy hour strings to gStringVar2
 	CopyHourStrings();
-	// Append hour strings to gStringVar4
-	StringAppend(gStringVar4, gStringVar2);
 	// Append day spacer
 	StringAppend(gStringVar4, gText_TimeDaySpacer);
 	// Append day
