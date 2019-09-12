@@ -21,7 +21,7 @@ int msort_r(void * data, size_t count, size_t size, cmpfun cmp, void * buffer) {
     void * rightPtr;
     void * leftEnd;
     void * rightEnd;
-    int i;
+    unsigned int i;
 
     switch (count) {
     case 0:
