@@ -169,12 +169,6 @@ const u8 *gKeyboardNameList[] =
 	gKeyboardText_QWERTYPlus, 
 	gKeyboardText_ABC, 
 	gKeyboardText_ABCPlus, 
-	gKeyboardText_AZERTY, 
-	gKeyboardText_AZERTYPlus, 
-	gKeyboardText_Dvorak, 
-	gKeyboardText_DvorakPlus, 
-	gKeyboardText_Colemak, 
-	gKeyboardText_ColemakPlus, 
 	gKeyboardText_Vanilla
 };
 
@@ -547,6 +541,7 @@ static void Task_OptionMenuProcessInput(u8 taskId)
         if (sArrowPressed)
         {
             sArrowPressed = FALSE;
+			//AddScrollIndicatorArrowPairParameterized(SCROLL_ARROW_UP, 172, 12, 148, MENUITEM_COUNT - 6, 0xB5E, 0xB5E, &(gTasks[taskId].data[TD_MENUSELECTION]));
             CopyWindowToVram(WIN_OPTIONS, 2);
         }
     }
@@ -955,7 +950,7 @@ static u8 Keyboard_ProcessInput(u8 selection, u8 taskId)
 	{
 		if (gMain.newKeys & DPAD_RIGHT)
 		{
-			if (selection < 10)
+			if (selection < 4)
 				selection++;
 			else
 				selection = 0;
@@ -965,7 +960,7 @@ static u8 Keyboard_ProcessInput(u8 selection, u8 taskId)
 			if (selection > 0)
 				selection--;
 			else
-				selection = 10;
+				selection = 4;
 		}
 		sArrowPressed = TRUE;
 	}
@@ -981,9 +976,10 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 {
 	if ((gMain.newKeys & DPAD_RIGHT) || (gMain.newKeys & DPAD_LEFT))
 	{
+		// This is left intentionally complex to allow additional fonts to be re-enabled
 		if (gMain.newKeys & DPAD_RIGHT)
 		{
-			if (selection < 2) //4 types of font
+			if (selection < 1) //2 types of font
 				selection++;
 			else
 				selection = 0;
@@ -993,7 +989,7 @@ static u8 Font_ProcessInput(u8 selection, u8 taskId)
 			if (selection > 0)
 				selection--;
 			else
-				selection = 2;
+				selection = 1;
 		}
 		sArrowPressed = TRUE;
 	}

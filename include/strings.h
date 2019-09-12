@@ -358,12 +358,6 @@ extern const u8 gKeyboardText_QWERTY[];
 extern const u8 gKeyboardText_QWERTYPlus[];
 extern const u8 gKeyboardText_ABC[];
 extern const u8 gKeyboardText_ABCPlus[];
-extern const u8 gKeyboardText_AZERTY[];
-extern const u8 gKeyboardText_AZERTYPlus[];
-extern const u8 gKeyboardText_Dvorak[];
-extern const u8 gKeyboardText_DvorakPlus[];
-extern const u8 gKeyboardText_Colemak[];
-extern const u8 gKeyboardText_ColemakPlus[];
 extern const u8 gKeyboardText_Vanilla[];
 	
 extern const u8 gFontText_Rocket[];

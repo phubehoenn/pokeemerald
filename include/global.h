@@ -456,7 +456,8 @@ struct SaveBlock2
 	/*0x13*/ u8 optionsBikeMode:1;		   // OPTIONS_BIKE_MODE_[HOLD_B/AUTO]
 	/*0x13*/ u8 optionsFullParty:1;		   // OPTIONS_FULL_PARTY_[SWAP/SEND_TO_PC]
 	/*0x13*/ u8 optionsFont:2;			   // 0 = ROCKET, 1 = MAGMA, 2 = AQUA, 3 = GALACTIC
-	/*0x13*/ u8 optionsKeyboard:4;		   // 0 = QWERTY, 1 = QWERTY+, 2 = ABC, 3 = ABC+, 4 = AZERTY, 5 = AZERTY+, 6 = DVORAK, 7 = DVORAK+, 8 = COLEMAK, 9 = COLEMAK+, 10 = VANILLA
+	/*0x13*/ u8 optionsKeyboard:3;		   // 0 = QWERTY, 1 = QWERTY+, 2 = ABC, 3 = ABC+, 5 = VANILLA
+	/*0x13*/ u8 filler1b:1;		   		   // Unused
     /*0x14*/ u16 optionsQuickFlee:1;       // [ON/OFF] gives an option to run before a mon is sent out
 	/*0x14*/ u16 optionsLowHPSound:1;	   // [ON/OFF] stops beeping sound on low HP
 	/*0x14*/ u16 optionsKeypadSound:1;     // [ON/OFF] stops keypad beeping sound
