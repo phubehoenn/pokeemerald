@@ -50,6 +50,8 @@
 #define PYRAMID_BAG_ITEMS_COUNT 10
 #define HALL_FACILITIES_COUNT 9 // 7 facilities for single mode + tower double mode + tower multi mode.
 
+#define TRAINER_ID_LENGTH 4
+
 // string lengths
 #define ITEM_NAME_LENGTH 14
 #define POKEMON_NAME_LENGTH 10
@@ -106,5 +108,15 @@
 #define NUZLOCKE_MODE_NUZLOCKE 1
 #define NUZLOCKE_MODE_HARDLOCKE 2
 #define NUZLOCKE_MODE_DEADLOCKE 3
+
+#define DIR_NONE        0
+#define DIR_SOUTH       1
+#define DIR_NORTH       2
+#define DIR_WEST        3
+#define DIR_EAST        4
+#define DIR_SOUTHWEST   5
+#define DIR_SOUTHEAST   6
+#define DIR_NORTHWEST   7
+#define DIR_NORTHEAST   8
 
 #endif // GUARD_CONSTANTS_GLOBAL_H
