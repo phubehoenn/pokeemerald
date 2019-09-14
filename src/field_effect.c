@@ -715,8 +715,13 @@ void FieldEffectScript_LoadTiles(u8 **script)
 void FieldEffectScript_LoadFadedPalette(u8 **script)
 {
     struct SpritePalette *palette = (struct SpritePalette *)FieldEffectScript_ReadWord(script);
-    LoadSpritePalette(palette);
-    UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(palette->tag));
+    TagSpritePalette(palette);
+	LoadPaletteWithDayNightFilter(palette->data, 16 * IndexOfSpritePaletteTag(palette->tag) + 0x100, 1);
+	
+	// Weather no longer affects these field effects as the gamma effect from vanilla weather is being removed
+	//LoadSpritePalette(palette);
+    //UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(palette->tag));
+	
     (*script) += 4;
 }
 

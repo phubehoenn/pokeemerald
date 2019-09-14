@@ -146,8 +146,11 @@ extern const u16 gUnknown_083970E8[];
 
 // field_weather_effect.c
 extern const u8 gWeatherFog1Tiles[];
+extern const u16 gCloudsWeatherPalette[];
+extern const u16 gSandstormWeatherPalette[];
 
 void StartWeather(void);
+u8 UpdateWeatherPal(void);
 void SetNextWeather(u8 weather);
 void SetCurrentAndNextWeather(u8 weather);
 void SetCurrentAndNextWeatherNoDelay(u8 weather);

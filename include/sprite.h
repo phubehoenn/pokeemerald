@@ -301,6 +301,7 @@ u16 GetSpriteTileTagByTileStart(u16 start);
 void RequestSpriteSheetCopy(const struct SpriteSheet *sheet);
 u16 LoadSpriteSheetDeferred(const struct SpriteSheet *sheet);
 void FreeAllSpritePalettes(void);
+u8 TagSpritePalette(const struct SpritePalette *palette);
 u8 LoadSpritePalette(const struct SpritePalette *palette);
 void LoadSpritePalettes(const struct SpritePalette *palettes);
 u8 AllocSpritePalette(u16 tag);

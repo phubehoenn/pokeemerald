@@ -79,7 +79,7 @@ void RemoveEventObjectByLocalIdAndMap(u8, u8, u8);
 void LoadPlayerObjectReflectionPalette(u16, u8);
 void LoadSpecialObjectReflectionPalette(u16, u8);
 void TryMoveEventObjectToMapCoords(u8, u8, u8, s16, s16);
-void PatchObjectPalette(u16, u8);
+void PatchObjectPalette(u16, u8, bool8);
 void sub_808E16C(s16, s16);
 void OverrideSecretBaseDecorationSpriteScript(u8 localId, u8 mapNum, u8 mapGroup, u8 decorCat);
 void sub_8092FF0(s16, s16, s16 *, s16 *);

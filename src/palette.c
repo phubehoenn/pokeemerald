@@ -1,4 +1,8 @@
 #include "global.h"
+#include "day_night_filter.h"
+#include "fieldmap.h"
+#include "constants/map_types.h"
+#include "play_time.h"
 #include "palette.h"
 #include "util.h"
 #include "decompress.h"
@@ -90,6 +94,40 @@ void LoadPalette(const void *src, u16 offset, u16 size)
 {
     CpuCopy16(src, gPlttBufferUnfaded + offset, size);
     CpuCopy16(src, gPlttBufferFaded + offset, size);
+}
+
+// Applies day/night filter to palette before loading
+// Also used to recalculate day/night filter
+void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size)
+{
+	int i;
+	u16 color;
+						   
+	// No need to filter in the day or indoors
+	// Custom filter colors overrides this
+	if ((gMapHeader.mapType == MAP_TYPE_UNDERGROUND
+	 || gMapHeader.mapType == MAP_TYPE_UNDERWATER
+	 || gMapHeader.mapType == MAP_TYPE_INDOOR
+	 || gMapHeader.mapType == MAP_TYPE_SECRET_BASE
+	 || gSaveBlock2Ptr->dayNightStatus == TIME_DAY)
+	 && (gSaveBlock2Ptr->screenFilterCoeff == 0
+	 && gSaveBlock2Ptr->screenFilterColor == 0))
+	{
+		LoadPalette(src, offset, size * 32); // This needs to happen as size now refers to number of palettes rather than number of colors
+		return;
+	}
+	
+	// Loops through the palette
+	for (i = 0; i < size * 16; i++)
+	{
+		// Copies the color
+		CpuCopy16(src + (i * 2), &color, 2);
+		// The color is filtered
+		color = DoDayNightFilter(color);
+		// Color is written to gPlttBufferUnfaded and gPlttBufferFaded
+		CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
+		CpuFill16(color, gPlttBufferFaded + offset + i, 2);
+	}
 }
 
 void FillPalette(u16 value, u16 offset, u16 size)

@@ -120,6 +120,8 @@ static void SetDefaultData(void)
 	gSaveBlock2Ptr->waitStatus = WAIT_UNABLE;
 	gSaveBlock2Ptr->waitTime = 60;
 	gSaveBlock2Ptr->startMenuRegister = 0xF;					//0xF means no registered option
+	gSaveBlock2Ptr->screenFilterColor = 0;						//no custom screen filter
+	gSaveBlock2Ptr->screenFilterCoeff = 0;
 }
 
 // Sets default game time - 9AM Tuesday, Week 1, Spring, random year

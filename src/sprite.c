@@ -1585,6 +1585,27 @@ void FreeAllSpritePalettes(void)
         sSpritePaletteTags[i] = 0xFFFF;
 }
 
+// Writes a tag without loading palette for very niche uses
+u8 TagSpritePalette(const struct SpritePalette *palette)
+{
+    u8 index = IndexOfSpritePaletteTag(palette->tag);
+
+    if (index != 0xFF)
+        return index;
+
+    index = IndexOfSpritePaletteTag(0xFFFF);
+
+    if (index == 0xFF)
+    {
+        return 0xFF;
+    }
+    else
+    {
+        sSpritePaletteTags[index] = palette->tag;
+        return index;
+    }
+}
+
 u8 LoadSpritePalette(const struct SpritePalette *palette)
 {
     u8 index = IndexOfSpritePaletteTag(palette->tag);

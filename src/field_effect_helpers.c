@@ -93,7 +93,7 @@ static void LoadObjectRegularReflectionPalette(struct EventObject *eventObject, 
         }
         else
         {
-            PatchObjectPalette(GetObjectPaletteTag(paletteIndex), paletteIndex);
+            PatchObjectPalette(GetObjectPaletteTag(paletteIndex), paletteIndex, TRUE);
         }
         UpdateSpritePaletteWithWeather(paletteIndex);
     }
@@ -108,7 +108,7 @@ static void LoadObjectHighBridgeReflectionPalette(struct EventObject *eventObjec
     graphicsInfo = GetEventObjectGraphicsInfo(eventObject->graphicsId);
     if (graphicsInfo->paletteTag2 != EVENT_OBJ_PAL_TAG_NONE)
     {
-        PatchObjectPalette(graphicsInfo->paletteTag2, paletteNum);
+        PatchObjectPalette(graphicsInfo->paletteTag2, paletteNum, TRUE);
         UpdateSpritePaletteWithWeather(paletteNum);
     }
 }

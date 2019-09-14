@@ -1927,7 +1927,7 @@ void EventObjectSetGraphicsId(struct EventObject *eventObject, u8 graphicsId)
     paletteSlot = graphicsInfo->paletteSlot;
     if (paletteSlot == 0)
     {
-        PatchObjectPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot);
+        PatchObjectPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot, graphicsInfo->filter);
     }
     else if (paletteSlot == 10)
     {
@@ -2150,18 +2150,27 @@ static u8 sub_808E8F4(const struct SpritePalette *spritePalette)
     return LoadSpritePalette(spritePalette);
 }
 
-void PatchObjectPalette(u16 paletteTag, u8 paletteSlot)
+void PatchObjectPalette(u16 paletteTag, u8 paletteSlot, bool8 doFilter)
 {
     u8 paletteIndex = FindEventObjectPaletteIndexByTag(paletteTag);
 
-    LoadPalette(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 0x20);
+	// Does the sprite need to be affected by the day/night filter? (cut trees, boulders, reflections etc)
+	if (doFilter)
+		LoadPaletteWithDayNightFilter(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 1);
+	else
+		LoadPalette(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 0x20);
 }
 
 void PatchObjectPaletteRange(const u16 *paletteTags, u8 minSlot, u8 maxSlot)
 {
     while (minSlot < maxSlot)
     {
-        PatchObjectPalette(*paletteTags, minSlot);
+		// Only reflections are tinted
+		if (minSlot == 1
+		 || minSlot >= 6)
+			PatchObjectPalette(*paletteTags, minSlot, TRUE);
+		else
+			PatchObjectPalette(*paletteTags, minSlot, FALSE);
         paletteTags++;
         minSlot++;
     }
@@ -2185,12 +2194,12 @@ void LoadPlayerObjectReflectionPalette(u16 tag, u8 slot)
 {
     u8 i;
 
-    PatchObjectPalette(tag, slot);
+    PatchObjectPalette(tag, slot, TRUE);
     for (i = 0; gPlayerReflectionPaletteSets[i].tag != EVENT_OBJ_PAL_TAG_NONE; i++)
     {
         if (gPlayerReflectionPaletteSets[i].tag == tag)
         {
-            PatchObjectPalette(gPlayerReflectionPaletteSets[i].data[sCurrentReflectionType], gReflectionEffectPaletteMap[slot]);
+            PatchObjectPalette(gPlayerReflectionPaletteSets[i].data[sCurrentReflectionType], gReflectionEffectPaletteMap[slot], TRUE);
             return;
         }
     }
@@ -2201,12 +2210,12 @@ void LoadSpecialObjectReflectionPalette(u16 tag, u8 slot)
     u8 i;
 
     sCurrentSpecialObjectPaletteTag = tag;
-    PatchObjectPalette(tag, slot);
+    PatchObjectPalette(tag, slot, TRUE);
     for (i = 0; gSpecialObjectReflectionPaletteSets[i].tag != EVENT_OBJ_PAL_TAG_NONE; i++)
     {
         if (gSpecialObjectReflectionPaletteSets[i].tag == tag)
         {
-            PatchObjectPalette(gSpecialObjectReflectionPaletteSets[i].data[sCurrentReflectionType], gReflectionEffectPaletteMap[slot]);
+            PatchObjectPalette(gSpecialObjectReflectionPaletteSets[i].data[sCurrentReflectionType], gReflectionEffectPaletteMap[slot], TRUE);
             return;
         }
     }
@@ -2214,7 +2223,7 @@ void LoadSpecialObjectReflectionPalette(u16 tag, u8 slot)
 
 static void sub_808EAB0(u16 tag, u8 slot)
 {
-    PatchObjectPalette(tag, slot);
+    PatchObjectPalette(tag, slot, FALSE);
 }
 
 void unref_sub_808EAC4(struct EventObject *eventObject, s16 x, s16 y)

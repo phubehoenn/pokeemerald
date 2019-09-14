@@ -469,7 +469,8 @@ struct SaveBlock2
 	/*0x15*/ u16 nuzlockeMode:2;		   // 0-3 Off/Nuzlocke/Hardlocke/Deadlocke
 	/*0x15*/ u16 gameMode:2;			   // 0-3 Story/Sandbox/Random/Super Random
     /*0x18*/ struct Pokedex pokedex;
-    /*0x90*/ u8 filler_90[0x3];
+    /*0x90*/ u16 screenFilterColor;		   // Overrides the day/night filter with the color specified
+	/*0x92*/ u8 screenFilterCoeff;		   // Specifies how opaque the overriden color is
 	/*0x93*/ u8 freezeNuzlocke:1;		   // Nuzlocke mode can't be changed when this is enabled
 	/*0x93*/ u8 waitStatus:1;			   // 0 = WAIT_UNABLE, 1 = WAIT_ABLE
 	/*0x93*/ u8 waitTime:6;				   // Holds the amount of time the player can wait

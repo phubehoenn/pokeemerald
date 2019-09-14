@@ -1,8 +1,13 @@
 #include "global.h"
+#include "event_object_movement.h"
+#include "field_weather.h"
+#include "fieldmap.h"
 #include "menu.h"
 #include "main.h"
+#include "palette.h"
 #include "play_time.h"
 #include "start_menu.h"
+#include "constants/weather.h"
 
 const u8 gSunriseTimes[8] = {TIME_HOUR_6AM, TIME_HOUR_5AM, TIME_HOUR_4AM, TIME_HOUR_5AM, TIME_HOUR_6AM, TIME_HOUR_7AM, TIME_HOUR_8AM, TIME_HOUR_7AM};
 const u8 gSunsetTimes[8] = {TIME_HOUR_7PM, TIME_HOUR_8PM, TIME_HOUR_9PM, TIME_HOUR_8PM, TIME_HOUR_7PM, TIME_HOUR_6PM, TIME_HOUR_5PM, TIME_HOUR_6PM};
@@ -57,7 +62,6 @@ void PlayTimeCounter_Update()
         {
             gSaveBlock2Ptr->playTimeVBlanks = 0;
             gSaveBlock2Ptr->playTimeSeconds++;
-			gSaveBlock2Ptr->waitStatus = 1;
 
 			if (!gMain.stopClockUpdating && !gMain.inBattle) //stops clock updating in battle & in start menu/submenus such as bag
 				IncrementClockSecond(TRUE);
@@ -92,6 +96,23 @@ void PlayTimeCounter_SetToMax(void)
 
 static void RunSecondRoutines(void) //called every second outside of battles/menus
 {
+	// Update day/night/season colors every second
+	// unless a palette fade is happening or a new map is loading
+	if (!gPaletteFade.active
+	 && !gPaletteFade.y) // Hacky lil workaround here
+	{
+		// Update BG
+		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
+		// Update OW sprites
+		InitEventObjectPalettes(0);
+		// Update weather (sprite pal 12)
+		if (gWeatherPtr->currWeather == WEATHER_SANDSTORM)
+			LoadCustomWeatherSpritePalette(gSandstormWeatherPalette);
+		else if (gWeatherPtr->currWeather == WEATHER_CLOUDS)
+			LoadCustomWeatherSpritePalette(gCloudsWeatherPalette);
+		else
+			UpdateWeatherPal();
+	}
 }
 
 static void RunMinuteRoutines(void) //called every minute outside of battles/menus
