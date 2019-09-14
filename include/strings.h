@@ -300,13 +300,12 @@ extern const u8 gText_BattlePyramidConfirmRetire[];
 // option menu texts
 extern const u8 gText_On[];
 extern const u8 gText_Off[];
+extern const u8 gText_Battles[];
 extern const u8 gText_HoldB[];
 extern const u8 gText_Auto[];
 extern const u8 gText_SwapPC[];
 extern const u8 gText_SendToPC[];
 	
-extern const u8 gText_BattleSceneOn[];
-extern const u8 gText_BattleSceneOff[];
 extern const u8 gText_BattleStyleShift[];
 extern const u8 gText_BattleStyleSet[];
 extern const u8 gText_SoundMono[];
@@ -320,8 +319,8 @@ extern const u8 gText_BattleStyle[];
 extern const u8 gText_BattleScene[];
 extern const u8 gText_QuickFlee[];
 extern const u8 gText_Keyboard[];
-extern const u8 gText_Font[];
 extern const u8 gText_Frame[];
+extern const u8 gText_Music[];
 extern const u8 gText_LowHPSound[];
 extern const u8 gText_KeypadSound[];
 extern const u8 gText_SoundOutput[];
@@ -337,7 +336,7 @@ extern const u8 gText_FullPartyDescription[];
 extern const u8 gText_BattleStyleDescription[];
 extern const u8 gText_BattleSceneDescription[];
 extern const u8 gText_QuickFleeDescription[];
-extern const u8 gText_FontDescription[];
+extern const u8 gText_MusicDescription[];
 extern const u8 gText_LowHPSoundDescription[];
 extern const u8 gText_KeypadSoundDescription[];
 extern const u8 gText_SoundOutputDescription[];
@@ -359,11 +358,6 @@ extern const u8 gKeyboardText_QWERTYPlus[];
 extern const u8 gKeyboardText_ABC[];
 extern const u8 gKeyboardText_ABCPlus[];
 extern const u8 gKeyboardText_Vanilla[];
-	
-extern const u8 gFontText_Rocket[];
-extern const u8 gFontText_Magma[];
-extern const u8 gFontText_Aqua[];
-extern const u8 gFontText_Galactic[];
 
 extern const u8 gText_MaleSymbol[];
 extern const u8 gText_FemaleSymbol[];

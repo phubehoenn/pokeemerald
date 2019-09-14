@@ -35,8 +35,8 @@ enum
 	TD_BATTLESCENE,
 	TD_QUICKFLEE,
 	TD_KEYBOARD,
-	TD_FONT,
 	TD_FRAMETYPE,
+	TD_MUSIC,
 	TD_LOWHPSOUND,
 	TD_KEYPADSOUND,
 	TD_SOUNDOUTPUT,
@@ -51,8 +51,8 @@ enum
 	MENUITEM_BATTLESCENE,
 	MENUITEM_QUICKFLEE,
 	MENUITEM_KEYBOARD,
-	MENUITEM_FONT,
     MENUITEM_FRAME,
+	MENUITEM_MUSIC,
 	MENUITEM_LOWHPSOUND,
 	MENUITEM_KEYPADSOUND,
 	MENUITEM_SOUNDOUTPUT,
@@ -97,10 +97,10 @@ static void BattleStyle_DrawChoices(u8 selection, int yPos);
 static u8   BattleStyle_ProcessInput(u8 selection, u8 taskId);
 static void Keyboard_DrawChoices(u8 selection, int yPos);
 static u8   Keyboard_ProcessInput(u8 selection, u8 taskId);
-static void Font_DrawChoices(u8 selection, int yPos);
-static u8   Font_ProcessInput(u8 selection, u8 taskId);
 static void FrameType_DrawChoices(u8 selection, int yPos);
 static u8   FrameType_ProcessInput(u8 selection, u8 taskId);
+static void Music_DrawChoices(u8 selection, int yPos);
+static u8   Music_ProcessInput(u8 selection, u8 taskId);
 static void Sound_DrawChoices(u8 selection, int yPos);
 static u8   Sound_ProcessInput(u8 selection, u8 taskId);
 static void DrawOptionsBorder(void);
@@ -124,8 +124,8 @@ static const u8 *const sOptionMenuItemsNames[MENUITEM_COUNT] =
     gText_BattleScene,
     gText_QuickFlee,
     gText_Keyboard,
-	gText_Font,
 	gText_Frame,
+	gText_Music,
 	gText_LowHPSound,
 	gText_KeypadSound,
 	gText_SoundOutput,
@@ -144,8 +144,8 @@ static const u8 *const sOptionsDescriptionList[MENUITEM_COUNT] =
 	gText_BattleSceneDescription, 
 	gText_QuickFleeDescription, 
 	gText_KeyboardDescription, 
-	gText_FontDescription, 
 	gText_FrameDescription, 
+	gText_MusicDescription, 
 	gText_LowHPSoundDescription, 
 	gText_KeypadSoundDescription, 
 	gText_SoundOutputDescription, 
@@ -170,15 +170,6 @@ const u8 *gKeyboardNameList[] =
 	gKeyboardText_ABC, 
 	gKeyboardText_ABCPlus, 
 	gKeyboardText_Vanilla
-};
-
-// Font names
-const u8 *gFontNameList[] = 
-{ 
-	gFontText_Rocket,
-	gFontText_Aqua, 
-	gFontText_Magma, 
-	gFontText_Galactic
 };
 
 // Text window dimensions
@@ -493,16 +484,6 @@ static void Task_OptionMenuProcessInput(u8 taskId)
 				Task_PrintOptions(taskId);
 			}
             break;
-		case MENUITEM_FONT:
-            previousOption = gTasks[taskId].data[TD_FONT];
-            gTasks[taskId].data[TD_FONT] = Font_ProcessInput(gTasks[taskId].data[TD_FONT], taskId);
-
-            if (previousOption != gTasks[taskId].data[TD_FONT])
-			{
-                Font_DrawChoices(gTasks[taskId].data[TD_FONT], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
-				Task_PrintOptions(taskId);
-			}
-            break;
 		case MENUITEM_FRAME:
             previousOption = gTasks[taskId].data[TD_FRAMETYPE];
             gTasks[taskId].data[TD_FRAMETYPE] = FrameType_ProcessInput(gTasks[taskId].data[TD_FRAMETYPE], taskId);
@@ -510,6 +491,16 @@ static void Task_OptionMenuProcessInput(u8 taskId)
             if (previousOption != gTasks[taskId].data[TD_FRAMETYPE])
 			{
                 FrameType_DrawChoices(gTasks[taskId].data[TD_FRAMETYPE], gTasks[taskId].data[TD_MENUSELECTION] * 16);
+				Task_PrintOptions(taskId);
+			}
+            break;
+		case MENUITEM_MUSIC:
+            previousOption = gTasks[taskId].data[TD_MUSIC];
+            gTasks[taskId].data[TD_MUSIC] = Music_ProcessInput(gTasks[taskId].data[TD_MUSIC], taskId);
+
+            if (previousOption != gTasks[taskId].data[TD_MUSIC])
+			{
+                Music_DrawChoices(gTasks[taskId].data[TD_MUSIC], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
 				Task_PrintOptions(taskId);
 			}
             break;
@@ -555,7 +546,7 @@ static void Task_OptionMenuSave(u8 taskId)
 	gSaveBlock2Ptr->optionsBattleSceneOff = gTasks[taskId].data[TD_BATTLESCENE];
 	gSaveBlock2Ptr->optionsQuickFlee = gTasks[taskId].data[TD_QUICKFLEE];
 	gSaveBlock2Ptr->optionsKeyboard = gTasks[taskId].data[TD_KEYBOARD];
-	gSaveBlock2Ptr->optionsFont = gTasks[taskId].data[TD_FONT];
+	gSaveBlock2Ptr->optionsMusic = gTasks[taskId].data[TD_MUSIC];
 	gSaveBlock2Ptr->optionsWindowFrameType = gTasks[taskId].data[TD_FRAMETYPE];
 	gSaveBlock2Ptr->optionsLowHPSound = gTasks[taskId].data[TD_LOWHPSOUND];
 	gSaveBlock2Ptr->optionsKeypadSound = gTasks[taskId].data[TD_KEYPADSOUND];
@@ -589,7 +580,7 @@ static void Task_CopyOptionsToTask(u8 taskId)
 	gTasks[taskId].data[TD_BATTLESCENE] = gSaveBlock2Ptr->optionsBattleSceneOff;
 	gTasks[taskId].data[TD_QUICKFLEE] = gSaveBlock2Ptr->optionsQuickFlee;
 	gTasks[taskId].data[TD_KEYBOARD] = gSaveBlock2Ptr->optionsKeyboard;
-	gTasks[taskId].data[TD_FONT] = gSaveBlock2Ptr->optionsFont;
+	gTasks[taskId].data[TD_MUSIC] = gSaveBlock2Ptr->optionsMusic;
 	gTasks[taskId].data[TD_FRAMETYPE] = gSaveBlock2Ptr->optionsWindowFrameType;
 	gTasks[taskId].data[TD_LOWHPSOUND] = gSaveBlock2Ptr->optionsLowHPSound;
 	gTasks[taskId].data[TD_KEYPADSOUND] = gSaveBlock2Ptr->optionsKeypadSound;
@@ -678,12 +669,12 @@ static void Task_PrintOptions(u8 taskId)
 				Keyboard_DrawChoices(gTasks[taskId].data[TD_KEYBOARD], i * 16 - 8);
 				break;
 				
-			case 6: //FONT
-				Font_DrawChoices(gTasks[taskId].data[TD_FONT], i * 16 - 8);
+			case 6: //FRAME
+				FrameType_DrawChoices(gTasks[taskId].data[TD_FRAMETYPE], i * 16);
 				break;
 				
-			case 7: //FRAME
-				FrameType_DrawChoices(gTasks[taskId].data[TD_FRAMETYPE], i * 16);
+			case 7: //MUSIC
+				Music_DrawChoices(gTasks[taskId].data[TD_MUSIC], i * 16 - 8);
 				break;
 				
 			case 8: //LOW HP SOUND
@@ -967,39 +958,6 @@ static u8 Keyboard_ProcessInput(u8 selection, u8 taskId)
     return selection;
 }
 
-static void Font_DrawChoices(u8 selection, int yPos)
-{
-	DrawOptionMenuChoice(gFontNameList[selection], 106, 8 + yPos, 1);
-}
-
-static u8 Font_ProcessInput(u8 selection, u8 taskId)
-{
-	if ((gMain.newKeys & DPAD_RIGHT) || (gMain.newKeys & DPAD_LEFT))
-	{
-		// This is left intentionally complex to allow additional fonts to be re-enabled
-		if (gMain.newKeys & DPAD_RIGHT)
-		{
-			if (selection < 1) //2 types of font
-				selection++;
-			else
-				selection = 0;
-		}
-		if (gMain.newKeys & DPAD_LEFT)
-		{
-			if (selection > 0)
-				selection--;
-			else
-				selection = 1;
-		}
-		sArrowPressed = TRUE;
-	}
-	// Write selection to option immediately to redraw text
-	gSaveBlock2Ptr->optionsFont = selection;
-	// Redraw description window too
-	Task_DrawDescriptionWindow(taskId);
-    return selection;
-}
-
 #define CHAR_0 0xA1 //Character code of '0' character
 #define CHAR_F9 0xF9 //Must come before left or right arrows
 #define CHAR_LEFT_ARROW_2 0x02 //Character code of left arrow 2 character
@@ -1017,6 +975,8 @@ static void FrameType_DrawChoices(u8 selection, int yPos)
 	text[i] = CHAR_F9;
 	i++;
 	text[i] = CHAR_LEFT_ARROW_2;
+	i++;
+	text[i] = 0;
 	i++;
 
     //Convert number to decimal string
@@ -1072,6 +1032,43 @@ static u8 FrameType_ProcessInput(u8 selection, u8 taskId)
 			LoadBgTiles(1, GetWindowFrameTilesPal(selection)->tiles, 0x120, 0x1A2);
 			LoadPalette(GetWindowFrameTilesPal(selection)->pal, 0x70, 0x20);
 			sArrowPressed = TRUE;
+		}
+		sArrowPressed = TRUE;
+	}
+    return selection;
+}
+
+static void Music_DrawChoices(u8 selection, int yPos)
+{
+    u8 styles[2];
+	
+    styles[0] = 0;
+    styles[1] = 0;
+	styles[2] = 0;
+    styles[selection] = 1;
+
+    DrawOptionMenuChoice(gText_On,  106, 8 + yPos, styles[0]);
+	DrawOptionMenuChoice(gText_Battles,  126, 8 + yPos, styles[1]);
+    DrawOptionMenuChoice(gText_Off, 176, 8 + yPos, styles[2]);
+}
+
+static u8 Music_ProcessInput(u8 selection, u8 taskId)
+{
+	if ((gMain.newKeys & DPAD_RIGHT) || (gMain.newKeys & DPAD_LEFT))
+	{
+		if (gMain.newKeys & DPAD_RIGHT)
+		{
+			if (selection < 2)
+				selection++;
+			else
+				selection = 0;
+		}
+		if (gMain.newKeys & DPAD_LEFT)
+		{
+			if (selection > 0)
+				selection--;
+			else
+				selection = 2;
 		}
 		sArrowPressed = TRUE;
 	}

@@ -455,7 +455,7 @@ struct SaveBlock2
     /*0x12*/ u8 playTimeVBlanks;
 	/*0x13*/ u8 optionsBikeMode:1;		   // OPTIONS_BIKE_MODE_[HOLD_B/AUTO]
 	/*0x13*/ u8 optionsFullParty:1;		   // OPTIONS_FULL_PARTY_[SWAP/SEND_TO_PC]
-	/*0x13*/ u8 optionsFont:2;			   // 0 = ROCKET, 1 = MAGMA, 2 = AQUA, 3 = GALACTIC
+	/*0x13*/ u8 optionsMusic:2;			   // 0 = EVERYWHERE, 1 = BATTLES ONLY, 2 = OFF
 	/*0x13*/ u8 optionsKeyboard:3;		   // 0 = QWERTY, 1 = QWERTY+, 2 = ABC, 3 = ABC+, 5 = VANILLA
 	/*0x13*/ u8 filler1b:1;		   		   // Unused
     /*0x14*/ u16 optionsQuickFlee:1;       // [ON/OFF] gives an option to run before a mon is sent out

@@ -107,7 +107,7 @@ void SetDefaultOptions(void)
 	gSaveBlock2Ptr->optionsBikeMode = OPTIONS_BIKE_MODE_HOLD_B;
 	gSaveBlock2Ptr->optionsFullParty = OPTIONS_FULL_PARTY_SWAP;
 	gSaveBlock2Ptr->optionsKeyboard = OPTIONS_KEYBOARD_QWERTY;
-	gSaveBlock2Ptr->optionsFont = OPTIONS_FONT_ROCKET;
+	gSaveBlock2Ptr->optionsMusic = OPTIONS_MUSIC_EVERYWHERE;
 }
 
 // Sets default game data, like game modes and in-game time
