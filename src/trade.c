@@ -1740,7 +1740,7 @@ static void sub_80773D0(void)
         gUnknown_0203229C->unk_1 = 0;
         sub_8078388();
         gMain.state++;
-        PlayBGM(MUS_P_SCHOOL);
+        PlayBGM(MUS_P_SCHOOL, TRUE);
         break;
     case 15:
         sub_807A320(1);

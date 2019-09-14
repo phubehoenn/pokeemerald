@@ -871,10 +871,10 @@ static void CB2_ReturnFromRecord(void)
     switch (InBattlePyramid())
     {
     case 1:
-        PlayBGM(MUS_PYRAMID);
+        PlayBGM(MUS_PYRAMID, FALSE);
         break;
     case 2:
-        PlayBGM(MUS_PYRAMID_TOP);
+        PlayBGM(MUS_PYRAMID_TOP, FALSE);
         break;
     default:
         Overworld_PlaySpecialMapMusic();

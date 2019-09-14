@@ -1349,7 +1349,7 @@ static void sub_8080018(void)
         {
             sBerryBlenderData->field_154 = GetCurrentMapMusic();
         }
-        PlayBGM(MUS_CYCLING);
+        PlayBGM(MUS_CYCLING, TRUE);
         break;
     }
 
@@ -1646,7 +1646,7 @@ static void sub_80808D4(void)
         if (GetCurrentMapMusic() != MUS_CYCLING)
             sBerryBlenderData->field_154 = GetCurrentMapMusic();
 
-        PlayBGM(MUS_CYCLING);
+        PlayBGM(MUS_CYCLING, TRUE);
         PlaySE(SE_MOTER);
         Blender_ControlHitPitch();
         break;
@@ -3561,7 +3561,7 @@ static void sub_8083F3C(u8 taskId)
     }
     if (IsFanfareTaskInactive())
     {
-        PlayBGM(sBerryBlenderData->field_154);
+        PlayBGM(sBerryBlenderData->field_154, 2);
         DestroyTask(taskId);
     }
 }

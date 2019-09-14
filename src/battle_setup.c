@@ -1469,7 +1469,7 @@ void SetUpTrainerEncounterMusic(void)
         default:
             music = MUS_AYASII;
         }
-        PlayNewMapMusic(music);
+        PlayNewBattleMusic(music);
     }
 }
 

@@ -40,6 +40,7 @@ enum
 	TD_LOWHPSOUND,
 	TD_KEYPADSOUND,
 	TD_SOUNDOUTPUT,
+	TD_MUSICBUFFER, //stores the music option setting when the option menu is loaded
 };
 
 // Menu items
@@ -532,7 +533,6 @@ static void Task_OptionMenuProcessInput(u8 taskId)
         if (sArrowPressed)
         {
             sArrowPressed = FALSE;
-			//AddScrollIndicatorArrowPairParameterized(SCROLL_ARROW_UP, 172, 12, 148, MENUITEM_COUNT - 6, 0xB5E, 0xB5E, &(gTasks[taskId].data[TD_MENUSELECTION]));
             CopyWindowToVram(WIN_OPTIONS, 2);
         }
     }
@@ -551,6 +551,10 @@ static void Task_OptionMenuSave(u8 taskId)
 	gSaveBlock2Ptr->optionsLowHPSound = gTasks[taskId].data[TD_LOWHPSOUND];
 	gSaveBlock2Ptr->optionsKeypadSound = gTasks[taskId].data[TD_KEYPADSOUND];
 	gSaveBlock2Ptr->optionsSound = gTasks[taskId].data[TD_SOUNDOUTPUT];
+	
+	// Reload map music if music option has been changed & music isn't turned off
+	if (gTasks[taskId].data[TD_MUSICBUFFER] != gSaveBlock2Ptr->optionsMusic)
+		PlayNewMapMusic(GetCurrentMapMusic());
 
     BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 0x10, RGB_BLACK);
     gTasks[taskId].func = Task_OptionMenuFadeOut;
@@ -581,6 +585,7 @@ static void Task_CopyOptionsToTask(u8 taskId)
 	gTasks[taskId].data[TD_QUICKFLEE] = gSaveBlock2Ptr->optionsQuickFlee;
 	gTasks[taskId].data[TD_KEYBOARD] = gSaveBlock2Ptr->optionsKeyboard;
 	gTasks[taskId].data[TD_MUSIC] = gSaveBlock2Ptr->optionsMusic;
+	gTasks[taskId].data[TD_MUSICBUFFER] = gSaveBlock2Ptr->optionsMusic; // Stores the music option when the menu is loaded
 	gTasks[taskId].data[TD_FRAMETYPE] = gSaveBlock2Ptr->optionsWindowFrameType;
 	gTasks[taskId].data[TD_LOWHPSOUND] = gSaveBlock2Ptr->optionsLowHPSound;
 	gTasks[taskId].data[TD_KEYPADSOUND] = gSaveBlock2Ptr->optionsKeypadSound;
@@ -1129,7 +1134,6 @@ static void DrawDescriptionBorder(void)
     FillBgTilemapBufferRect(1, 0x1A8, 1,    19,     1,      1,      7);
     FillBgTilemapBufferRect(1, 0x1A9, 2,    19,     0x1A,   1,      7);
     FillBgTilemapBufferRect(1, 0x1AA, 28,   19,     1,      1,      7);
-    //FillBgTilemapBufferRect(1, 0x0, 21,   15,     1,      4,      7);
 	CopyBgTilemapBufferToVram(1);
 }
 
