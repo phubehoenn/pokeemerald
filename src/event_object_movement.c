@@ -1942,7 +1942,7 @@ void PatchObjectPalette(u16 paletteTag, u8 paletteSlot, bool8 doFilter)
 
 	// Does the sprite need to be affected by the day/night filter? (cut trees, boulders, reflections etc)
 	if (doFilter)
-		LoadPaletteWithDayNightFilter(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 1);
+		LoadPaletteWithDayNightFilter(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 1, FALSE);
 	else
 		LoadPalette(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 0x20);
 }

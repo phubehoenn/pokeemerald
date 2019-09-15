@@ -983,12 +983,12 @@ void apply_map_tileset_palette(struct Tileset const *tileset, u16 destOffset, u1
     {
         if (tileset->isSecondary == FALSE)
         {
-			LoadPaletteWithDayNightFilter(((u16*)tileset->palettes), destOffset, size);
+			LoadPaletteWithDayNightFilter(((u16*)tileset->palettes), destOffset, size, FALSE);
 			LoadPalette(&black, destOffset, 2);
         }
         else if (tileset->isSecondary == TRUE)
         {
-			LoadPaletteWithDayNightFilter(((u16*)tileset->palettes) + (NUM_PALS_IN_PRIMARY * 16), destOffset, size);
+			LoadPaletteWithDayNightFilter(((u16*)tileset->palettes) + (NUM_PALS_IN_PRIMARY * 16), destOffset, size, FALSE);
         }
         else
         {

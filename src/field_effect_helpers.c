@@ -83,26 +83,20 @@ void LoadObjectReflectionPalette(struct EventObject *eventObject, struct Sprite 
     }
 }
 
+// Generate reflection palette
 void LoadSpecialReflectionPalette(struct Sprite *sprite)
 {
     struct SpritePalette reflectionPalette;
 
     CpuCopy16(&gPlttBufferUnfaded[0x100 + sprite->oam.paletteNum * 16], gReflectionPaletteBuffer, 32);
-/*
-    switch (metatileBehaviour)
-    {
-        case 0:
-        default:*/
-            TintPalette_CustomTone(gReflectionPaletteBuffer, 16, Q_8_8(1.0), Q_8_8(1.0), Q_8_8(3.5));/*
-            break;
-        case 1;
-    }
-*/
+
     reflectionPalette.data = gReflectionPaletteBuffer;
     reflectionPalette.tag = GetSpritePaletteTagByPaletteNum(sprite->oam.paletteNum) + 0x1000;
-    LoadSpritePalette(&reflectionPalette);
+	
+	TagSpritePalette(&reflectionPalette);
     sprite->oam.paletteNum = IndexOfSpritePaletteTag(reflectionPalette.tag);
-    UpdateSpritePaletteWithWeather(sprite->oam.paletteNum);
+	// Reflections are always affected by the day/night filter
+	LoadPaletteWithDayNightFilter(reflectionPalette.data, 16 * sprite->oam.paletteNum + 0x100, 1, TRUE);
 }
 
 static void UpdateObjectReflectionSprite(struct Sprite *reflectionSprite)
