@@ -104,19 +104,16 @@ static void RunSecondRoutines(void) //called every second outside of battles/men
 		// Update BG
 		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
 		// Update OW sprites
-		InitEventObjectPalettes(0);
-		// Update weather (sprite pal 12)
-		if (gWeatherPtr->currWeather == WEATHER_SANDSTORM)
-			LoadCustomWeatherSpritePalette(gSandstormWeatherPalette);
-		else if (gWeatherPtr->currWeather == WEATHER_CLOUDS)
-			LoadCustomWeatherSpritePalette(gCloudsWeatherPalette);
-		else
-			UpdateWeatherPal();
+		//InitEventObjectPalettes(0);
+		// Update weather
+		UpdateWeatherPal();
 	}
 }
 
 static void RunMinuteRoutines(void) //called every minute outside of battles/menus
 {
+	gSaveBlock2Ptr->screenFilterColor = 0x7C1F;
+	gSaveBlock2Ptr->screenFilterCoeff = 0x4;
 }
 
 static void RunHourRoutines(void) //called every hour outside of battles/menus

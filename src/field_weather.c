@@ -188,8 +188,13 @@ void StartWeather(void)
 // Weather must use day/night filter
 u8 UpdateWeatherPal(void)
 {
-	u8 index = AllocSpritePalette(0x1200);
-	LoadPaletteWithDayNightFilter(gUnknown_083970E8, 16 * index + 0x100, 1);
+	u8 index = 15;
+	if (gWeatherPtr->currWeather == WEATHER_SANDSTORM)
+		LoadPaletteWithDayNightFilter(gSandstormWeatherPalette, 16 * index + 0x100, 1);
+	else if (gWeatherPtr->currWeather == WEATHER_CLOUDS)
+		LoadPaletteWithDayNightFilter(gCloudsWeatherPalette, 16 * index + 0x100, 1);
+	else
+		LoadPaletteWithDayNightFilter(gUnknown_083970E8, 16 * index + 0x100, 1);
 }
 
 void SetNextWeather(u8 weather)
@@ -863,11 +868,12 @@ u8 sub_80ABF20(void)
         return 0;
 }
 
-void LoadCustomWeatherSpritePalette(const u16 *palette)
+void LoadCustomWeatherSpritePalette(const struct SpritePalette *palette)
 {
 	// Weather uses day/night filter. This routine loads sandstorm palette
-    LoadPaletteWithDayNightFilter(palette, 0x100 + gWeatherPtr->weatherPicSpritePalIndex * 16, 1);
-    UpdateSpritePaletteWithWeather(gWeatherPtr->weatherPicSpritePalIndex);
+    //LoadPaletteWithDayNightFilter(palette, 0x100 + gWeatherPtr->weatherPicSpritePalIndex * 16, 1);
+	LoadSpritePalette(palette);
+    UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(palette->tag));
 }
 
 static void LoadDroughtWeatherPalette(u8 *gammaIndexPtr, u8 *a1)
