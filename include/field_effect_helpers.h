@@ -6,6 +6,7 @@
 // Exported RAM declarations
 
 // Exported ROM declarations
+u16 GetReflectionTag(void);
 u8 CreateWarpArrowSprite(void);
 u8 sub_8155800(u8 oldSpriteId);
 void sub_81555AC(u8, u8);

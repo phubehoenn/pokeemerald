@@ -1,5 +1,6 @@
 #include "global.h"
 #include "day_night_filter.h"
+//#include "field_effect_helpers.h"
 #include "fieldmap.h"
 #include "constants/map_types.h"
 #include "play_time.h"
@@ -98,22 +99,43 @@ void LoadPalette(const void *src, u16 offset, u16 size)
 
 // Applies day/night filter to palette before loading
 // Also used to recalculate day/night filter
-// Will lighten a color too if isReflection is enabled
-void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, bool8 isReflection)
+// mode 0 = normal OW sprite (don't filter)
+// mode 1 = filter
+// mode 2 = reflection (lighten and filter)
+void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, u8 mode, bool8 init)
 {
-	int i;
+	int i, j;
 	u16 color;
 	
-	// Loops through the palette
-	for (i = 0; i < size * 16; i++)
+	// Loops for the number of palettes
+	for (i = 0; i < size; i++)
 	{
-		// Copies the color
-		CpuCopy16(src + (i * 2), &color, 2);
-		// The color is filtered
-		color = DoDayNightFilter(color, isReflection);
-		// Color is written to gPlttBufferUnfaded and gPlttBufferFaded
-		CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
-		CpuFill16(color, gPlttBufferFaded + offset + i, 2);
+		// Loops through the palette
+		for (j = 0; j < 16; j++)
+		{
+			// Copies the color
+			CpuCopy16(src + (i * 32) + (j * 2), &color, 2);
+			
+			if (color == 0x1230 && j == 0)
+				mode = 2;
+				
+			// Transparent color isn't filtered. Overworld sprites are only filtered if they're field effects or reflections
+			if ((j != 0 && mode != 0) || (j == 0 && mode > 1))
+			{
+				// The color is filtered or a tag for transparent color is generated
+				color = DoDayNightFilter(color, mode, j);
+				// Color is written to gPlttBufferFaded and gPlttBufferUnfaded if loading maps/sprites initially
+				if (init)
+				{
+					CpuFill16(color, gPlttBufferUnfaded + offset + (i * 16) + j, 2);
+				}
+				else
+				{
+					CpuCopy16(src, gPlttBufferUnfaded + offset, size * 32);
+				}
+				CpuFill16(color, gPlttBufferFaded + offset + (i * 16) + j, 2);
+			}
+		}
 	}
 }
 
