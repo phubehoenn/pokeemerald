@@ -50,7 +50,7 @@ extern u16 gPlttBufferFaded[];
 
 void LoadCompressedPalette(const u32 *, u16, u16);
 void LoadPalette(const void *, u16, u16);
-void LoadPaletteWithDayNightFilter(const void *, u16, u16, u8, bool8);
+void LoadPaletteWithDayNightFilter(const void *, u16, u16, bool8);
 void FillPalette(u16, u16, u16);
 void TransferPlttBuffer(void);
 u8 UpdatePaletteFade(void);

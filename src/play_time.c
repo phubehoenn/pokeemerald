@@ -1,5 +1,4 @@
 #include "global.h"
-#include "day_night_filter.h"
 #include "event_object_movement.h"
 #include "field_weather.h"
 #include "fieldmap.h"
@@ -105,7 +104,7 @@ static void RunSecondRoutines(void) //called every second outside of battles/men
 		// Update BG
 		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
 		// Update OW sprites
-		ReloadSpritePalettes();
+		//InitEventObjectPalettes(0);
 		// Update weather
 		UpdateWeatherPal();
 	}
