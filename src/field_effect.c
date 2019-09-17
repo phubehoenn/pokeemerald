@@ -717,7 +717,7 @@ void FieldEffectScript_LoadFadedPalette(u8 **script)
 {
     struct SpritePalette *palette = (struct SpritePalette *)FieldEffectScript_ReadWord(script);
     TagSpritePalette(palette);
-	LoadPaletteWithDayNightFilter(palette->data, 16 * IndexOfSpritePaletteTag(palette->tag) + 0x100, 1, FALSE);
+	LoadPaletteWithDayNightFilter(palette->data, 16 * IndexOfSpritePaletteTag(palette->tag) + 0x100, 1, 1, FALSE); // Field effect sprites are overworld sprites, so TRUE
 	
     (*script) += 4;
 }

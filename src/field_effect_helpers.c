@@ -96,7 +96,7 @@ void LoadSpecialReflectionPalette(struct Sprite *sprite)
 	TagSpritePalette(&reflectionPalette);
     sprite->oam.paletteNum = IndexOfSpritePaletteTag(reflectionPalette.tag);
 	// Reflections are always affected by the day/night filter
-	LoadPaletteWithDayNightFilter(reflectionPalette.data, 16 * sprite->oam.paletteNum + 0x100, 1, TRUE);
+	LoadPaletteWithDayNightFilter(reflectionPalette.data, 16 * sprite->oam.paletteNum + 0x100, 1, 2, TRUE);
 }
 
 static void UpdateObjectReflectionSprite(struct Sprite *reflectionSprite)
