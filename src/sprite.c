@@ -1665,7 +1665,7 @@ void DoLoadSpritePalette(const u16 *src, u16 paletteOffset)
 
 void DoLoadSpritePaletteAndTryFilter(const u16 *src, u16 paletteOffset)
 {
-    LoadPaletteWithDayNightFilter(src, paletteOffset + 0x100, 1, FALSE);
+    LoadPaletteWithDayNightFilter(src, paletteOffset + 0x100, 1, FILTER_MODE_SPRITE);
 }
 
 u8 AllocSpritePalette(u16 tag)

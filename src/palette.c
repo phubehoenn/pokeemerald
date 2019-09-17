@@ -98,11 +98,12 @@ void LoadPalette(const void *src, u16 offset, u16 size)
 
 // Applies day/night filter to palette before loading
 // Also used to recalculate day/night filter
-// Will lighten a color too if isReflection is enabled
+// If (mode == 0) ... no filtering
+// If (mode == 1) ... filtering (background)
+// If (mode == 2) ... filtering (sprites)
+// If (mode == 3) ... filtering and palette lightening (for reflections)
 
-// if reflection - lighten color, write to unfaded, then filter, write to faded
-// else - write to unfaded, filter, write to faded
-void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, bool8 isReflection)
+void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, u8 mode)
 {
 	int i;
 	u16 color;
@@ -112,13 +113,14 @@ void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, bool8 
 	{
 		// Copies the color
 		CpuCopy16(src + (i * 2), &color, 2);
-		// If it's a reflection, lighten the color
-		if (isReflection)
+		// If filter mode isn't off, it'll be affected by the day/night filter
+		if (mode != FILTER_MODE_OFF || mode != FILTER_MODE_BACKGROUND)
 		{
 			// Tag the palette with 0x1234 if it's the transparent color
 			if (i == 0)
 				color = 0x1234;
-			else
+			// If mode is set to FILTER_MODE_REFLECTION, lighten the color
+			else if (mode == FILTER_MODE_REFLECTION)
 				color = MakeReflectionColor(color);
 			// Write color to gPlttBufferUnfaded
 			CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
@@ -126,9 +128,10 @@ void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, bool8 
 		// The color is filtered if it's not the transparent color
 		if (i != 0)
 			color = DoDayNightFilter(color);
-		// Filtered color is written to gPlttBufferFaded
-		if (!isReflection)
+		// Filtered color is written to gPlttBufferUnfaded if filter is off or set to background
+		if (mode == FILTER_MODE_OFF || mode == FILTER_MODE_BACKGROUND)
 			CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
+		// Filtered color is written to gPlttBufferFaded
 		CpuFill16(color, gPlttBufferFaded + offset + i, 2);
 	}
 }

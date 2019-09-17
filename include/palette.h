@@ -14,6 +14,11 @@
 #define PALETTE_FADE_STATUS_DONE 0
 #define PALETTE_FADE_STATUS_LOADING 0xFF
 
+#define FILTER_MODE_OFF 0
+#define FILTER_MODE_BACKGROUND 1
+#define FILTER_MODE_SPRITE 2
+#define FILTER_MODE_REFLECTION 3
+
 enum
 {
     FAST_FADE_IN_FROM_WHITE,
@@ -50,7 +55,7 @@ extern u16 gPlttBufferFaded[];
 
 void LoadCompressedPalette(const u32 *, u16, u16);
 void LoadPalette(const void *, u16, u16);
-void LoadPaletteWithDayNightFilter(const void *, u16, u16, bool8);
+void LoadPaletteWithDayNightFilter(const void *, u16, u16, u8);
 void FillPalette(u16, u16, u16);
 void TransferPlttBuffer(void);
 u8 UpdatePaletteFade(void);
