@@ -105,7 +105,7 @@ static void RunSecondRoutines(void) //called every second outside of battles/men
 		// Update BG
 		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
 		// Update OW sprites
-		//ReloadSpritePalettes();
+		ReloadSpritePalettes();
 		// Update weather
 		UpdateWeatherPal();
 	}

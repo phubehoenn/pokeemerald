@@ -99,29 +99,6 @@ void LoadSpecialReflectionPalette(struct Sprite *sprite)
 	LoadPaletteWithDayNightFilter(reflectionPalette.data, 16 * sprite->oam.paletteNum + 0x100, 1, 2, TRUE);
 }
 
-// Finds the next free tag to be used as the transparent color in palettes that have reflections
-u16 GetReflectionTag(void)
-{
-	int i;
-	u16 color;
-	u16 tag = 0x1230; // Tags start at 0x1230
-	
-	// Loop through OW palettes
-	for (i = 0; i < 16; i++)
-	{
-		// Copy the transparent color
-		CpuCopy16(&gPlttBufferFaded[i * 16 + 0x100], &color, 1);
-		
-		// If tag exists, try the next one
-		if (color == tag + i)
-			tag++;
-		// If tag doesn't exist, use it
-		else
-			break;
-	}
-	return tag;
-}
-
 static void UpdateObjectReflectionSprite(struct Sprite *reflectionSprite)
 {
     struct EventObject *eventObject;

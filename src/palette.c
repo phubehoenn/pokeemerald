@@ -116,8 +116,11 @@ void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, u8 mod
 			// Copies the color
 			CpuCopy16(src + (i * 32) + (j * 2), &color, 2);
 			
-			if (color == 0x1230 && j == 0)
+			// Detects a reflection palette tag
+			if (color >= 0x1230 && color < 0x1250 && j == 0)
+			{
 				mode = 2;
+			}
 				
 			// Transparent color isn't filtered. Overworld sprites are only filtered if they're field effects or reflections
 			if ((j != 0 && mode != 0) || (j == 0 && mode > 1))

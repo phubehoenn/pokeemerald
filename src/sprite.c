@@ -1,4 +1,5 @@
 #include "global.h"
+#include "field_effect_helpers.h"
 #include "sprite.h"
 #include "main.h"
 #include "palette.h"
