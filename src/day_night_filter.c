@@ -23,11 +23,11 @@ static u16 GetDayNightFilterColorOrCoeff(bool8 retColor)
 	if (retColor)
 		return 0x7C08;
 	else
-		return 0x4;
+		return 0x40;
 }
 
 // Makes color brighter if it's part of a reflection palette
-static u16 TryGetReflectionColor(u16 inputColor, bool8 isReflection)
+u16 MakeReflectionColor(u16 inputColor)
 {
 	u16 retColor;
 	struct PlttData *data = (struct PlttData *)&inputColor;
@@ -35,40 +35,35 @@ static u16 TryGetReflectionColor(u16 inputColor, bool8 isReflection)
 	s8 g = data->g;
 	s8 b = data->b;
 	
-	if (isReflection)
-	{
-		// Brighten the color
-		if (r + 3 > 31)
-		r = 31;
-		else
-			r += 3;
-		if (b + 3 > 31)
-			b = 31;
-		else
-			b += 3;
-		if (g + 3 > 31)
-			g = 31;
-		else
-		g += 3;
-	
-		retColor = ((r + (((31 - r) * 4) >> 4)) << 0)
-				   | ((g + (((31 - g) * 4) >> 4)) << 5)
-				   | ((b + (((31 - b) * 4) >> 4)) << 10);
-	}
+	// Brighten the color
+	if (r + 3 > 31)
+	r = 31;
 	else
-		retColor = inputColor;
+		r += 3;
+	if (b + 3 > 31)
+		b = 31;
+	else
+		b += 3;
+	if (g + 3 > 31)
+		g = 31;
+	else
+	g += 3;
+
+	retColor = ((r + (((31 - r) * 4) >> 4)) << 0)
+			   | ((g + (((31 - g) * 4) >> 4)) << 5)
+			   | ((b + (((31 - b) * 4) >> 4)) << 10);
 	
 	return retColor;
 }
 
 // Modified from BlendPalette in util.c
-u16 DoDayNightFilter(u16 inputColor, bool8 isReflection)
+u16 DoDayNightFilter(u16 inputColor)
 {
 	u8 coeff = GetDayNightFilterColorOrCoeff(FALSE);
 	u16 filtColor = GetDayNightFilterColorOrCoeff(TRUE);
-	u16 retColor = TryGetReflectionColor(inputColor, isReflection);
+	u16 retColor;
 	
-	struct PlttData *data1 = (struct PlttData *)&retColor;
+	struct PlttData *data1 = (struct PlttData *)&inputColor;
 	s8 r = data1->r;
 	s8 g = data1->g;
 	s8 b = data1->b;
@@ -81,15 +76,57 @@ u16 DoDayNightFilter(u16 inputColor, bool8 isReflection)
 	 && (gSaveBlock2Ptr->screenFilterCoeff == 0 //is a custom filter being applied?
 	 && gSaveBlock2Ptr->screenFilterColor == 0))
 	{
-		if (!isReflection)
-			return inputColor;
+		return inputColor;
 	}
 	else
 	{
-		retColor = ((r + (((data2->r - r) * coeff) >> 4)) << 0)
-				   | ((g + (((data2->g - g) * coeff) >> 4)) << 5)
-				   | ((b + (((data2->b - b) * coeff) >> 4)) << 10);
+		retColor = ((r + (((data2->r - r) * (coeff / 0x10)) >> 4)) << 0)
+				   | ((g + (((data2->g - g) * (coeff / 0x10)) >> 4)) << 5)
+				   | ((b + (((data2->b - b) * (coeff / 0x10)) >> 4)) << 10);
 	}
 	
 	return retColor;
+}
+
+// Reloads reflection and overworld sprite palettes (if applicable)
+void ReloadSpritePalettes(void)
+{
+	// i = palette, j = color
+	int i, j;
+	bool8 doFilter = FALSE;
+	u16 color;
+	
+	// Loop through sprite palettes
+	// Weather palette (pal 16) is reloaded seperately
+	for (i = 0; i < 15; i++)
+	{
+		// Loop through palette colors
+		for (j = 0; j < 16; j++)
+		{
+			// Copy color
+			CpuCopy16(gPlttBufferUnfaded + (i * 16) + j + 0x100, &color, 2);
+			
+			// Is it the transparent color?
+			if (j == 0)
+			{
+				// Is it tagged as a reflection palette?
+				if (color == 0x1234)
+					// Mark the rest of the palette to be filtered if it is
+					doFilter = TRUE;
+			}
+			// It's a visible color
+			else
+			{
+				// Filter color if palette is marked as such
+				if (doFilter)
+				{
+					color = DoDayNightFilter(color);
+					CpuFill16(color, gPlttBufferFaded + (i * 16) + j + 0x100, 2);
+				}
+			}
+		}
+		
+		// Reset doFilter after every palette
+		doFilter = FALSE;
+	}
 }

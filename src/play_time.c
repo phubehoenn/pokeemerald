@@ -1,5 +1,5 @@
 #include "global.h"
-#include "event_object_movement.h"
+#include "day_night_filter.h"
 #include "field_weather.h"
 #include "fieldmap.h"
 #include "menu.h"
@@ -104,7 +104,7 @@ static void RunSecondRoutines(void) //called every second outside of battles/men
 		// Update BG
 		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
 		// Update OW sprites
-		//InitEventObjectPalettes(0);
+		ReloadSpritePalettes();
 		// Update weather
 		UpdateWeatherPal();
 	}
@@ -113,7 +113,7 @@ static void RunSecondRoutines(void) //called every second outside of battles/men
 static void RunMinuteRoutines(void) //called every minute outside of battles/menus
 {
 	gSaveBlock2Ptr->screenFilterColor = 0x7C1F;
-	gSaveBlock2Ptr->screenFilterCoeff = 0x4;
+	gSaveBlock2Ptr->screenFilterCoeff = 0x40;
 }
 
 static void RunHourRoutines(void) //called every hour outside of battles/menus

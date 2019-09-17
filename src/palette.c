@@ -99,6 +99,9 @@ void LoadPalette(const void *src, u16 offset, u16 size)
 // Applies day/night filter to palette before loading
 // Also used to recalculate day/night filter
 // Will lighten a color too if isReflection is enabled
+
+// if reflection - lighten color, write to unfaded, then filter, write to faded
+// else - write to unfaded, filter, write to faded
 void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, bool8 isReflection)
 {
 	int i;
@@ -109,10 +112,23 @@ void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, bool8 
 	{
 		// Copies the color
 		CpuCopy16(src + (i * 2), &color, 2);
-		// The color is filtered
-		color = DoDayNightFilter(color, isReflection);
-		// Color is written to gPlttBufferUnfaded and gPlttBufferFaded
-		CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
+		// If it's a reflection, lighten the color
+		if (isReflection)
+		{
+			// Tag the palette with 0x1234 if it's the transparent color
+			if (i == 0)
+				color = 0x1234;
+			else
+				color = MakeReflectionColor(color);
+			// Write color to gPlttBufferUnfaded
+			CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
+		}
+		// The color is filtered if it's not the transparent color
+		if (i != 0)
+			color = DoDayNightFilter(color);
+		// Filtered color is written to gPlttBufferFaded
+		if (!isReflection)
+			CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
 		CpuFill16(color, gPlttBufferFaded + offset + i, 2);
 	}
 }
