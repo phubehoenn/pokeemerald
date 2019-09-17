@@ -119,21 +119,21 @@ static const u8 sEqualSignGfx[] = INCBIN_U8("graphics/misc/option_menu_equals_si
 // Names of options (printed on left side)
 static const u8 *const sOptionMenuItemsNames[MENUITEM_COUNT] =
 {
-    gText_BikeMode,
-    gText_FullParty,
-    gText_BattleStyle,
-    gText_BattleScene,
-    gText_QuickFlee,
-    gText_Keyboard,
-	gText_Frame,
-	gText_Music,
-	gText_LowHPSound,
-	gText_KeypadSound,
-	gText_SoundOutput,
-	gText_ResetDefaults,
-	gText_DisableNuzlockeMode,
-	gText_FreezeNuzlockeMode,
-    gText_OptionMenuCancel,
+    [MENUITEM_BIKEMODE]gText_BikeMode,
+    [MENUITEM_FULLPARTY]gText_FullParty,
+    [MENUITEM_BATTLESTYLE]gText_BattleStyle,
+    [MENUITEM_BATTLESCENE]gText_BattleScene,
+    [MENUITEM_QUICKFLEE]gText_QuickFlee,
+    [MENUITEM_KEYBOARD]gText_Keyboard,
+	[MENUITEM_FRAME]gText_Frame,
+	[MENUITEM_MUSIC]gText_Music,
+	[MENUITEM_LOWHPSOUND]gText_LowHPSound,
+	[MENUITEM_KEYPADSOUND]gText_KeypadSound,
+	[MENUITEM_SOUNDOUTPUT]gText_SoundOutput,
+	[MENUITEM_RESETDEFAULTS]gText_ResetDefaults,
+	[MENUITEM_LOWERNUZLOCKE]gText_DisableNuzlockeMode,
+	[MENUITEM_FREEZENUZLOCKE]gText_FreezeNuzlockeMode,
+    [MENUITEM_CANCEL]gText_OptionMenuCancel,
 };
 
 // Option descriptions, printed in bottom window
