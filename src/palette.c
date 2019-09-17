@@ -46,6 +46,7 @@ struct PaletteStruct
     u8 ps_field_9;
 };
 
+static void CopyFilteredSpritePalettesForFade(void);
 static void unused_sub_80A1CDC(struct PaletteStruct *, u32 *);
 static void unused_sub_80A1E40(struct PaletteStruct *, u32 *);
 static void unused_sub_80A1F00(struct PaletteStruct *);
@@ -136,6 +137,30 @@ void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, u8 mod
 	}
 }
 
+static void CopyFilteredSpritePalettesForFade(void)
+{
+	int i, j;
+	u16 color;
+	
+	// Weather palette is copied here
+	for (i = 0; i < 16; i++)
+	{
+		// Copy the transparent color
+		CpuCopy16(gPlttBufferFaded + 0x100 + (i * 16), &color, 2);
+		// Is the transparent color tagged as a filtered palette? (0x1234)
+		if (color == 0x1234)
+		{
+			for (j = 1; j < 16; j++)
+			{
+				// Copy the color from gPlttBufferFaded
+				CpuCopy16(gPlttBufferFaded + 0x100 + (i * 16) + j, &color, 2);
+				// Write the palette to gPlttBufferUnfaded if it is (ignoring transparent color)
+				CpuFill16(color, gPlttBufferUnfaded + 0x100 + (i * 16) + j, 2);
+			}
+		}
+	}
+}
+
 void FillPalette(u16 value, u16 offset, u16 size)
 {
     CpuFill16(value, gPlttBufferUnfaded + offset, size);
@@ -208,6 +233,10 @@ bool8 BeginNormalPaletteFade(u32 selectedPalettes, s8 delay, u8 startY, u8 targe
     }
     else
     {
+		// Writes filtered overworld palettes to gPlttBufferUnfaded
+		// Palettes look jank during the fade without this
+		CopyFilteredSpritePalettesForFade();
+		
         gPaletteFade.deltaY = 2;
 
         if (delay < 0)
