@@ -2456,7 +2456,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     struct TradeRoomPlayer trainer;
     s32 i;
 
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < MAX_LINK_PLAYERS; i++)
     {
         u8 key = keys[i];
         u16 setFacing = FACING_NONE;
@@ -3047,7 +3047,7 @@ static s32 sub_80878E4(u8 linkPlayerId)
 static u8 GetLinkPlayerIdAt(s16 x, s16 y)
 {
     u8 i;
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < MAX_LINK_PLAYERS; i++)
     {
         if (gLinkPlayerEventObjects[i].active
          && (gLinkPlayerEventObjects[i].movementMode == 0 || gLinkPlayerEventObjects[i].movementMode == 2))
