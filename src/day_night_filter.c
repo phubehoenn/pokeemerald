@@ -1,29 +1,82 @@
 #include "global.h"
+#include "day_night_filter.h"
 #include "field_weather.h"
 #include "fieldmap.h"
 #include "constants/map_types.h"
 #include "palette.h"
 #include "play_time.h"
+#include "constants/weather.h"
 
-// Returns the opacity to be used by the filter
-// Returns color if retColor = TRUE, coeff if false
-static u16 GetDayNightFilterColorOrCoeff(bool8 retColor)
+// Update day/night/season colors every second
+// unless a palette fade is happening or a new map is loading
+void UpdateDayNightColors(void)
+{
+	if (!gPaletteFade.active
+	 && !gPaletteFade.y) // Hacky lil workaround here
+	{
+		// Update BG
+		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
+		// Update OW sprites
+		ReloadSpritePalettes();
+		// Update weather
+		UpdateWeatherPal();
+	}
+}
+
+// Returns TRUE if a custom filter color or coeff has been defined in SaveBlock2
+static bool8 IsCustomFilterColorOrCoeffSet(void)
 {
 	u8 coeff = gSaveBlock2Ptr->screenFilterCoeff;
 	u16 color = gSaveBlock2Ptr->screenFilterColor;
 	
-	// If a custom color has been set, return the custom coeff instead
-	if (color != 0 && coeff != 0)
-	{
-		if (retColor)
-			return color;
-		else
-			return coeff;
-	}
-	if (retColor)
-		return 0x7C08;
+	if (coeff != 0 || color != 0)
+		return TRUE;
 	else
-		return 0x40;
+		return FALSE;
+}
+
+// Returns color to be used by the filter
+static u16 GetDayNightFilterColor(void)
+{
+	// If a custom color has been set, return that
+	if (IsCustomFilterColorOrCoeffSet())
+	{
+		return gSaveBlock2Ptr->screenFilterColor;
+	}
+	// Otherwise, calculate the color
+	switch (gSaveBlock2Ptr->dayNightStatus)
+	{
+		case TIME_DUSK:
+			return COLOR_DUSK;
+		case TIME_NIGHT:
+			return COLOR_NIGHT;
+		case TIME_DAWN:
+			return COLOR_DAWN;
+		default:
+			return 0;
+	}
+}
+
+// Returns coefficient value to be used by the filter
+static u8 GetDayNightFilterCoeff(void)
+{
+	// If a custom coeff has been set, return that
+	if (IsCustomFilterColorOrCoeffSet())
+	{
+		return gSaveBlock2Ptr->screenFilterCoeff;
+	}
+	// Otherwise, calculate the coefficient
+	switch (gSaveBlock2Ptr->dayNightStatus)
+	{
+		case TIME_DUSK:
+			return COEFF_DUSK;
+		case TIME_NIGHT:
+			return COEFF_NIGHT;
+		case TIME_DAWN:
+			return COEFF_DAWN;
+		default:
+			return 0;
+	}
 }
 
 // Makes color brighter if it's part of a reflection palette
@@ -59,8 +112,8 @@ u16 MakeReflectionColor(u16 inputColor)
 // Modified from BlendPalette in util.c
 u16 DoDayNightFilter(u16 inputColor)
 {
-	u8 coeff = GetDayNightFilterColorOrCoeff(FALSE);
-	u16 filtColor = GetDayNightFilterColorOrCoeff(TRUE);
+	u8 coeff = GetDayNightFilterCoeff();
+	u16 filtColor = GetDayNightFilterColor();
 	u16 retColor;
 	
 	struct PlttData *data1 = (struct PlttData *)&inputColor;

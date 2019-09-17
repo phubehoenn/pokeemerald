@@ -150,6 +150,7 @@ static void CopyFilteredSpritePalettesForFade(void)
 		// Is the transparent color tagged as a filtered palette? (0x1234)
 		if (color == 0x1234)
 		{
+			// Loop through palette colors
 			for (j = 1; j < 16; j++)
 			{
 				// Copy the color from gPlttBufferFaded
