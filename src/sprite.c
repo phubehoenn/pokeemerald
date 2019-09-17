@@ -86,6 +86,7 @@ static void ApplyAffineAnimFrame(u8 matrixNum, struct AffineAnimFrameCmd *frameC
 static u8 IndexOfSpriteTileTag(u16 tag);
 static void AllocSpriteTileRange(u16 tag, u16 start, u16 count);
 static void DoLoadSpritePalette(const u16 *src, u16 paletteOffset);
+static void DoLoadSpritePaletteAndTryFilter(const u16 *src, u16 paletteOffset);
 static void obj_update_pos2(struct Sprite* sprite, s32 a1, s32 a2);
 
 typedef void (*AnimFunc)(struct Sprite *);
@@ -1628,6 +1629,27 @@ u8 LoadSpritePalette(const struct SpritePalette *palette)
     }
 }
 
+u8 LoadSpritePaletteAndTryFilter(const struct SpritePalette *palette)
+{
+    u8 index = IndexOfSpritePaletteTag(palette->tag);
+
+    if (index != 0xFF)
+        return index;
+
+    index = IndexOfSpritePaletteTag(0xFFFF);
+
+    if (index == 0xFF)
+    {
+        return 0xFF;
+    }
+    else
+    {
+        sSpritePaletteTags[index] = palette->tag;
+        DoLoadSpritePaletteAndTryFilter(palette->data, index * 16);
+        return index;
+    }
+}
+
 void LoadSpritePalettes(const struct SpritePalette *palettes)
 {
     u8 i;
@@ -1639,6 +1661,11 @@ void LoadSpritePalettes(const struct SpritePalette *palettes)
 void DoLoadSpritePalette(const u16 *src, u16 paletteOffset)
 {
     LoadPalette(src, paletteOffset + 0x100, 32);
+}
+
+void DoLoadSpritePaletteAndTryFilter(const u16 *src, u16 paletteOffset)
+{
+    LoadPaletteWithDayNightFilter(src, paletteOffset + 0x100, 1, FALSE);
 }
 
 u8 AllocSpritePalette(u16 tag)

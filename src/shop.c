@@ -850,7 +850,8 @@ static void BuyMenuDrawEventObjects(void)
             SpriteCallbackDummy,
             (u16)gShopDataPtr->viewportObjects[i][X_COORD] * 16 + 8,
             (u16)gShopDataPtr->viewportObjects[i][Y_COORD] * 16 + 48 - graphicsInfo->height / 2,
-            2);
+            2,
+			graphicsInfo->filter);
 
         if (BuyMenuCheckIfEventObjectOverlapsMenuBg(gShopDataPtr->viewportObjects[i]) == TRUE)
         {

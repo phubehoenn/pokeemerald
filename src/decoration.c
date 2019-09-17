@@ -1364,9 +1364,9 @@ void SetUpPlacingDecorationPlayerAvatar(u8 taskId, struct PlaceDecorationGraphic
         x -= 8;
 
     if (gSaveBlock2Ptr->playerGender == MALE)
-        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_BRENDAN_DECORATING, SpriteCallbackDummy, x, 72, 0);
+        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_BRENDAN_DECORATING, SpriteCallbackDummy, x, 72, 0, FALSE);
     else
-        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_MAY_DECORATING, SpriteCallbackDummy, x, 72, 0);
+        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_MAY_DECORATING, SpriteCallbackDummy, x, 72, 0, FALSE);
 
     gSprites[sDecor_CameraSpriteObjectIdx2].oam.priority = 1;
     DestroySprite(&gSprites[sDecor_CameraSpriteObjectIdx1]);
@@ -1998,7 +1998,7 @@ u8 gpu_pal_decompress_alloc_tag_and_upload(struct PlaceDecorationGraphicsDataBuf
     sub_8129048(data);
     data->decoration = &gDecorations[decor];
     if (data->decoration->permission == DECORPERM_SPRITE)
-        return AddPseudoEventObject(data->decoration->tiles[0], SpriteCallbackDummy, 0, 0, 1);
+        return AddPseudoEventObject(data->decoration->tiles[0], SpriteCallbackDummy, 0, 0, 1, FALSE);
 
     FreeSpritePaletteByTag(PLACE_DECORATION_SELECTOR_TAG);
     sub_81291E8(data);
@@ -2077,7 +2077,7 @@ u8 AddDecorationIconObjectFromEventObject(u16 tilesTag, u16 paletteTag, u8 decor
     }
     else
     {
-        spriteId = AddPseudoEventObject(sPlaceDecorationGraphicsDataBuffer.decoration->tiles[0], SpriteCallbackDummy, 0, 0, 1);
+        spriteId = AddPseudoEventObject(sPlaceDecorationGraphicsDataBuffer.decoration->tiles[0], SpriteCallbackDummy, 0, 0, 1, FALSE);
     }
     return spriteId;
 }
@@ -2249,9 +2249,9 @@ void SetUpPuttingAwayDecorationPlayerAvatar(void)
     sub_812A39C();
     gFieldCamera.spriteId = CreateSprite(&gUnknown_085A7404, 120, 80, 0);
     if (gSaveBlock2Ptr->playerGender == MALE)
-        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_BRENDAN_DECORATING, SpriteCallbackDummy, 136, 72, 0);
+        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_BRENDAN_DECORATING, SpriteCallbackDummy, 136, 72, 0, FALSE);
     else
-        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_MAY_DECORATING, SpriteCallbackDummy, 136, 72, 0);
+        sDecor_CameraSpriteObjectIdx2 = AddPseudoEventObject(EVENT_OBJ_GFX_MAY_DECORATING, SpriteCallbackDummy, 136, 72, 0, FALSE);
 
     gSprites[sDecor_CameraSpriteObjectIdx2].oam.priority = 1;
     DestroySprite(&gSprites[sDecor_CameraSpriteObjectIdx1]);

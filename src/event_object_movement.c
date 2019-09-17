@@ -112,7 +112,7 @@ static void RemoveEventObjectIfOutsideView(struct EventObject *);
 static void sub_808E1B8(u8, s16, s16);
 static void SetPlayerAvatarEventObjectIdAndObjectId(u8, u8);
 static void sub_808E38C(struct EventObject *);
-static u8 sub_808E8F4(const struct SpritePalette *);
+static u8 sub_808E8F4(const struct SpritePalette *, bool8 doFilter);
 static u8 FindEventObjectPaletteIndexByTag(u16);
 static void sub_808EAB0(u16, u8);
 static bool8 EventObjectDoesZCoordMatch(struct EventObject *, u8);
@@ -425,6 +425,12 @@ const u8 gInitialMovementTypeFacingDirections[] = {
 #define EVENT_OBJ_PAL_TAG_32 0x1121
 #define EVENT_OBJ_PAL_TAG_33 0x1122
 #define EVENT_OBJ_PAL_TAG_34 0x1123
+#define EVENT_OBJ_PAL_TAG_35 0x1124 // filtered gEventObjectPalette2
+#define EVENT_OBJ_PAL_TAG_36 0x1125 // filtered gEventObjectPalette0
+#define EVENT_OBJ_PAL_TAG_37 0x1126 // filtered gEventObjectPalette14
+#define EVENT_OBJ_PAL_TAG_38 0x1127 // filtered gEventObjectPalette20
+#define EVENT_OBJ_PAL_TAG_39 0x1128 // filtered gEventObjectPalette21
+#define EVENT_OBJ_PAL_TAG_40 0x1129 // filtered gEventObjectPalette26
 #define EVENT_OBJ_PAL_TAG_NONE 0x11FF
 
 #include "data/field_event_obj/field_effect_object_template_pointers.h"
@@ -471,6 +477,13 @@ const struct SpritePalette sEventObjectSpritePalettes[] = {
     {gEventObjectPalette32, EVENT_OBJ_PAL_TAG_32},
     {gEventObjectPalette33, EVENT_OBJ_PAL_TAG_33},
     {gEventObjectPalette34, EVENT_OBJ_PAL_TAG_34},
+	// Filtered palettes begin here
+	{gEventObjectPalette2, EVENT_OBJ_PAL_TAG_35},
+	{gEventObjectPalette0, EVENT_OBJ_PAL_TAG_36},
+	{gEventObjectPalette14, EVENT_OBJ_PAL_TAG_37},
+	{gEventObjectPalette20, EVENT_OBJ_PAL_TAG_38},
+	{gEventObjectPalette21, EVENT_OBJ_PAL_TAG_39},
+	{gEventObjectPalette26, EVENT_OBJ_PAL_TAG_40},
     {NULL,                  0x0000},
 };
 
@@ -1342,7 +1355,7 @@ static u8 TrySetupEventObjectSprite(struct EventObjectTemplate *eventObjectTempl
     
     if (spriteTemplate->paletteTag != 0xffff)
     {
-        LoadEventObjectPalette(spriteTemplate->paletteTag);
+        LoadEventObjectPalette(spriteTemplate->paletteTag, graphicsInfo->filter);
     }
 
     if (eventObject->movementType == MOVEMENT_TYPE_INVISIBLE)
@@ -1462,7 +1475,7 @@ static void MakeObjectTemplateFromEventObjectTemplate(struct EventObjectTemplate
     MakeObjectTemplateFromEventObjectGraphicsInfoWithCallbackIndex(eventObjectTemplate->graphicsId, eventObjectTemplate->movementType, spriteTemplate, subspriteTables);
 }
 
-u8 AddPseudoEventObject(u16 graphicsId, void (*callback)(struct Sprite *), s16 x, s16 y, u8 subpriority)
+u8 AddPseudoEventObject(u16 graphicsId, void (*callback)(struct Sprite *), s16 x, s16 y, u8 subpriority, bool8 doFilter)
 {
     struct SpriteTemplate *spriteTemplate;
     const struct SubspriteTable *subspriteTables;
@@ -1473,7 +1486,7 @@ u8 AddPseudoEventObject(u16 graphicsId, void (*callback)(struct Sprite *), s16 x
     MakeObjectTemplateFromEventObjectGraphicsInfo(graphicsId, callback, spriteTemplate, &subspriteTables);
     if (spriteTemplate->paletteTag != 0xFFFF)
     {
-        LoadEventObjectPalette(spriteTemplate->paletteTag);
+        LoadEventObjectPalette(spriteTemplate->paletteTag, doFilter);
     }
     spriteId = CreateSprite(spriteTemplate, x, y, subpriority);
     free(spriteTemplate);
@@ -1651,7 +1664,7 @@ static void sub_808E1B8(u8 eventObjectId, s16 x, s16 y)
     spriteTemplate.images = &spriteFrameImage;
     if (spriteTemplate.paletteTag != 0xffff)
     {
-        LoadEventObjectPalette(spriteTemplate.paletteTag);
+        LoadEventObjectPalette(spriteTemplate.paletteTag, graphicsInfo->filter);
     }
     spriteId = CreateSprite(&spriteTemplate, 0, 0, 0);
     if (spriteId != MAX_SPRITES)
@@ -1794,7 +1807,7 @@ static void get_berry_tree_graphics(struct EventObject *eventObject, struct Spri
         if (berryId > ITEM_TO_BERRY(LAST_BERRY_INDEX))
             berryId = 0;
 
-		LoadEventObjectPalette(gBerryTreePaletteTagTablePointers[berryId][berryStage]);
+		LoadEventObjectPalette(gBerryTreePaletteTagTablePointers[berryId][berryStage], 0);
         EventObjectSetGraphicsId(eventObject, gBerryTreeEventObjectGraphicsIdTablePointers[berryId][berryStage]);
         sprite->images = gBerryTreePicTablePointers[berryId];
         sprite->oam.paletteNum = IndexOfSpritePaletteTag(gBerryTreePaletteTagTablePointers[berryId][berryStage]);
@@ -1907,33 +1920,37 @@ void FreeAndReserveObjectSpritePalettes(void)
     gReservedSpritePaletteCount = 12;
 }
 
- void LoadEventObjectPalette(u16 paletteTag)
+ void LoadEventObjectPalette(u16 paletteTag, bool8 doFilter)
 {
     u16 i = FindEventObjectPaletteIndexByTag(paletteTag);
 
     if (i != EVENT_OBJ_PAL_TAG_NONE) // always true
     {
-        sub_808E8F4(&sEventObjectSpritePalettes[i]);
+        sub_808E8F4(&sEventObjectSpritePalettes[i], doFilter);
     }
 }
 
-void Unused_LoadEventObjectPaletteSet(u16 *paletteTags)
+void Unused_LoadEventObjectPaletteSet(u16 *paletteTags, bool8 doFilter)
 {
     u8 i;
 
     for (i = 0; paletteTags[i] != EVENT_OBJ_PAL_TAG_NONE; i++)
     {
-        LoadEventObjectPalette(paletteTags[i]);
+        LoadEventObjectPalette(paletteTags[i], doFilter);
     }
 }
 
-static u8 sub_808E8F4(const struct SpritePalette *spritePalette)
+static u8 sub_808E8F4(const struct SpritePalette *spritePalette, bool8 doFilter)
 {
     if (IndexOfSpritePaletteTag(spritePalette->tag) != 0xFF)
     {
         return 0xFF;
     }
-    return LoadSpritePalette(spritePalette);
+	
+	if (doFilter) // OW sprite needs filtering
+		return LoadSpritePaletteAndTryFilter(spritePalette);
+	else
+		return LoadSpritePalette(spritePalette);
 }
 
 void PatchObjectPalette(u16 paletteTag, u8 paletteSlot, bool8 doFilter)
