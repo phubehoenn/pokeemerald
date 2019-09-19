@@ -243,14 +243,34 @@ void UpdateDayNightStatus(void)
 	if (gSaveBlock2Ptr->timeWeek == TIME_WEEK_1)
 		season++;
 	
-	if (gSaveBlock2Ptr->timeHour == gSunriseTimes[season] || gSaveBlock2Ptr->timeHour == (gSunriseTimes[season] + 1)) //if 1 hour before/after sunrise time, it is dawn
+	if (gSaveBlock2Ptr->timeHour == GetSunriseTime() || gSaveBlock2Ptr->timeHour == GetSunriseTime() + 1) //if 1 hour before/after sunrise time, it is dawn
 		gSaveBlock2Ptr->dayNightStatus = TIME_DAWN;
-	else if (gSaveBlock2Ptr->timeHour == gSunsetTimes[season] || gSaveBlock2Ptr->timeHour == (gSunsetTimes[season] - 1)) //if 1 hour before/after sunset time, it is dusk
+	else if (gSaveBlock2Ptr->timeHour == GetSunsetTime() || gSaveBlock2Ptr->timeHour == GetSunsetTime() - 1) //if 1 hour before/after sunset time, it is dusk
 		gSaveBlock2Ptr->dayNightStatus = TIME_DUSK;
-	else if (gSaveBlock2Ptr->timeHour < gSunriseTimes[season] || gSaveBlock2Ptr->timeHour > gSunsetTimes[season]) //if hour is lower than sunrise or after sunset time, it is night
+	else if (gSaveBlock2Ptr->timeHour < GetSunriseTime() || gSaveBlock2Ptr->timeHour > GetSunsetTime()) //if hour is lower than sunrise or after sunset time, it is night
 		gSaveBlock2Ptr->dayNightStatus = TIME_NIGHT;
 	else //if not any of these, it is day
 		gSaveBlock2Ptr->dayNightStatus = TIME_DAY;
+}
+
+u8 GetSunriseTime(void)
+{
+	u8 season = gSaveBlock2Ptr->timeSeason * 2;
+	
+	if (gSaveBlock2Ptr->timeWeek == TIME_WEEK_1)
+		season++;
+	
+	return gSunriseTimes[season];
+}
+
+u8 GetSunsetTime(void)
+{
+	u8 season = gSaveBlock2Ptr->timeSeason * 2;
+	
+	if (gSaveBlock2Ptr->timeWeek == TIME_WEEK_1)
+		season++;
+	
+	return gSunsetTimes[season];
 }
 
 void TryIncrementWaitTime(void)

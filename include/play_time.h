@@ -76,10 +76,10 @@ void IncrementClockDay(bool8 runRoutines);
 void IncrementClockWeek(bool8 runRoutines);
 void IncrementClockSeason(bool8 runRoutines);
 void IncrementClockYear(bool8 runRoutines);
-void UpdateDayNightStatus(void);
 u8 CalculateSubSeason(void);
-
-//hour routines
+void UpdateDayNightStatus(void);
+u8 GetSunriseTime(void);
+u8 GetSunsetTime(void);
 void TryIncrementWaitTime(void);
 
 #endif // GUARD_PLAY_TIME_H
