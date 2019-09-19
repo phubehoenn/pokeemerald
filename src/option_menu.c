@@ -352,6 +352,7 @@ void CB2_InitOptionMenu(void)
 		Task_DrawDescriptionWindow(taskId);
 		HighlightOptionMenuItem(gTasks[taskId].data[TD_MENUSELECTION]);
         Task_CopyOptionsToTask(taskId);
+		gTasks[taskId].data[TD_MUSICBUFFER] = gSaveBlock2Ptr->optionsMusic; // Stores the music option when the menu is loaded
 		Task_PrintOptions(taskId);
 
         gMain.state++;
@@ -585,7 +586,6 @@ static void Task_CopyOptionsToTask(u8 taskId)
 	gTasks[taskId].data[TD_QUICKFLEE] = gSaveBlock2Ptr->optionsQuickFlee;
 	gTasks[taskId].data[TD_KEYBOARD] = gSaveBlock2Ptr->optionsKeyboard;
 	gTasks[taskId].data[TD_MUSIC] = gSaveBlock2Ptr->optionsMusic;
-	gTasks[taskId].data[TD_MUSICBUFFER] = gSaveBlock2Ptr->optionsMusic; // Stores the music option when the menu is loaded
 	gTasks[taskId].data[TD_FRAMETYPE] = gSaveBlock2Ptr->optionsWindowFrameType;
 	gTasks[taskId].data[TD_LOWHPSOUND] = gSaveBlock2Ptr->optionsLowHPSound;
 	gTasks[taskId].data[TD_KEYPADSOUND] = gSaveBlock2Ptr->optionsKeypadSound;
