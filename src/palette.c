@@ -99,41 +99,59 @@ void LoadPalette(const void *src, u16 offset, u16 size)
 
 // Applies day/night filter to palette before loading
 // Also used to recalculate day/night filter
-// If (mode == 0) ... no filtering
-// If (mode == 1) ... filtering (background)
-// If (mode == 2) ... filtering (sprites)
-// If (mode == 3) ... filtering and palette lightening (for reflections)
-
 void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, u8 mode)
 {
-	int i;
+	int i, j;
+	u8 numColors; // How many colors in the palette need to be filtered?
 	u16 color;
 	
-	// Loops through the palette
-	for (i = 0; i < size * 16; i++)
+	// Loop through number of palettes
+	for (i = 0; i < size; i++)
 	{
-		// Copies the color
-		CpuCopy16(src + (i * 2), &color, 2);
-		// If filter mode isn't off, it'll be affected by the day/night filter
-		if (mode != FILTER_MODE_OFF || mode != FILTER_MODE_BACKGROUND)
-		{
-			// Tag the palette with 0x1234 if it's the transparent color
-			if (i == 0)
-				color = 0x1234;
-			// If mode is set to FILTER_MODE_REFLECTION, lighten the color
-			else if (mode == FILTER_MODE_REFLECTION)
-				color = MakeReflectionColor(color);
-			// Write color to gPlttBufferUnfaded
-			CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
+		// Set numColors to filter whole palette by default
+		numColors = 0x10;
+		
+		// Loops through the palette
+		for (j = 0; j < 16; j++)
+		{	
+			// Copies the color
+			CpuCopy16(src + (i * 32) + (j * 2), &color, 2);
+			
+			// Check for special palettes that don't get filtered entirely (streetlights etc)
+			// If transparent color is between 0x4200 and 0x420F and filter mode is set to background
+			if (mode == FILTER_MODE_BACKGROUND && j == 0 && (color >= 0x4202 && color < 0x4210))
+			{
+				// Number of colors to filter in the palette is set between 2 and F
+				// Values less than 2 wouldn't have any effect as it would just filter the transparent color
+				// If you want to filter the first 8 colors, set the transparent color to 0x4208 for example
+				// (64, 132, 132 in RGB -  the number of palettes to filter is controlled by the red value)
+				// This can't work on BG palette 0!!
+				numColors = color - 0x4200;
+			}		
+			// If filter mode isn't off, it'll be affected by the day/night filter
+			else if (mode > FILTER_MODE_BACKGROUND)
+			{
+				// Tag the palette with 0x1234 if it's the transparent color
+				if (j == 0)
+					color = 0x1234;
+				// If mode is set to FILTER_MODE_REFLECTION, lighten the color
+				else if (mode == FILTER_MODE_REFLECTION)
+					color = MakeReflectionColor(color);
+				// Write color to gPlttBufferUnfaded
+				CpuFill16(color, gPlttBufferUnfaded + offset + (i * 16) + j, 2);
+			}
+			// The color is filtered if it's not the transparent color and if numColors isn't 0
+			if (j != 0 && numColors != 0)
+				color = DoDayNightFilter(color);
+			// Filtered color is written to gPlttBufferUnfaded if filter is off or set to background
+			if (mode < FILTER_MODE_SPRITE)
+				CpuFill16(color, gPlttBufferUnfaded + offset + (i * 16) + j, 2);
+			// Filtered color is written to gPlttBufferFaded
+			CpuFill16(color, gPlttBufferFaded + offset + (i * 16) + j, 2);
+			// Subtract 1 from numColors if it's not already 0
+			if (numColors != 0)
+				numColors--;
 		}
-		// The color is filtered if it's not the transparent color
-		if (i != 0)
-			color = DoDayNightFilter(color);
-		// Filtered color is written to gPlttBufferUnfaded if filter is off or set to background
-		if (mode == FILTER_MODE_OFF || mode == FILTER_MODE_BACKGROUND)
-			CpuFill16(color, gPlttBufferUnfaded + offset + i, 2);
-		// Filtered color is written to gPlttBufferFaded
-		CpuFill16(color, gPlttBufferFaded + offset + i, 2);
 	}
 }
 

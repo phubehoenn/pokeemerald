@@ -25,12 +25,12 @@ void UpdateDayNightColors(void)
 	if (!gPaletteFade.active
 	 && !gPaletteFade.y) // Hacky lil workaround here
 	{
-		// Update BG
-		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
 		// Update OW sprites
 		ReloadSpritePalettes();
 		// Update weather
 		UpdateWeatherPal();
+		// Update BG
+		apply_map_tileset1_tileset2_palette(gMapHeader.mapLayout);
 	}
 }
 
@@ -46,7 +46,8 @@ static bool8 IsCustomFilterColorOrCoeffSet(void)
 		return FALSE;
 }
 
-static u16 GetFilterStage()
+// Combines minutes with seconds
+static u16 GetTotalSeconds()
 {
 	// Get clock seconds and minute
 	u8 seconds = gSaveBlock2Ptr->timeSeconds;
@@ -82,32 +83,28 @@ static u8 GetDayNightFilterCoeff(void)
 	
 	// Is it the last hour of day?
 	if (hour == GetSunsetTime() - 2)
-		return gPreDuskCoeffs[GetFilterStage()];
+		return gPreDuskCoeffs[GetTotalSeconds()];
 	// Is it the first hour of dusk?
 	else if (hour == GetSunsetTime() - 1)
-		return gDusk1Coeffs[GetFilterStage()];
+		return gDusk1Coeffs[GetTotalSeconds()];
 	// Is it the second hour of dusk?
 	else if (hour == GetSunsetTime())
-		return gDusk2Coeffs[GetFilterStage()];
+		return gDusk2Coeffs[GetTotalSeconds()];
 	// Is it the last hour of night?
 	else if (hour == GetSunriseTime() - 1)
-		return gPreDawnCoeffs[GetFilterStage()];
+		return gPreDawnCoeffs[GetTotalSeconds()];
 	// Is it the first hour of dawn?
 	else if (hour == GetSunriseTime())
-		return gDawn1Coeffs[GetFilterStage()];
+		return gDawn1Coeffs[GetTotalSeconds()];
 	// Is it the second hour of dawn?
 	else if (hour == GetSunriseTime() + 1)
-		return gDawn2Coeffs[GetFilterStage()];
+		return gDawn2Coeffs[GetTotalSeconds()];
 	// Is it night?
 	else if (gSaveBlock2Ptr->dayNightStatus == TIME_NIGHT)
-	{
 		return COEFF_NIGHT;
-	}
 	// It must be day - return 0 coeff
 	else
-	{
 		return 0;
-	}
 }
 
 // Makes color brighter if it's part of a reflection palette
