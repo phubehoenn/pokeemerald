@@ -7176,3 +7176,35 @@ gText_082C877B:: @ 82C877B
 	.include "data/text/save.inc"
 	.include "data/text/wait.inc"
 	.include "data/text/birch_speech.inc"
+
+	.include "data/maps/Testmap1A/scripts.inc"
+
+	.include "data/maps/Testmap2A/scripts.inc"
+
+	.include "data/maps/Testmap3A/scripts.inc"
+
+	.include "data/maps/Testmap4A/scripts.inc"
+
+	.include "data/maps/Testmap1B/scripts.inc"
+
+	.include "data/maps/Testmap2B/scripts.inc"
+
+	.include "data/maps/Testmap3B/scripts.inc"
+
+	.include "data/maps/Testmap4B/scripts.inc"
+
+	.include "data/maps/Testmap1C/scripts.inc"
+
+	.include "data/maps/Testmap2C/scripts.inc"
+
+	.include "data/maps/Testmap3C/scripts.inc"
+
+	.include "data/maps/Testmap4C/scripts.inc"
+
+	.include "data/maps/Testmap1D/scripts.inc"
+
+	.include "data/maps/Testmap2D/scripts.inc"
+
+	.include "data/maps/Testmap3D/scripts.inc"
+
+	.include "data/maps/Testmap4D/scripts.inc"
