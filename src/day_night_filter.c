@@ -145,9 +145,6 @@ u16 DoDayNightFilter(u16 inputColor)
 	u16 retColor;
 	
 	struct PlttData *data1 = (struct PlttData *)&inputColor;
-	s8 r = data1->r;
-	s8 g = data1->g;
-	s8 b = data1->b;
 	struct PlttData *data2 = (struct PlttData *)&filtColor;
 	
 	if ((gMapHeader.mapType == MAP_TYPE_UNDERGROUND //is player inside?
@@ -161,9 +158,23 @@ u16 DoDayNightFilter(u16 inputColor)
 	}
 	else
 	{
-		retColor = ((r + (((data2->r - r) * (coeff / 0x10)) >> 4)) << 0)
-				   | ((g + (((data2->g - g) * (coeff / 0x10)) >> 4)) << 5)
-				   | ((b + (((data2->b - b) * (coeff / 0x10)) >> 4)) << 10);
+		u8 intensity = 0xDF; // Higher value = less intense
+		
+		s8 r = data1->r;
+		s8 g = data1->g;
+		s8 b = data1->b;
+		
+		unsigned int mR = data2->r;
+		unsigned int mG = data2->g;
+		unsigned int mB = data2->b;
+
+		unsigned char rem = intensity - coeff; // Remaining fraction
+
+		short r1 = (r*rem + mR*coeff) / intensity;
+		short g1 = (g*rem + mG*coeff) / intensity;
+		short b1 = (b*rem + mB*coeff) / intensity; 
+
+		retColor = ((unsigned char)(r1 & intensity) + ((unsigned char)(g1 & intensity) << 5) + ((unsigned char)(b1 & intensity) << 10));
 	}
 	
 	return retColor;
