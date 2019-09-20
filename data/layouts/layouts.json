@@ -4416,7 +4416,7 @@
             "height": 64,
             "id": "LAYOUT_TESTMAP1A",
             "name": "Testmap1A_Layout",
-            "primary_tileset": "gTileset_General",
+            "primary_tileset": "gTileset_Plains",
             "secondary_tileset": "gTileset_Petalburg",
             "width": 64
         },
@@ -4426,7 +4426,7 @@
             "height": 64,
             "id": "LAYOUT_TESTMAP2A",
             "name": "Testmap2A_Layout",
-            "primary_tileset": "gTileset_General",
+            "primary_tileset": "gTileset_Plains",
             "secondary_tileset": "gTileset_Petalburg",
             "width": 64
         },
@@ -4436,7 +4436,7 @@
             "height": 64,
             "id": "LAYOUT_TESTMAP3A",
             "name": "Testmap3A_Layout",
-            "primary_tileset": "gTileset_General",
+            "primary_tileset": "gTileset_Plains",
             "secondary_tileset": "gTileset_Petalburg",
             "width": 64
         },
@@ -4446,7 +4446,7 @@
             "height": 64,
             "id": "LAYOUT_TESTMAP4A",
             "name": "Testmap4A_Layout",
-            "primary_tileset": "gTileset_General",
+            "primary_tileset": "gTileset_Plains",
             "secondary_tileset": "gTileset_Petalburg",
             "width": 64
         },
