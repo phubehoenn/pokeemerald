@@ -1184,7 +1184,9 @@ static void ShowDecorationOnMap_(u16 mapX, u16 mapY, u8 decWidth, u8 decHeight, 
             else
                 impassableFlag = 0;
 
-            if (gDecorations[decoration].permission != DECORPERM_NA_WALL && MetatileBehavior_IsSecretBaseNorthWall(MapGridGetMetatileBehaviorAt(x, y)) == TRUE)
+            if (gDecorations[decoration].permission != DECORPERM_NA_WALL
+			 && (MetatileBehavior_IsSecretBaseNorthWall(MapGridGetMetatileBehaviorAt(x, y)) == TRUE
+			 || MetatileBehavior_IsSecretBaseNorthWall(MapGridGetMetatileBehavior2At(x, y)) == TRUE))
                 posterSide = 1;
             else
                 posterSide = 0;
@@ -1440,9 +1442,9 @@ void sub_8128414(u8 taskId)
     DisplayItemMessageOnField(taskId, gStringVar4, sub_8128B80);
 }
 
-bool8 sub_8128484(u8 behaviorAt, u16 behaviorBy)
+bool8 sub_8128484(u8 behaviorAt, u16 behavior2At, u16 behaviorBy)
 {
-    if (MetatileBehavior_IsBlockDecoration(behaviorAt) != TRUE || behaviorBy != 0)
+    if ((MetatileBehavior_IsBlockDecoration(behaviorAt) != TRUE && MetatileBehavior_IsBlockDecoration(behavior2At) != TRUE) || behaviorBy != 0)
     {
         return FALSE;
     }
@@ -1458,9 +1460,9 @@ bool8 sub_81284AC(u8 taskId, s16 x, s16 y, u16 decor)
     return TRUE;
 }
 
-bool8 sub_81284F4(u16 behaviorAt, const struct Decoration *decoration)
+bool8 sub_81284F4(u16 behaviorAt, u16 behavior2At, const struct Decoration *decoration)
 {
-    if (MetatileBehavior_IsBlockDecoration(behaviorAt) != TRUE)
+    if (MetatileBehavior_IsBlockDecoration(behaviorAt) != TRUE || MetatileBehavior_IsBlockDecoration(behavior2At) != TRUE)
     {
         if (decoration->id == DECOR_SOLID_BOARD && MetatileBehavior_IsSecretBaseHole(behaviorAt) == TRUE)
             return TRUE;
@@ -1477,6 +1479,7 @@ bool8 sub_812853C(u8 taskId, const struct Decoration *decoration)
     u8 i;
     u8 j;
     u8 behaviorAt;
+	u8 behavior2At;
     u16 behaviorBy;
     u8 mapY;
     u8 mapX;
@@ -1496,8 +1499,9 @@ bool8 sub_812853C(u8 taskId, const struct Decoration *decoration)
             {
                 curX = gTasks[taskId].data[0] + j;
                 behaviorAt = MapGridGetMetatileBehaviorAt(curX, curY);
+				behavior2At = MapGridGetMetatileBehavior2At(curX, curY);
                 behaviorBy = GetBehaviorByMetatileId(0x200 + decoration->tiles[(mapY - 1 - i) * mapX + j]) & METATILE_ELEVATION_MASK;
-                if (!sub_81284F4(behaviorAt, decoration))
+                if (!sub_81284F4(behaviorAt, behavior2At, decoration))
                     return FALSE;
 
                 if (!sub_81284AC(taskId, curX, curY, behaviorBy))
@@ -1517,8 +1521,9 @@ bool8 sub_812853C(u8 taskId, const struct Decoration *decoration)
             {
                 curX = gTasks[taskId].data[0] + j;
                 behaviorAt = MapGridGetMetatileBehaviorAt(curX, curY);
+				behavior2At = MapGridGetMetatileBehavior2At(curX, curY);
                 behaviorBy = GetBehaviorByMetatileId(0x200 + decoration->tiles[(mapY - 1 - i) * mapX + j]) & METATILE_ELEVATION_MASK;
-                if (!MetatileBehavior_IsNormal(behaviorAt) && !sub_8128484(behaviorAt, behaviorBy))
+                if (!MetatileBehavior_IsNormal(behaviorAt) && !MetatileBehavior_IsNormal(behavior2At) && !sub_8128484(behaviorAt, behavior2At, behaviorBy))
                     return FALSE;
 
                 if (!sub_81284AC(taskId, curX, curY, behaviorBy))
@@ -1534,8 +1539,9 @@ bool8 sub_812853C(u8 taskId, const struct Decoration *decoration)
         {
             curX = gTasks[taskId].data[0] + j;
             behaviorAt = MapGridGetMetatileBehaviorAt(curX, curY);
+			behavior2At = MapGridGetMetatileBehavior2At(curX, curY);
             behaviorBy = GetBehaviorByMetatileId(0x200 + decoration->tiles[j]) & METATILE_ELEVATION_MASK;
-            if (!MetatileBehavior_IsNormal(behaviorAt) && !MetatileBehavior_IsSecretBaseNorthWall(behaviorAt))
+            if (!MetatileBehavior_IsNormal(behaviorAt) && !MetatileBehavior_IsNormal(behavior2At) && !MetatileBehavior_IsSecretBaseNorthWall(behaviorAt))
                 return FALSE;
 
             if (!sub_81284AC(taskId, curX, curY, behaviorBy))
@@ -1553,7 +1559,8 @@ bool8 sub_812853C(u8 taskId, const struct Decoration *decoration)
             for (j = 0; j < mapX; j++)
             {
                 curX = gTasks[taskId].data[0] + j;
-                if (!MetatileBehavior_IsSecretBaseNorthWall(MapGridGetMetatileBehaviorAt(curX, curY)))
+                if (!MetatileBehavior_IsSecretBaseNorthWall(MapGridGetMetatileBehaviorAt(curX, curY))
+				 && !MetatileBehavior_IsSecretBaseNorthWall(MapGridGetMetatileBehavior2At(curX, curY)))
                     return FALSE;
 
                 if (MapGridGetMetatileIdAt(curX, curY + 1) == 0x28c)
@@ -1567,14 +1574,15 @@ bool8 sub_812853C(u8 taskId, const struct Decoration *decoration)
         {
             curX = gTasks[taskId].data[0] + j;
             behaviorAt = MapGridGetMetatileBehaviorAt(curX, curY);
+			behavior2At = MapGridGetMetatileBehavior2At(curX, curY);
             if (decoration->shape == DECORSHAPE_1x2)
             {
-                if (!MetatileBehavior_HoldsLargeDecoration(behaviorAt))
+                if (!MetatileBehavior_HoldsLargeDecoration(behaviorAt) && !MetatileBehavior_HoldsLargeDecoration(behavior2At))
                     return FALSE;
             }
-            else if (!MetatileBehavior_HoldsSmallDecoration(behaviorAt))
+            else if (!MetatileBehavior_HoldsSmallDecoration(behaviorAt) && !MetatileBehavior_HoldsSmallDecoration(behavior2At))
             {
-                if (!MetatileBehavior_HoldsLargeDecoration(behaviorAt))
+                if (!MetatileBehavior_HoldsLargeDecoration(behaviorAt) && !MetatileBehavior_HoldsLargeDecoration(behavior2At))
                     return FALSE;
             }
 
@@ -2323,6 +2331,7 @@ void sub_8129C74(u8 taskId)
 {
     s16 *data;
     u8 behavior;
+	u8 behavior2;
 
     sub_812A0E8(taskId);
     if (sCurDecorSelectedInRearrangement != 0)
@@ -2334,7 +2343,9 @@ void sub_8129C74(u8 taskId)
     {
         data = gTasks[taskId].data;
         behavior = MapGridGetMetatileBehaviorAt(data[0], data[1]);
-        if (MetatileBehavior_IsSecretBasePC(behavior) == TRUE || MetatileBehavior_IsPlayerRoomPCOn(behavior) == TRUE)
+		behavior2 = MapGridGetMetatileBehavior2At(data[0], data[1]);
+        if ((MetatileBehavior_IsSecretBasePC(behavior) == TRUE || MetatileBehavior_IsPlayerRoomPCOn(behavior) == TRUE)
+		 || (MetatileBehavior_IsSecretBasePC(behavior2) == TRUE || MetatileBehavior_IsPlayerRoomPCOn(behavior2) == TRUE))
         {
             gSprites[sDecor_CameraSpriteObjectIdx1].invisible = FALSE;
             gSprites[sDecor_CameraSpriteObjectIdx1].callback = SpriteCallbackDummy;
@@ -2682,4 +2693,3 @@ void sub_812A478(u8 taskId)
     StringExpandPlaceholders(gStringVar4, gText_DecorationThrownAway);
     DisplayItemMessageOnField(taskId, gStringVar4, sub_8127A5C);
 }
-

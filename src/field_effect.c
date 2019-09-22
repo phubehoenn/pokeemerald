@@ -1722,14 +1722,16 @@ static bool8 sub_80B7114(struct Task *task)
     s16 x;
     s16 y;
     u8 behavior;
+	u8 behavior2;
     CameraObjectReset2();
     eventObject = &gEventObjects[gPlayerAvatar.eventObjectId];
     EventObjectSetHeldMovement(eventObject, GetFaceDirectionMovementAction(DIR_EAST));
     PlayerGetDestCoords(&x, &y);
     behavior = MapGridGetMetatileBehaviorAt(x, y);
+	behavior2 = MapGridGetMetatileBehavior2At(x, y);
     task->data[0]++;
     task->data[1] = 16;
-    if (behavior == 0x6b)
+    if (behavior == 0x6b || behavior2 == 0x6b)
     {
         behavior = 1;
         task->data[0] = 3;
@@ -1884,7 +1886,7 @@ static bool8 sub_80B7478(struct Task *task, struct EventObject *eventObject)
     {
         return FALSE;
     }
-    if (MetatileBehavior_IsWaterfall(eventObject->currentMetatileBehavior))
+    if (MetatileBehavior_IsWaterfall(eventObject->currentMetatileBehavior) || MetatileBehavior_IsWaterfall(eventObject->currentMetatileBehavior2))
     {
         task->data[0] = 3;
         return TRUE;
@@ -1933,7 +1935,7 @@ static bool8 dive_3_unknown(struct Task *task)
     PlayerGetDestCoords(&mapPosition.x, &mapPosition.y);
     if (!FieldEffectActiveListContains(FLDEFF_FIELD_MOVE_SHOW_MON))
     {
-        dive_warp(&mapPosition, gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior);
+        dive_warp(&mapPosition, gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior, gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior2);
         DestroyTask(FindTaskIdByFunc(Task_Dive));
         FieldEffectActiveListRemove(FLDEFF_USE_DIVE);
     }

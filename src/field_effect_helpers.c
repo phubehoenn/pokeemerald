@@ -68,7 +68,9 @@ void LoadObjectReflectionPalette(struct EventObject *eventObject, struct Sprite 
     u8 bridgeType;
     u16 bridgeReflectionVerticalOffsets[] = { 12, 28, 44 };
     sprite->data[2] = 0;
-    if (!GetEventObjectGraphicsInfo(eventObject->graphicsId)->disableReflectionPaletteLoad && ((bridgeType = MetatileBehavior_GetBridgeType(eventObject->previousMetatileBehavior)) || (bridgeType = MetatileBehavior_GetBridgeType(eventObject->currentMetatileBehavior))))
+    if (!GetEventObjectGraphicsInfo(eventObject->graphicsId)->disableReflectionPaletteLoad
+	&& (((bridgeType = MetatileBehavior_GetBridgeType(eventObject->previousMetatileBehavior)) || (bridgeType = MetatileBehavior_GetBridgeType(eventObject->currentMetatileBehavior))
+	|| (bridgeType = MetatileBehavior_GetBridgeType(eventObject->previousMetatileBehavior2)) || (bridgeType = MetatileBehavior_GetBridgeType(eventObject->currentMetatileBehavior2)))))
     {
 		// When walking on a bridge high above water (Route 120), the reflection is a solid dark blue color.
 		// This is so the sprite blends in with the dark water metatile underneath the bridge.
@@ -242,10 +244,15 @@ void UpdateShadowFieldEffect(struct Sprite *sprite)
         sprite->pos1.y = linkedSprite->pos1.y + sprite->data[3];
         if (!eventObject->active || !eventObject->hasShadow
          || MetatileBehavior_IsPokeGrass(eventObject->currentMetatileBehavior)
+		 || MetatileBehavior_IsPokeGrass(eventObject->currentMetatileBehavior2)
          || MetatileBehavior_IsSurfableWaterOrUnderwater(eventObject->currentMetatileBehavior)
+		 || MetatileBehavior_IsSurfableWaterOrUnderwater(eventObject->currentMetatileBehavior2)
          || MetatileBehavior_IsSurfableWaterOrUnderwater(eventObject->previousMetatileBehavior)
+		 || MetatileBehavior_IsSurfableWaterOrUnderwater(eventObject->previousMetatileBehavior2)
          || MetatileBehavior_IsReflective(eventObject->currentMetatileBehavior)
-         || MetatileBehavior_IsReflective(eventObject->previousMetatileBehavior))
+		 || MetatileBehavior_IsReflective(eventObject->currentMetatileBehavior2)
+         || MetatileBehavior_IsReflective(eventObject->previousMetatileBehavior)
+		 || MetatileBehavior_IsReflective(eventObject->previousMetatileBehavior2))
         {
             FieldEffectStop(sprite, FLDEFF_SHADOW);
         }
@@ -287,6 +294,7 @@ void UpdateTallGrassFieldEffect(struct Sprite *sprite)
     u8 mapNum;
     u8 mapGroup;
     u8 metatileBehavior;
+	u8 metatileBehavior2;
     u8 localId;
     u8 eventObjectId;
     struct EventObject *eventObject;
@@ -303,8 +311,9 @@ void UpdateTallGrassFieldEffect(struct Sprite *sprite)
     mapNum = sprite->data[3];
     mapGroup = sprite->data[4];
     metatileBehavior = MapGridGetMetatileBehaviorAt(sprite->data[1], sprite->data[2]);
-    if (TryGetEventObjectIdByLocalIdAndMap(localId, mapNum, mapGroup, &eventObjectId) || !MetatileBehavior_IsTallGrass(metatileBehavior) || (sprite->data[7] && sprite->animEnded))
-    {
+	metatileBehavior2 = MapGridGetMetatileBehavior2At(sprite->data[1], sprite->data[2]);
+    if (TryGetEventObjectIdByLocalIdAndMap(localId, mapNum, mapGroup, &eventObjectId) || (!MetatileBehavior_IsTallGrass(metatileBehavior) && !MetatileBehavior_IsTallGrass(metatileBehavior2)) || (sprite->data[7] && sprite->animEnded))
+	{
         FieldEffectStop(sprite, FLDEFF_TALL_GRASS);
     }
     else
@@ -393,6 +402,7 @@ void UpdateLongGrassFieldEffect(struct Sprite *sprite)
     u8 mapNum;
     u8 mapGroup;
     u8 metatileBehavior;
+	u8 metatileBehavior2;
     u8 localId;
     u8 eventObjectId;
     struct EventObject *eventObject;
@@ -409,7 +419,8 @@ void UpdateLongGrassFieldEffect(struct Sprite *sprite)
     mapNum = sprite->data[3];
     mapGroup = sprite->data[4];
     metatileBehavior = MapGridGetMetatileBehaviorAt(sprite->data[1], sprite->data[2]);
-    if (TryGetEventObjectIdByLocalIdAndMap(localId, mapNum, mapGroup, &eventObjectId) || !MetatileBehavior_IsLongGrass(metatileBehavior) || (sprite->data[7] && sprite->animEnded))
+	metatileBehavior2 = MapGridGetMetatileBehavior2At(sprite->data[1], sprite->data[2]);
+    if (TryGetEventObjectIdByLocalIdAndMap(localId, mapNum, mapGroup, &eventObjectId) || !MetatileBehavior_IsLongGrass(metatileBehavior) || !MetatileBehavior_IsLongGrass(metatileBehavior2) || (sprite->data[7] && sprite->animEnded))
     {
         FieldEffectStop(sprite, FLDEFF_LONG_GRASS);
     }

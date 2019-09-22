@@ -1019,6 +1019,7 @@ struct TradeRoomPlayer
     u8 facing;
     struct MapPosition pos;
     u16 field_C;
+	u16 field_D;
 };
 
 #endif // GUARD_GLOBAL_H

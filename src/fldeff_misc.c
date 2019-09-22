@@ -544,6 +544,7 @@ static void AdjustSecretPowerSpritePixelOffsets(void)
 bool8 SetUpFieldMove_SecretPower(void)
 {
     u8 mb;
+	u8 mb2;
 
     CheckPlayerHasSecretBase();
 
@@ -552,8 +553,9 @@ bool8 SetUpFieldMove_SecretPower(void)
 
     GetXYCoordsOneStepInFrontOfPlayer(&gPlayerFacingPosition.x, &gPlayerFacingPosition.y);
     mb = MapGridGetMetatileBehaviorAt(gPlayerFacingPosition.x, gPlayerFacingPosition.y);
+	mb2 = MapGridGetMetatileBehavior2At(gPlayerFacingPosition.x, gPlayerFacingPosition.y);
 
-    if (MetatileBehavior_IsSecretBaseCave(mb) == TRUE)
+    if (MetatileBehavior_IsSecretBaseCave(mb) == TRUE || MetatileBehavior_IsSecretBaseCave(mb2) == TRUE)
     {
         SetCurrentSecretBase();
         gFieldCallback2 = FieldCallback_PrepareFadeInFromMenu;
@@ -561,7 +563,7 @@ bool8 SetUpFieldMove_SecretPower(void)
         return TRUE;
     }
 
-    if (MetatileBehavior_IsSecretBaseTree(mb) == TRUE)
+    if (MetatileBehavior_IsSecretBaseTree(mb) == TRUE || MetatileBehavior_IsSecretBaseTree(mb2) == TRUE)
     {
         SetCurrentSecretBase();
         gFieldCallback2 = FieldCallback_PrepareFadeInFromMenu;
@@ -569,7 +571,7 @@ bool8 SetUpFieldMove_SecretPower(void)
         return TRUE;
     }
 
-    if (MetatileBehavior_IsSecretBaseShrub(mb) == TRUE)
+    if (MetatileBehavior_IsSecretBaseShrub(mb) == TRUE || MetatileBehavior_IsSecretBaseShrub(mb2) == TRUE)
     {
         SetCurrentSecretBase();
         gFieldCallback2 = FieldCallback_PrepareFadeInFromMenu;
@@ -665,11 +667,12 @@ static void StartSecretBaseTreeFieldEffect(void)
 bool8 FldEff_SecretPowerTree(void)
 {
     s16 mb = MapGridGetMetatileBehaviorAt(gPlayerFacingPosition.x, gPlayerFacingPosition.y) & 0xFFF;
+	s16 mb2 = MapGridGetMetatileBehavior2At(gPlayerFacingPosition.x, gPlayerFacingPosition.y) & 0xFFF;
 
-    if (mb == MB_SECRET_BASE_SPOT_TREE_LEFT)
+    if (mb == MB_SECRET_BASE_SPOT_TREE_LEFT || mb2 == MB_SECRET_BASE_SPOT_TREE_LEFT)
         gFieldEffectArguments[7] = 0;
 
-    if (mb == MB_SECRET_BASE_SPOT_TREE_RIGHT)
+    if (mb == MB_SECRET_BASE_SPOT_TREE_RIGHT || mb2 == MB_SECRET_BASE_SPOT_TREE_RIGHT)
         gFieldEffectArguments[7] = 2;
 
     AdjustSecretPowerSpritePixelOffsets();

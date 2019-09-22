@@ -30,7 +30,8 @@ struct Tileset
     /*0x08*/ void *palettes;
     /*0x0c*/ u16 *metatiles;
     /*0x10*/ u16 *metatileAttributes;
-    /*0x14*/ TilesetCB callback;
+	/*0x14*/ u16 *metatileAttributes2;
+    /*0x18*/ TilesetCB callback;
 };
 
 struct MapLayout
@@ -181,10 +182,12 @@ struct EventObject
              u32 disableJumpLandingGroundEffect:1;
              u32 fixedPriority:1;
              u32 unk3_3:1;
+			 u32 playerCopyableMovement:4;
     /*0x04*/ u8 spriteId;
     /*0x05*/ u8 graphicsId;
     /*0x06*/ u8 movementType;
-    /*0x07*/ u8 trainerType;
+    /*0x07*/ u8 trainerType:4;
+			 u8 previousMovementDirection:4;
     /*0x08*/ u8 localId;
     /*0x09*/ u8 mapNum;
     /*0x0A*/ u8 mapGroup;
@@ -208,9 +211,9 @@ struct EventObject
     /*0x1D*/ u8 trainerRange_berryTreeId;
     /*0x1E*/ u8 currentMetatileBehavior;
     /*0x1F*/ u8 previousMetatileBehavior;
-    /*0x20*/ u8 previousMovementDirection;
-    /*0x21*/ u8 directionSequenceIndex;
-    /*0x22*/ u8 playerCopyableMovement;
+    /*0x20*/ u8 previousMetatileBehavior2;
+    /*0x21*/ u8 currentMetatileBehavior2;
+    /*0x22*/ u8 directionSequenceIndex;
     /*size = 0x24*/
 };
 

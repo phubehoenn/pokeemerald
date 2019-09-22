@@ -70,11 +70,11 @@ static void PlayerNotOnBikeTurningInPlace(u8, u16);
 static void PlayerNotOnBikeMoving(u8, u16);
 static u8 CheckForPlayerAvatarCollision(u8);
 static u8 sub_808B028(u8);
-static u8 sub_808B164(struct EventObject *, s16, s16, u8, u8);
+static u8 sub_808B164(struct EventObject *, s16, s16, u8, u8, u8);
 static bool8 sub_808B1BC(s16, s16, u8);
 static bool8 ShouldJumpLedge(s16, s16, u8);
 static u8 sub_808B238(s16, s16, u8);
-static void check_acro_bike_metatile(s16, s16, u8, u8 *);
+static void check_acro_bike_metatile(s16, s16, u8, u8, u8*);
 
 static void DoPlayerAvatarTransition(void);
 static void PlayerAvatarTransition_Dummy(struct EventObject *a);
@@ -405,10 +405,11 @@ static u8 GetForcedMovementByMetatileBehavior(void)
     if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_5))
     {
         u8 metatileBehavior = gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior;
+		u8 metatileBehavior2 = gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior2;
 
         for (i = 0; i < 18; i++)
         {
-            if (sForcedMovementTestFuncs[i](metatileBehavior))
+            if (sForcedMovementTestFuncs[i](metatileBehavior) || sForcedMovementTestFuncs[i](metatileBehavior2))
                 return i + 1;
         }
     }
@@ -645,7 +646,8 @@ static void PlayerNotOnBikeMoving(u8 direction, u16 heldKeys)
 	// Run automatically if optionsBikeMode = OPTIONS_BIKE_MODE_AUTO
     if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER)
 	 && ((heldKeys & B_BUTTON) || gSaveBlock2Ptr->optionsBikeMode == OPTIONS_BIKE_MODE_AUTO) && FlagGet(FLAG_SYS_B_DASH)
-     && IsRunningDisallowed(gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior) == 0)
+     && (IsRunningDisallowed(gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior) == 0
+	 || IsRunningDisallowed(gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior2) == 0))
     {
         PlayerRun(direction);
         gPlayerAvatar.flags |= PLAYER_AVATAR_FLAG_DASH;
@@ -665,7 +667,7 @@ static u8 CheckForPlayerAvatarCollision(u8 direction)
     x = playerEventObj->currentCoords.x;
     y = playerEventObj->currentCoords.y;
     MoveCoords(direction, &x, &y);
-    return CheckForEventObjectCollision(playerEventObj, x, y, direction, MapGridGetMetatileBehaviorAt(x, y));
+    return CheckForEventObjectCollision(playerEventObj, x, y, direction, MapGridGetMetatileBehaviorAt(x, y), MapGridGetMetatileBehavior2At(x, y));
 }
 
 static u8 sub_808B028(u8 direction)
@@ -676,10 +678,10 @@ static u8 sub_808B028(u8 direction)
     x = playerEventObj->currentCoords.x;
     y = playerEventObj->currentCoords.y;
     MoveCoords(direction, &x, &y);
-    return sub_808B164(playerEventObj, x, y, direction, MapGridGetMetatileBehaviorAt(x, y));
+    return sub_808B164(playerEventObj, x, y, direction, MapGridGetMetatileBehaviorAt(x, y), MapGridGetMetatileBehavior2At(x, y));
 }
 
-u8 CheckForEventObjectCollision(struct EventObject *a, s16 x, s16 y, u8 direction, u8 e)
+u8 CheckForEventObjectCollision(struct EventObject *a, s16 x, s16 y, u8 direction, u8 e, u8 f)
 {
     u8 collision;
 
@@ -698,12 +700,12 @@ u8 CheckForEventObjectCollision(struct EventObject *a, s16 x, s16 y, u8 directio
     {
         if (CheckForRotatingGatePuzzleCollision(direction, x, y))
             return 8;
-        check_acro_bike_metatile(x, y, e, &collision);
+        check_acro_bike_metatile(x, y, e, f, &collision);
     }
     return collision;
 }
 
-static u8 sub_808B164(struct EventObject *a, s16 x, s16 y, u8 direction, u8 e)
+static u8 sub_808B164(struct EventObject *a, s16 x, s16 y, u8 direction, u8 e, u8 f)
 {
     u8 collision = GetCollisionAtCoords(a, x, y, direction);
 
@@ -711,7 +713,7 @@ static u8 sub_808B164(struct EventObject *a, s16 x, s16 y, u8 direction, u8 e)
     {
         if (CheckForRotatingGatePuzzleCollisionWithoutAnimation(direction, x, y) != 0)
             return 8;
-        check_acro_bike_metatile(x, y, e, &collision);
+        check_acro_bike_metatile(x, y, e, f, &collision);
     }
     return collision;
 }
@@ -751,7 +753,8 @@ static u8 sub_808B238(s16 x, s16 y, u8 direction)
             y = gEventObjects[eventObjectId].currentCoords.y;
             MoveCoords(direction, &x, &y);
             if (GetCollisionAtCoords(&gEventObjects[eventObjectId], x, y, direction) == 0
-             && MetatileBehavior_IsNonAnimDoor(MapGridGetMetatileBehaviorAt(x, y)) == 0)
+             && (MetatileBehavior_IsNonAnimDoor(MapGridGetMetatileBehaviorAt(x, y)) == 0
+			 || MetatileBehavior_IsNonAnimDoor(MapGridGetMetatileBehavior2At(x, y)) == 0))
             {
                 StartStrengthAnim(eventObjectId, direction);
                 return 1;
@@ -761,15 +764,15 @@ static u8 sub_808B238(s16 x, s16 y, u8 direction)
     return 0;
 }
 
-static void check_acro_bike_metatile(s16 unused1, s16 unused2, u8 c, u8 *d)
+static void check_acro_bike_metatile(s16 unused1, s16 unused2, u8 c, u8 d, u8 *e)
 {
     u8 i;
 
     for (i = 0; i < 5; i++)
     {
-        if (gUnknown_0849749C[i](c))
+        if (gUnknown_0849749C[i](c) || gUnknown_0849749C[i](d))
         {
-            *d = gUnknown_084974B0[i];
+            *e = gUnknown_084974B0[i];
             return;
         }
     }
@@ -1108,14 +1111,16 @@ static void PlayCollisionSoundIfNotFacingWarp(u8 a)
 {
     s16 x, y;
     u8 metatileBehavior = gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior;
+	u8 metatileBehavior2 = gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior2;
 
-    if (!sArrowWarpMetatileBehaviorChecks[a - 1](metatileBehavior))
+    if (!sArrowWarpMetatileBehaviorChecks[a - 1](metatileBehavior) || !sArrowWarpMetatileBehaviorChecks[a - 1](metatileBehavior2))
     {
         if (a == 2)
         {
             PlayerGetDestCoords(&x, &y);
             MoveCoords(2, &x, &y);
-            if (MetatileBehavior_IsWarpDoor(MapGridGetMetatileBehaviorAt(x, y)))
+            if (MetatileBehavior_IsWarpDoor(MapGridGetMetatileBehaviorAt(x, y))
+			 || MetatileBehavior_IsWarpDoor(MapGridGetMetatileBehavior2At(x, y)))
                 return;
         }
         PlaySE(SE_WALL_HIT);
@@ -1317,7 +1322,8 @@ bool8 IsPlayerFacingSurfableFishableWater(void)
 
     MoveCoords(playerEventObj->facingDirection, &x, &y);
     if (GetCollisionAtCoords(playerEventObj, x, y, playerEventObj->facingDirection) == 3 && PlayerGetZCoord() == 3
-     && MetatileBehavior_IsSurfableFishableWater(MapGridGetMetatileBehaviorAt(x, y)))
+     && (MetatileBehavior_IsSurfableFishableWater(MapGridGetMetatileBehaviorAt(x, y))
+	 || MetatileBehavior_IsSurfableFishableWater(MapGridGetMetatileBehavior2At(x, y))))
         return TRUE;
     else
         return FALSE;
@@ -1437,10 +1443,11 @@ static void sub_808C280(struct EventObject *eventObject)
     s16 y;
     u8 direction;
     u8 metatileBehavior = eventObject->currentMetatileBehavior;
+	u8 metatileBehavior2 = eventObject->currentMetatileBehavior2;
 
     for (x = 0, direction = DIR_SOUTH; x < 4; x++, direction++)
     {
-        if (sArrowWarpMetatileBehaviorChecks2[x](metatileBehavior) && direction == eventObject->movementDirection)
+        if ((sArrowWarpMetatileBehaviorChecks2[x](metatileBehavior) || sArrowWarpMetatileBehaviorChecks2[x](metatileBehavior2)) && direction == eventObject->movementDirection)
         {
             x = eventObject->currentCoords.x;
             y = eventObject->currentCoords.y;

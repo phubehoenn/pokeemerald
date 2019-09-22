@@ -840,19 +840,19 @@ void unref_sub_808A83C(u32 x, u32 y)
 
 void FieldSetDoorOpened(u32 x, u32 y)
 {
-    if (MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)))
+    if (MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)) || MetatileBehavior_IsDoor(MapGridGetMetatileBehavior2At(x, y)))
         DrawOpenedDoor(gDoorAnimGraphicsTable, x, y);
 }
 
 void FieldSetDoorClosed(u32 x, u32 y)
 {
-    if (MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)))
+    if (MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)) || MetatileBehavior_IsDoor(MapGridGetMetatileBehavior2At(x, y)))
         DrawClosedDoor(gDoorAnimGraphicsTable, x, y);
 }
 
 s8 FieldAnimateDoorClose(u32 x, u32 y)
 {
-    if (!MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)))
+    if (!MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)) && !MetatileBehavior_IsDoor(MapGridGetMetatileBehavior2At(x, y)))
         return -1;
     else
         return StartDoorCloseAnimation(gDoorAnimGraphicsTable, x, y);
@@ -860,7 +860,7 @@ s8 FieldAnimateDoorClose(u32 x, u32 y)
 
 s8 FieldAnimateDoorOpen(u32 x, u32 y)
 {
-    if (!MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)))
+    if (!MetatileBehavior_IsDoor(MapGridGetMetatileBehaviorAt(x, y)) && !MetatileBehavior_IsDoor(MapGridGetMetatileBehavior2At(x, y)))
         return -1;
     else
         return StartDoorOpenAnimation(gDoorAnimGraphicsTable, x, y);

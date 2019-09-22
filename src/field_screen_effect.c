@@ -260,13 +260,15 @@ static void sub_80AF334(void)
 {
     s16 x, y;
     u8 behavior;
+	u8 behavior2;
     TaskFunc func;
 
     PlayerGetDestCoords(&x, &y);
     behavior = MapGridGetMetatileBehaviorAt(x, y);
-    if (MetatileBehavior_IsDoor(behavior) == TRUE)
+	behavior2 = MapGridGetMetatileBehavior2At(x, y);
+    if (MetatileBehavior_IsDoor(behavior) == TRUE || MetatileBehavior_IsDoor(behavior2) == TRUE)
         func = sub_80AF438;
-    else if (MetatileBehavior_IsNonAnimDoor(behavior) == TRUE)
+    else if (MetatileBehavior_IsNonAnimDoor(behavior) == TRUE || MetatileBehavior_IsNonAnimDoor(behavior2) == TRUE)
         func = task_map_chg_seq_0807E20C;
     else
         func = task_map_chg_seq_0807E2CC;

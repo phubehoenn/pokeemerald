@@ -36,7 +36,7 @@ bool8 sub_8068870(u16 a);
 bool8 sub_8068894(void);
 bool8 sub_8068A64(struct MapPosition *, u16);
 u8 sub_8068F18(void);
-bool8 dive_warp(struct MapPosition *position, u16 b);
+bool8 dive_warp(struct MapPosition *position, u16 b, u16 c);
 int SetCableClubWarp(void);
 u8 TrySetDiveWarp(void);
 const u8 *GetInteractedLinkPlayerScript(struct MapPosition *position, u8 metatileBehavior, u8 direction);

@@ -617,16 +617,18 @@ static void CB2_EndScriptedWildBattle(void)
 u8 BattleSetup_GetTerrainId(void)
 {
     u16 tileBehavior;
+	u16 tileBehavior2;
     s16 x, y;
 
     PlayerGetDestCoords(&x, &y);
     tileBehavior = MapGridGetMetatileBehaviorAt(x, y);
+	tileBehavior2 = MapGridGetMetatileBehavior2At(x, y);
 
-    if (MetatileBehavior_IsTallGrass(tileBehavior))
+    if (MetatileBehavior_IsTallGrass(tileBehavior) || MetatileBehavior_IsTallGrass(tileBehavior2))
         return BATTLE_TERRAIN_GRASS;
-    if (MetatileBehavior_IsLongGrass(tileBehavior))
+    if (MetatileBehavior_IsLongGrass(tileBehavior) || MetatileBehavior_IsTallGrass(tileBehavior2))
         return BATTLE_TERRAIN_LONG_GRASS;
-    if (MetatileBehavior_IsSandOrDeepSand(tileBehavior))
+    if (MetatileBehavior_IsSandOrDeepSand(tileBehavior) || MetatileBehavior_IsSandOrDeepSand(tileBehavior2))
         return BATTLE_TERRAIN_SAND;
 
     switch (gMapHeader.mapType)
@@ -675,13 +677,15 @@ u8 BattleSetup_GetTerrainId(void)
 static u8 GetBattleTransitionTypeByMap(void)
 {
     u16 tileBehavior;
+	u16 tileBehavior2;
     s16 x, y;
 
     PlayerGetDestCoords(&x, &y);
     tileBehavior = MapGridGetMetatileBehaviorAt(x, y);
+	tileBehavior2 = MapGridGetMetatileBehavior2At(x, y);
     if (Overworld_GetFlashLevel())
         return B_TRANSITION_SHUFFLE;
-    if (!MetatileBehavior_IsSurfableWaterOrUnderwater(tileBehavior))
+    if (!MetatileBehavior_IsSurfableWaterOrUnderwater(tileBehavior) || !MetatileBehavior_IsSurfableWaterOrUnderwater(tileBehavior2))
     {
         switch (gMapHeader.mapType)
         {

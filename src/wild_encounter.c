@@ -71,7 +71,8 @@ static u16 GetRoute119WaterTileNum(s16 x, s16 y, u8 section)
         for (xCur = 0; xCur < gMapHeader.mapLayout->width; xCur++)
         {
             u8 tileBehaviorId = MapGridGetMetatileBehaviorAt(xCur + 7, yCur + 7);
-            if (MetatileBehavior_IsSurfableAndNotWaterfall(tileBehaviorId) == TRUE)
+			u8 tileBehavior2Id = MapGridGetMetatileBehavior2At(xCur + 7, yCur + 7);
+            if (MetatileBehavior_IsSurfableAndNotWaterfall(tileBehaviorId) == TRUE || MetatileBehavior_IsSurfableAndNotWaterfall(tileBehavior2Id) == TRUE)
             {
                 tileNum++;
                 if (x == xCur && y == yCur)
@@ -698,7 +699,8 @@ bool8 SweetScentWildEncounter(void)
     }
     else
     {
-        if (MetatileBehavior_IsLandWildEncounter(MapGridGetMetatileBehaviorAt(x, y)) == TRUE)
+        if (MetatileBehavior_IsLandWildEncounter(MapGridGetMetatileBehaviorAt(x, y)) == TRUE
+		 || MetatileBehavior_IsLandWildEncounter(MapGridGetMetatileBehavior2At(x, y)) == TRUE)
         {
             if (gWildMonHeaders[headerId].landMonsInfo == NULL)
                 return FALSE;
@@ -717,7 +719,8 @@ bool8 SweetScentWildEncounter(void)
             BattleSetup_StartWildBattle();
             return TRUE;
         }
-        else if (MetatileBehavior_IsWaterWildEncounter(MapGridGetMetatileBehaviorAt(x, y)) == TRUE)
+        else if (MetatileBehavior_IsWaterWildEncounter(MapGridGetMetatileBehaviorAt(x, y)) == TRUE
+			  || MetatileBehavior_IsWaterWildEncounter(MapGridGetMetatileBehavior2At(x, y)) == TRUE)
         {
             if (AreLegendariesInSootopolisPreventingEncounters() == TRUE)
                 return FALSE;
