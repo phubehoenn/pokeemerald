@@ -11,6 +11,14 @@ gMetatileAttributes2_General::
 	.incbin "data/tilesets/primary/general/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_General::
+	.incbin "data/tilesets/primary/general/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_General::
+	.incbin "data/tilesets/primary/general/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Petalburg::
 	.incbin "data/tilesets/secondary/petalburg/metatiles.bin"
 
@@ -21,6 +29,14 @@ gMetatileAttributes_Petalburg::
 	.align 1
 gMetatileAttributes2_Petalburg::
 	.incbin "data/tilesets/secondary/petalburg/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Petalburg::
+	.incbin "data/tilesets/secondary/petalburg/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Petalburg::
+	.incbin "data/tilesets/secondary/petalburg/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Rustboro::
@@ -35,6 +51,14 @@ gMetatileAttributes2_Rustboro::
 	.incbin "data/tilesets/secondary/rustboro/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Rustboro::
+	.incbin "data/tilesets/secondary/rustboro/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Rustboro::
+	.incbin "data/tilesets/secondary/rustboro/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Dewford::
 	.incbin "data/tilesets/secondary/dewford/metatiles.bin"
 
@@ -45,6 +69,14 @@ gMetatileAttributes_Dewford::
 	.align 1
 gMetatileAttributes2_Dewford::
 	.incbin "data/tilesets/secondary/dewford/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Dewford::
+	.incbin "data/tilesets/secondary/dewford/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Dewford::
+	.incbin "data/tilesets/secondary/dewford/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Slateport::
@@ -59,6 +91,14 @@ gMetatileAttributes2_Slateport::
 	.incbin "data/tilesets/secondary/slateport/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Slateport::
+	.incbin "data/tilesets/secondary/slateport/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Slateport::
+	.incbin "data/tilesets/secondary/slateport/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Mauville::
 	.incbin "data/tilesets/secondary/mauville/metatiles.bin"
 
@@ -69,6 +109,14 @@ gMetatileAttributes_Mauville::
 	.align 1
 gMetatileAttributes2_Mauville::
 	.incbin "data/tilesets/secondary/mauville/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Mauville::
+	.incbin "data/tilesets/secondary/mauville/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Mauville::
+	.incbin "data/tilesets/secondary/mauville/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Lavaridge::
@@ -83,6 +131,14 @@ gMetatileAttributes2_Lavaridge::
 	.incbin "data/tilesets/secondary/lavaridge/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Lavaridge::
+	.incbin "data/tilesets/secondary/lavaridge/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Lavaridge::
+	.incbin "data/tilesets/secondary/lavaridge/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Fallarbor::
 	.incbin "data/tilesets/secondary/fallarbor/metatiles.bin"
 
@@ -93,6 +149,14 @@ gMetatileAttributes_Fallarbor::
 	.align 1
 gMetatileAttributes2_Fallarbor::
 	.incbin "data/tilesets/secondary/fallarbor/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Fallarbor::
+	.incbin "data/tilesets/secondary/fallarbor/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Fallarbor::
+	.incbin "data/tilesets/secondary/fallarbor/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Fortree::
@@ -107,6 +171,14 @@ gMetatileAttributes2_Fortree::
 	.incbin "data/tilesets/secondary/fortree/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Fortree::
+	.incbin "data/tilesets/secondary/fortree/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Fortree::
+	.incbin "data/tilesets/secondary/fortree/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Lilycove::
 	.incbin "data/tilesets/secondary/lilycove/metatiles.bin"
 
@@ -117,6 +189,14 @@ gMetatileAttributes_Lilycove::
 	.align 1
 gMetatileAttributes2_Lilycove::
 	.incbin "data/tilesets/secondary/lilycove/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Lilycove::
+	.incbin "data/tilesets/secondary/lilycove/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Lilycove::
+	.incbin "data/tilesets/secondary/lilycove/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Mossdeep::
@@ -131,6 +211,14 @@ gMetatileAttributes2_Mossdeep::
 	.incbin "data/tilesets/secondary/mossdeep/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Mossdeep::
+	.incbin "data/tilesets/secondary/mossdeep/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Mossdeep::
+	.incbin "data/tilesets/secondary/mossdeep/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_EverGrande::
 	.incbin "data/tilesets/secondary/ever_grande/metatiles.bin"
 
@@ -141,6 +229,14 @@ gMetatileAttributes_EverGrande::
 	.align 1
 gMetatileAttributes2_EverGrande::
 	.incbin "data/tilesets/secondary/ever_grande/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_EverGrande::
+	.incbin "data/tilesets/secondary/ever_grande/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_EverGrande::
+	.incbin "data/tilesets/secondary/ever_grande/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Pacifidlog::
@@ -155,6 +251,14 @@ gMetatileAttributes2_Pacifidlog::
 	.incbin "data/tilesets/secondary/pacifidlog/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Pacifidlog::
+	.incbin "data/tilesets/secondary/pacifidlog/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Pacifidlog::
+	.incbin "data/tilesets/secondary/pacifidlog/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Sootopolis::
 	.incbin "data/tilesets/secondary/sootopolis/metatiles.bin"
 
@@ -165,6 +269,14 @@ gMetatileAttributes_Sootopolis::
 	.align 1
 gMetatileAttributes2_Sootopolis::
 	.incbin "data/tilesets/secondary/sootopolis/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Sootopolis::
+	.incbin "data/tilesets/secondary/sootopolis/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Sootopolis::
+	.incbin "data/tilesets/secondary/sootopolis/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BattleFrontierOutsideWest::
@@ -179,6 +291,14 @@ gMetatileAttributes2_BattleFrontierOutsideWest::
 	.incbin "data/tilesets/secondary/battle_frontier_outside_west/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BattleFrontierOutsideWest::
+	.incbin "data/tilesets/secondary/battle_frontier_outside_west/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleFrontierOutsideWest::
+	.incbin "data/tilesets/secondary/battle_frontier_outside_west/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_BattleFrontierOutsideEast::
 	.incbin "data/tilesets/secondary/battle_frontier_outside_east/metatiles.bin"
 
@@ -189,6 +309,14 @@ gMetatileAttributes_BattleFrontierOutsideEast::
 	.align 1
 gMetatileAttributes2_BattleFrontierOutsideEast::
 	.incbin "data/tilesets/secondary/battle_frontier_outside_east/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_BattleFrontierOutsideEast::
+	.incbin "data/tilesets/secondary/battle_frontier_outside_east/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleFrontierOutsideEast::
+	.incbin "data/tilesets/secondary/battle_frontier_outside_east/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_InsideBuilding::
@@ -203,6 +331,14 @@ gMetatileAttributes2_InsideBuilding::
 	.incbin "data/tilesets/primary/building/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_InsideBuilding::
+	.incbin "data/tilesets/primary/building/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_InsideBuilding::
+	.incbin "data/tilesets/primary/building/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Shop::
 	.incbin "data/tilesets/secondary/shop/metatiles.bin"
 
@@ -213,6 +349,14 @@ gMetatileAttributes_Shop::
 	.align 1
 gMetatileAttributes2_Shop::
 	.incbin "data/tilesets/secondary/shop/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Shop::
+	.incbin "data/tilesets/secondary/shop/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Shop::
+	.incbin "data/tilesets/secondary/shop/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_PokemonCenter::
@@ -227,6 +371,14 @@ gMetatileAttributes2_PokemonCenter::
 	.incbin "data/tilesets/secondary/pokemon_center/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_PokemonCenter::
+	.incbin "data/tilesets/secondary/pokemon_center/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_PokemonCenter::
+	.incbin "data/tilesets/secondary/pokemon_center/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Cave::
 	.incbin "data/tilesets/secondary/cave/metatiles.bin"
 
@@ -237,6 +389,14 @@ gMetatileAttributes_Cave::
 	.align 1
 gMetatileAttributes2_Cave::
 	.incbin "data/tilesets/secondary/cave/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Cave::
+	.incbin "data/tilesets/secondary/cave/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Cave::
+	.incbin "data/tilesets/secondary/cave/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_PokemonSchool::
@@ -251,6 +411,14 @@ gMetatileAttributes2_PokemonSchool::
 	.incbin "data/tilesets/secondary/pokemon_school/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_PokemonSchool::
+	.incbin "data/tilesets/secondary/pokemon_school/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_PokemonSchool::
+	.incbin "data/tilesets/secondary/pokemon_school/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_PokemonFanClub::
 	.incbin "data/tilesets/secondary/pokemon_fan_club/metatiles.bin"
 
@@ -261,6 +429,14 @@ gMetatileAttributes_PokemonFanClub::
 	.align 1
 gMetatileAttributes2_PokemonFanClub::
 	.incbin "data/tilesets/secondary/pokemon_fan_club/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_PokemonFanClub::
+	.incbin "data/tilesets/secondary/pokemon_fan_club/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_PokemonFanClub::
+	.incbin "data/tilesets/secondary/pokemon_fan_club/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Unused1::
@@ -275,6 +451,14 @@ gMetatileAttributes2_Unused1::
 	.incbin "data/tilesets/secondary/unused_1/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Unused1::
+	.incbin "data/tilesets/secondary/unused_1/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Unused1::
+	.incbin "data/tilesets/secondary/unused_1/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_MeteorFalls::
 	.incbin "data/tilesets/secondary/meteor_falls/metatiles.bin"
 
@@ -285,6 +469,14 @@ gMetatileAttributes_MeteorFalls::
 	.align 1
 gMetatileAttributes2_MeteorFalls::
 	.incbin "data/tilesets/secondary/meteor_falls/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_MeteorFalls::
+	.incbin "data/tilesets/secondary/meteor_falls/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_MeteorFalls::
+	.incbin "data/tilesets/secondary/meteor_falls/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_OceanicMuseum::
@@ -299,6 +491,14 @@ gMetatileAttributes2_OceanicMuseum::
 	.incbin "data/tilesets/secondary/oceanic_museum/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_OceanicMuseum::
+	.incbin "data/tilesets/secondary/oceanic_museum/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_OceanicMuseum::
+	.incbin "data/tilesets/secondary/oceanic_museum/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_CableClub::
 	.incbin "data/tilesets/secondary/cable_club/metatiles.bin"
 
@@ -309,6 +509,14 @@ gMetatileAttributes_CableClub::
 	.align 1
 gMetatileAttributes2_CableClub::
 	.incbin "data/tilesets/secondary/cable_club/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_CableClub::
+	.incbin "data/tilesets/secondary/cable_club/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_CableClub::
+	.incbin "data/tilesets/secondary/cable_club/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_SeashoreHouse::
@@ -323,6 +531,14 @@ gMetatileAttributes2_SeashoreHouse::
 	.incbin "data/tilesets/secondary/seashore_house/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_SeashoreHouse::
+	.incbin "data/tilesets/secondary/seashore_house/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_SeashoreHouse::
+	.incbin "data/tilesets/secondary/seashore_house/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_PrettyPetalFlowerShop::
 	.incbin "data/tilesets/secondary/pretty_petal_flower_shop/metatiles.bin"
 
@@ -333,6 +549,14 @@ gMetatileAttributes_PrettyPetalFlowerShop::
 	.align 1
 gMetatileAttributes2_PrettyPetalFlowerShop::
 	.incbin "data/tilesets/secondary/pretty_petal_flower_shop/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_PrettyPetalFlowerShop::
+	.incbin "data/tilesets/secondary/pretty_petal_flower_shop/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_PrettyPetalFlowerShop::
+	.incbin "data/tilesets/secondary/pretty_petal_flower_shop/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_PokemonDayCare::
@@ -347,6 +571,14 @@ gMetatileAttributes2_PokemonDayCare::
 	.incbin "data/tilesets/secondary/pokemon_day_care/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_PokemonDayCare::
+	.incbin "data/tilesets/secondary/pokemon_day_care/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_PokemonDayCare::
+	.incbin "data/tilesets/secondary/pokemon_day_care/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Facility::
 	.incbin "data/tilesets/secondary/facility/metatiles.bin"
 
@@ -357,6 +589,14 @@ gMetatileAttributes_Facility::
 	.align 1
 gMetatileAttributes2_Facility::
 	.incbin "data/tilesets/secondary/facility/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Facility::
+	.incbin "data/tilesets/secondary/facility/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Facility::
+	.incbin "data/tilesets/secondary/facility/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BikeShop::
@@ -371,6 +611,14 @@ gMetatileAttributes2_BikeShop::
 	.incbin "data/tilesets/secondary/bike_shop/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BikeShop::
+	.incbin "data/tilesets/secondary/bike_shop/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BikeShop::
+	.incbin "data/tilesets/secondary/bike_shop/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_RusturfTunnel::
 	.incbin "data/tilesets/secondary/rusturf_tunnel/metatiles.bin"
 
@@ -381,6 +629,14 @@ gMetatileAttributes_RusturfTunnel::
 	.align 1
 gMetatileAttributes2_RusturfTunnel::
 	.incbin "data/tilesets/secondary/rusturf_tunnel/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_RusturfTunnel::
+	.incbin "data/tilesets/secondary/rusturf_tunnel/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_RusturfTunnel::
+	.incbin "data/tilesets/secondary/rusturf_tunnel/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_SecretBaseSecondary::
@@ -395,6 +651,14 @@ gMetatileAttributes2_SecretBaseSecondary::
 	.incbin "data/tilesets/secondary/secret_base/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_SecretBaseSecondary::
+	.incbin "data/tilesets/secondary/secret_base/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_SecretBaseSecondary::
+	.incbin "data/tilesets/secondary/secret_base/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_InsideOfTruck::
 	.incbin "data/tilesets/secondary/inside_of_truck/metatiles.bin"
 
@@ -405,6 +669,14 @@ gMetatileAttributes_InsideOfTruck::
 	.align 1
 gMetatileAttributes2_InsideOfTruck::
 	.incbin "data/tilesets/secondary/inside_of_truck/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_InsideOfTruck::
+	.incbin "data/tilesets/secondary/inside_of_truck/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_InsideOfTruck::
+	.incbin "data/tilesets/secondary/inside_of_truck/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Contest::
@@ -419,6 +691,14 @@ gMetatileAttributes2_Contest::
 	.incbin "data/tilesets/secondary/contest/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Contest::
+	.incbin "data/tilesets/secondary/contest/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Contest::
+	.incbin "data/tilesets/secondary/contest/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_LilycoveMuseum::
 	.incbin "data/tilesets/secondary/lilycove_museum/metatiles.bin"
 
@@ -429,6 +709,14 @@ gMetatileAttributes_LilycoveMuseum::
 	.align 1
 gMetatileAttributes2_LilycoveMuseum::
 	.incbin "data/tilesets/secondary/lilycove_museum/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_LilycoveMuseum::
+	.incbin "data/tilesets/secondary/lilycove_museum/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_LilycoveMuseum::
+	.incbin "data/tilesets/secondary/lilycove_museum/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BrendansMaysHouse::
@@ -443,6 +731,14 @@ gMetatileAttributes2_BrendansMaysHouse::
 	.incbin "data/tilesets/secondary/brendans_mays_house/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BrendansMaysHouse::
+	.incbin "data/tilesets/secondary/brendans_mays_house/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BrendansMaysHouse::
+	.incbin "data/tilesets/secondary/brendans_mays_house/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Lab::
 	.incbin "data/tilesets/secondary/lab/metatiles.bin"
 
@@ -453,6 +749,14 @@ gMetatileAttributes_Lab::
 	.align 1
 gMetatileAttributes2_Lab::
 	.incbin "data/tilesets/secondary/lab/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Lab::
+	.incbin "data/tilesets/secondary/lab/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Lab::
+	.incbin "data/tilesets/secondary/lab/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_Underwater::
@@ -467,6 +771,14 @@ gMetatileAttributes2_Underwater::
 	.incbin "data/tilesets/secondary/underwater/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_Underwater::
+	.incbin "data/tilesets/secondary/underwater/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Underwater::
+	.incbin "data/tilesets/secondary/underwater/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_GenericBuilding::
 	.incbin "data/tilesets/secondary/generic_building/metatiles.bin"
 
@@ -477,6 +789,14 @@ gMetatileAttributes_GenericBuilding::
 	.align 1
 gMetatileAttributes2_GenericBuilding::
 	.incbin "data/tilesets/secondary/generic_building/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_GenericBuilding::
+	.incbin "data/tilesets/secondary/generic_building/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_GenericBuilding::
+	.incbin "data/tilesets/secondary/generic_building/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_MauvilleGameCorner::
@@ -491,6 +811,14 @@ gMetatileAttributes2_MauvilleGameCorner::
 	.incbin "data/tilesets/secondary/mauville_game_corner/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_MauvilleGameCorner::
+	.incbin "data/tilesets/secondary/mauville_game_corner/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_MauvilleGameCorner::
+	.incbin "data/tilesets/secondary/mauville_game_corner/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Unused2::
 	.incbin "data/tilesets/secondary/unused_2/metatiles.bin"
 
@@ -501,6 +829,14 @@ gMetatileAttributes_Unused2::
 	.align 1
 gMetatileAttributes2_Unused2::
 	.incbin "data/tilesets/secondary/unused_2/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Unused2::
+	.incbin "data/tilesets/secondary/unused_2/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_Unused2::
+	.incbin "data/tilesets/secondary/unused_2/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_RustboroGym::
@@ -515,6 +851,14 @@ gMetatileAttributes2_RustboroGym::
 	.incbin "data/tilesets/secondary/rustboro_gym/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_RustboroGym::
+	.incbin "data/tilesets/secondary/rustboro_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_RustboroGym::
+	.incbin "data/tilesets/secondary/rustboro_gym/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_DewfordGym::
 	.incbin "data/tilesets/secondary/dewford_gym/metatiles.bin"
 
@@ -525,6 +869,14 @@ gMetatileAttributes_DewfordGym::
 	.align 1
 gMetatileAttributes2_DewfordGym::
 	.incbin "data/tilesets/secondary/dewford_gym/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_DewfordGym::
+	.incbin "data/tilesets/secondary/dewford_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_DewfordGym::
+	.incbin "data/tilesets/secondary/dewford_gym/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_MauvilleGym::
@@ -539,6 +891,14 @@ gMetatileAttributes2_MauvilleGym::
 	.incbin "data/tilesets/secondary/mauville_gym/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_MauvilleGym::
+	.incbin "data/tilesets/secondary/mauville_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_MauvilleGym::
+	.incbin "data/tilesets/secondary/mauville_gym/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_LavaridgeGym::
 	.incbin "data/tilesets/secondary/lavaridge_gym/metatiles.bin"
 
@@ -549,6 +909,14 @@ gMetatileAttributes_LavaridgeGym::
 	.align 1
 gMetatileAttributes2_LavaridgeGym::
 	.incbin "data/tilesets/secondary/lavaridge_gym/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_LavaridgeGym::
+	.incbin "data/tilesets/secondary/lavaridge_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_LavaridgeGym::
+	.incbin "data/tilesets/secondary/lavaridge_gym/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_PetalburgGym::
@@ -563,6 +931,14 @@ gMetatileAttributes2_PetalburgGym::
 	.incbin "data/tilesets/secondary/petalburg_gym/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_PetalburgGym::
+	.incbin "data/tilesets/secondary/petalburg_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_PetalburgGym::
+	.incbin "data/tilesets/secondary/petalburg_gym/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_FortreeGym::
 	.incbin "data/tilesets/secondary/fortree_gym/metatiles.bin"
 
@@ -573,6 +949,14 @@ gMetatileAttributes_FortreeGym::
 	.align 1
 gMetatileAttributes2_FortreeGym::
 	.incbin "data/tilesets/secondary/fortree_gym/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_FortreeGym::
+	.incbin "data/tilesets/secondary/fortree_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_FortreeGym::
+	.incbin "data/tilesets/secondary/fortree_gym/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_MossdeepGym::
@@ -587,6 +971,14 @@ gMetatileAttributes2_MossdeepGym::
 	.incbin "data/tilesets/secondary/mossdeep_gym/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_MossdeepGym::
+	.incbin "data/tilesets/secondary/mossdeep_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_MossdeepGym::
+	.incbin "data/tilesets/secondary/mossdeep_gym/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_SootopolisGym::
 	.incbin "data/tilesets/secondary/sootopolis_gym/metatiles.bin"
 
@@ -597,6 +989,14 @@ gMetatileAttributes_SootopolisGym::
 	.align 1
 gMetatileAttributes2_SootopolisGym::
 	.incbin "data/tilesets/secondary/sootopolis_gym/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_SootopolisGym::
+	.incbin "data/tilesets/secondary/sootopolis_gym/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_SootopolisGym::
+	.incbin "data/tilesets/secondary/sootopolis_gym/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_TrickHousePuzzle::
@@ -611,6 +1011,14 @@ gMetatileAttributes2_TrickHousePuzzle::
 	.incbin "data/tilesets/secondary/trick_house_puzzle/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_TrickHousePuzzle::
+	.incbin "data/tilesets/secondary/trick_house_puzzle/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_TrickHousePuzzle::
+	.incbin "data/tilesets/secondary/trick_house_puzzle/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_InsideShip::
 	.incbin "data/tilesets/secondary/inside_ship/metatiles.bin"
 
@@ -621,6 +1029,14 @@ gMetatileAttributes_InsideShip::
 	.align 1
 gMetatileAttributes2_InsideShip::
 	.incbin "data/tilesets/secondary/inside_ship/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_InsideShip::
+	.incbin "data/tilesets/secondary/inside_ship/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_InsideShip::
+	.incbin "data/tilesets/secondary/inside_ship/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_SecretBasePrimary::
@@ -635,6 +1051,14 @@ gMetatileAttributes2_SecretBasePrimary::
 	.incbin "data/tilesets/primary/secret_base/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_SecretBasePrimary::
+	.incbin "data/tilesets/primary/secret_base/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_SecretBasePrimary::
+	.incbin "data/tilesets/primary/secret_base/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_EliteFour::
 	.incbin "data/tilesets/secondary/elite_four/metatiles.bin"
 
@@ -645,6 +1069,14 @@ gMetatileAttributes_EliteFour::
 	.align 1
 gMetatileAttributes2_EliteFour::
 	.incbin "data/tilesets/secondary/elite_four/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_EliteFour::
+	.incbin "data/tilesets/secondary/elite_four/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_EliteFour::
+	.incbin "data/tilesets/secondary/elite_four/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BattleFrontier::
@@ -659,6 +1091,14 @@ gMetatileAttributes2_BattleFrontier::
 	.incbin "data/tilesets/secondary/battle_frontier/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BattleFrontier::
+	.incbin "data/tilesets/secondary/battle_frontier/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleFrontier::
+	.incbin "data/tilesets/secondary/battle_frontier/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_BattlePalace::
 	.incbin "data/tilesets/secondary/battle_palace/metatiles.bin"
 
@@ -669,6 +1109,14 @@ gMetatileAttributes_BattlePalace::
 	.align 1
 gMetatileAttributes2_BattlePalace::
 	.incbin "data/tilesets/secondary/battle_palace/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_BattlePalace::
+	.incbin "data/tilesets/secondary/battle_palace/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattlePalace::
+	.incbin "data/tilesets/secondary/battle_palace/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BattleDome::
@@ -683,6 +1131,14 @@ gMetatileAttributes2_BattleDome::
 	.incbin "data/tilesets/secondary/battle_dome/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BattleDome::
+	.incbin "data/tilesets/secondary/battle_dome/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleDome::
+	.incbin "data/tilesets/secondary/battle_dome/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_BattleFactory::
 	.incbin "data/tilesets/secondary/battle_factory/metatiles.bin"
 
@@ -693,6 +1149,14 @@ gMetatileAttributes_BattleFactory::
 	.align 1
 gMetatileAttributes2_BattleFactory::
 	.incbin "data/tilesets/secondary/battle_factory/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_BattleFactory::
+	.incbin "data/tilesets/secondary/battle_factory/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleFactory::
+	.incbin "data/tilesets/secondary/battle_factory/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BattlePike::
@@ -707,6 +1171,14 @@ gMetatileAttributes2_BattlePike::
 	.incbin "data/tilesets/secondary/battle_pike/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BattlePike::
+	.incbin "data/tilesets/secondary/battle_pike/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattlePike::
+	.incbin "data/tilesets/secondary/battle_pike/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_BattleArena::
 	.incbin "data/tilesets/secondary/battle_arena/metatiles.bin"
 
@@ -717,6 +1189,14 @@ gMetatileAttributes_BattleArena::
 	.align 1
 gMetatileAttributes2_BattleArena::
 	.incbin "data/tilesets/secondary/battle_arena/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_BattleArena::
+	.incbin "data/tilesets/secondary/battle_arena/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleArena::
+	.incbin "data/tilesets/secondary/battle_arena/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BattlePyramid::
@@ -731,6 +1211,14 @@ gMetatileAttributes2_BattlePyramid::
 	.incbin "data/tilesets/secondary/battle_pyramid/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BattlePyramid::
+	.incbin "data/tilesets/secondary/battle_pyramid/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattlePyramid::
+	.incbin "data/tilesets/secondary/battle_pyramid/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_MirageTower::
 	.incbin "data/tilesets/secondary/mirage_tower/metatiles.bin"
 
@@ -741,6 +1229,14 @@ gMetatileAttributes_MirageTower::
 	.align 1
 gMetatileAttributes2_MirageTower::
 	.incbin "data/tilesets/secondary/mirage_tower/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_MirageTower::
+	.incbin "data/tilesets/secondary/mirage_tower/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_MirageTower::
+	.incbin "data/tilesets/secondary/mirage_tower/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_MossdeepGameCorner::
@@ -755,6 +1251,14 @@ gMetatileAttributes2_MossdeepGameCorner::
 	.incbin "data/tilesets/secondary/mossdeep_game_corner/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_MossdeepGameCorner::
+	.incbin "data/tilesets/secondary/mossdeep_game_corner/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_MossdeepGameCorner::
+	.incbin "data/tilesets/secondary/mossdeep_game_corner/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_IslandHarbor::
 	.incbin "data/tilesets/secondary/island_harbor/metatiles.bin"
 
@@ -765,6 +1269,14 @@ gMetatileAttributes_IslandHarbor::
 	.align 1
 gMetatileAttributes2_IslandHarbor::
 	.incbin "data/tilesets/secondary/island_harbor/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_IslandHarbor::
+	.incbin "data/tilesets/secondary/island_harbor/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_IslandHarbor::
+	.incbin "data/tilesets/secondary/island_harbor/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_TrainerHill::
@@ -779,6 +1291,14 @@ gMetatileAttributes2_TrainerHill::
 	.incbin "data/tilesets/secondary/trainer_hill/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_TrainerHill::
+	.incbin "data/tilesets/secondary/trainer_hill/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_TrainerHill::
+	.incbin "data/tilesets/secondary/trainer_hill/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_NavelRock::
 	.incbin "data/tilesets/secondary/navel_rock/metatiles.bin"
 
@@ -789,6 +1309,14 @@ gMetatileAttributes_NavelRock::
 	.align 1
 gMetatileAttributes2_NavelRock::
 	.incbin "data/tilesets/secondary/navel_rock/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_NavelRock::
+	.incbin "data/tilesets/secondary/navel_rock/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_NavelRock::
+	.incbin "data/tilesets/secondary/navel_rock/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_BattleFrontierRankingHall::
@@ -803,6 +1331,14 @@ gMetatileAttributes2_BattleFrontierRankingHall::
 	.incbin "data/tilesets/secondary/battle_frontier_ranking_hall/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_BattleFrontierRankingHall::
+	.incbin "data/tilesets/secondary/battle_frontier_ranking_hall/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleFrontierRankingHall::
+	.incbin "data/tilesets/secondary/battle_frontier_ranking_hall/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_BattleTent::
 	.incbin "data/tilesets/secondary/battle_tent/metatiles.bin"
 
@@ -813,6 +1349,14 @@ gMetatileAttributes_BattleTent::
 	.align 1
 gMetatileAttributes2_BattleTent::
 	.incbin "data/tilesets/secondary/battle_tent/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_BattleTent::
+	.incbin "data/tilesets/secondary/battle_tent/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_BattleTent::
+	.incbin "data/tilesets/secondary/battle_tent/metatile_material_bottom.bin"
 
 	.align 1
 gMetatiles_MysteryEventsHouse::
@@ -827,6 +1371,14 @@ gMetatileAttributes2_MysteryEventsHouse::
 	.incbin "data/tilesets/secondary/mystery_events_house/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_MysteryEventsHouse::
+	.incbin "data/tilesets/secondary/mystery_events_house/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_MysteryEventsHouse::
+	.incbin "data/tilesets/secondary/mystery_events_house/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_UnionRoom::
 	.incbin "data/tilesets/secondary/union_room/metatiles.bin"
 
@@ -839,6 +1391,14 @@ gMetatileAttributes2_UnionRoom::
 	.incbin "data/tilesets/secondary/union_room/metatile_attributes_2.bin"
 
 	.align 1
+gMetatileMaterialTop_UnionRoom::
+	.incbin "data/tilesets/secondary/union_room/metatile_material_top.bin"
+
+	.align 1
+gMetatileMaterialBottom_UnionRoom::
+	.incbin "data/tilesets/secondary/union_room/metatile_material_bottom.bin"
+
+	.align 1
 gMetatiles_Plains::
 	.incbin "data/tilesets/primary/plains/metatiles.bin"
 
@@ -849,3 +1409,11 @@ gMetatileAttributes_Plains::
 	.align 1
 gMetatileAttributes2_Plains::
 	.incbin "data/tilesets/primary/plains/metatile_attributes_2.bin"
+
+	.align 1
+gMetatileMaterialTop_Plains::
+	.incbin "data/tilesets/primary/plains/metatile_material_top.bin"
+	
+	.align 1
+gMetatileMaterialBottom_Plains::
+	.incbin "data/tilesets/primary/plains/metatile_material_bottom.bin"

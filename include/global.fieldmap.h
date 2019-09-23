@@ -10,6 +10,13 @@
 
 #define METATILE_ID(tileset, name) (METATILE_##tileset##_##name)
 
+#define MATERIAL_OTHER 0
+#define MATERIAL_GRASS 1
+#define MATERIAL_DIRT 2
+#define MATERIAL_ROCK 3
+#define MATERIAL_TREE 4
+#define MATERIAL_WATER 5
+
 enum
 {
     CONNECTION_SOUTH = 1,
@@ -31,7 +38,9 @@ struct Tileset
     /*0x0c*/ u16 *metatiles;
     /*0x10*/ u16 *metatileAttributes;
 	/*0x14*/ u16 *metatileAttributes2;
-    /*0x18*/ TilesetCB callback;
+	/*0x18*/ u16 *metatileMaterialTop;
+	/*0x1C*/ u16 *metatileMaterialBottom;
+    /*0x20*/ TilesetCB callback;
 };
 
 struct MapLayout

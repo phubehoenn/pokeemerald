@@ -8,6 +8,8 @@ gTileset_General:: @ 83DF704
 	.4byte gMetatiles_General
 	.4byte gMetatileAttributes_General
 	.4byte gMetatileAttributes2_General
+	.4byte gMetatileMaterialTop_General
+	.4byte gMetatileMaterialBottom_General
 	.4byte InitTilesetAnim_General
 
 	.align 2
@@ -20,6 +22,8 @@ gTileset_Petalburg:: @ 83DF71C
 	.4byte gMetatiles_Petalburg
 	.4byte gMetatileAttributes_Petalburg
 	.4byte gMetatileAttributes2_Petalburg
+	.4byte gMetatileMaterialTop_Petalburg
+	.4byte gMetatileMaterialBottom_Petalburg
 	.4byte InitTilesetAnim_Petalburg
 
 	.align 2
@@ -32,6 +36,8 @@ gTileset_Rustboro:: @ 83DF734
 	.4byte gMetatiles_Rustboro
 	.4byte gMetatileAttributes_Rustboro
 	.4byte gMetatileAttributes2_Rustboro
+	.4byte gMetatileMaterialTop_Rustboro
+	.4byte gMetatileMaterialBottom_Rustboro
 	.4byte InitTilesetAnim_Rustboro
 
 	.align 2
@@ -44,6 +50,8 @@ gTileset_Dewford:: @ 83DF74C
 	.4byte gMetatiles_Dewford
 	.4byte gMetatileAttributes_Dewford
 	.4byte gMetatileAttributes2_Dewford
+	.4byte gMetatileMaterialTop_Dewford
+	.4byte gMetatileMaterialBottom_Dewford
 	.4byte InitTilesetAnim_Dewford
 
 	.align 2
@@ -56,6 +64,8 @@ gTileset_Slateport:: @ 83DF764
 	.4byte gMetatiles_Slateport
 	.4byte gMetatileAttributes_Slateport
 	.4byte gMetatileAttributes2_Slateport
+	.4byte gMetatileMaterialTop_Slateport
+	.4byte gMetatileMaterialBottom_Slateport
 	.4byte InitTilesetAnim_Slateport
 
 	.align 2
@@ -68,6 +78,8 @@ gTileset_Mauville:: @ 83DF77C
 	.4byte gMetatiles_Mauville
 	.4byte gMetatileAttributes_Mauville
 	.4byte gMetatileAttributes2_Mauville
+	.4byte gMetatileMaterialTop_Mauville
+	.4byte gMetatileMaterialBottom_Mauville
 	.4byte InitTilesetAnim_Mauville
 
 	.align 2
@@ -80,6 +92,8 @@ gTileset_Lavaridge:: @ 83DF794
 	.4byte gMetatiles_Lavaridge
 	.4byte gMetatileAttributes_Lavaridge
 	.4byte gMetatileAttributes2_Lavaridge
+	.4byte gMetatileMaterialTop_Lavaridge
+	.4byte gMetatileMaterialBottom_Lavaridge
 	.4byte InitTilesetAnim_Lavaridge
 
 	.align 2
@@ -92,6 +106,8 @@ gTileset_Fallarbor:: @ 83DF7AC
 	.4byte gMetatiles_Fallarbor
 	.4byte gMetatileAttributes_Fallarbor
 	.4byte gMetatileAttributes2_Fallarbor
+	.4byte gMetatileMaterialTop_Fallarbor
+	.4byte gMetatileMaterialBottom_Fallarbor
 	.4byte InitTilesetAnim_Fallarbor
 
 	.align 2
@@ -104,6 +120,8 @@ gTileset_Fortree:: @ 83DF7C4
 	.4byte gMetatiles_Fortree
 	.4byte gMetatileAttributes_Fortree
 	.4byte gMetatileAttributes2_Fortree
+	.4byte gMetatileMaterialTop_Fortree
+	.4byte gMetatileMaterialBottom_Fortree
 	.4byte InitTilesetAnim_Fortree
 
 	.align 2
@@ -116,6 +134,8 @@ gTileset_Lilycove:: @ 83DF7DC
 	.4byte gMetatiles_Lilycove
 	.4byte gMetatileAttributes_Lilycove
 	.4byte gMetatileAttributes2_Lilycove
+	.4byte gMetatileMaterialTop_Lilycove
+	.4byte gMetatileMaterialBottom_Lilycove
 	.4byte InitTilesetAnim_Lilycove
 
 	.align 2
@@ -128,6 +148,8 @@ gTileset_Mossdeep:: @ 83DF7F4
 	.4byte gMetatiles_Mossdeep
 	.4byte gMetatileAttributes_Mossdeep
 	.4byte gMetatileAttributes2_Mossdeep
+	.4byte gMetatileMaterialTop_Mossdeep
+	.4byte gMetatileMaterialBottom_Mossdeep
 	.4byte InitTilesetAnim_Mossdeep
 
 	.align 2
@@ -140,6 +162,8 @@ gTileset_EverGrande:: @ 83DF80C
 	.4byte gMetatiles_EverGrande
 	.4byte gMetatileAttributes_EverGrande
 	.4byte gMetatileAttributes2_EverGrande
+	.4byte gMetatileMaterialTop_EverGrande
+	.4byte gMetatileMaterialBottom_EverGrande
 	.4byte InitTilesetAnim_EverGrande
 
 	.align 2
@@ -152,6 +176,8 @@ gTileset_Pacifidlog:: @ 83DF824
 	.4byte gMetatiles_Pacifidlog
 	.4byte gMetatileAttributes_Pacifidlog
 	.4byte gMetatileAttributes2_Pacifidlog
+	.4byte gMetatileMaterialTop_Pacifidlog
+	.4byte gMetatileMaterialBottom_Pacifidlog
 	.4byte InitTilesetAnim_Pacifidlog
 
 	.align 2
@@ -164,6 +190,8 @@ gTileset_Sootopolis:: @ 83DF83C
 	.4byte gMetatiles_Sootopolis
 	.4byte gMetatileAttributes_Sootopolis
 	.4byte gMetatileAttributes2_Sootopolis
+	.4byte gMetatileMaterialTop_Sootopolis
+	.4byte gMetatileMaterialBottom_Sootopolis
 	.4byte InitTilesetAnim_Sootopolis
 
 	.align 2
@@ -176,6 +204,8 @@ gTileset_BattleFrontierOutsideWest:: @ 83DF854
 	.4byte gMetatiles_BattleFrontierOutsideWest
 	.4byte gMetatileAttributes_BattleFrontierOutsideWest
 	.4byte gMetatileAttributes2_BattleFrontierOutsideWest
+	.4byte gMetatileMaterialTop_BattleFrontierOutsideWest
+	.4byte gMetatileMaterialBottom_BattleFrontierOutsideWest
 	.4byte InitTilesetAnim_BattleFrontierOutsideWest
 
 	.align 2
@@ -188,6 +218,8 @@ gTileset_BattleFrontierOutsideEast:: @ 83DF86C
 	.4byte gMetatiles_BattleFrontierOutsideEast
 	.4byte gMetatileAttributes_BattleFrontierOutsideEast
 	.4byte gMetatileAttributes2_BattleFrontierOutsideEast
+	.4byte gMetatileMaterialTop_BattleFrontierOutsideEast
+	.4byte gMetatileMaterialBottom_BattleFrontierOutsideEast
 	.4byte InitTilesetAnim_BattleFrontierOutsideEast
 
 	.align 2
@@ -200,6 +232,8 @@ gTileset_Building:: @ 83DF884
 	.4byte gMetatiles_InsideBuilding
 	.4byte gMetatileAttributes_InsideBuilding
 	.4byte gMetatileAttributes2_InsideBuilding
+	.4byte gMetatileMaterialTop_InsideBuilding
+	.4byte gMetatileMaterialBottom_InsideBuilding
 	.4byte InitTilesetAnim_Building
 
 	.align 2
@@ -212,6 +246,8 @@ gTileset_Shop:: @ 83DF89C
 	.4byte gMetatiles_Shop
 	.4byte gMetatileAttributes_Shop
 	.4byte gMetatileAttributes2_Shop
+	.4byte gMetatileMaterialTop_Shop
+	.4byte gMetatileMaterialBottom_Shop
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -224,6 +260,8 @@ gTileset_PokemonCenter:: @ 83DF8B4
 	.4byte gMetatiles_PokemonCenter
 	.4byte gMetatileAttributes_PokemonCenter
 	.4byte gMetatileAttributes2_PokemonCenter
+	.4byte gMetatileMaterialTop_PokemonCenter
+	.4byte gMetatileMaterialBottom_PokemonCenter
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -236,6 +274,8 @@ gTileset_Cave:: @ 83DF8CC
 	.4byte gMetatiles_Cave
 	.4byte gMetatileAttributes_Cave
 	.4byte gMetatileAttributes2_Cave
+	.4byte gMetatileMaterialTop_Cave
+	.4byte gMetatileMaterialBottom_Cave
 	.4byte InitTilesetAnim_Cave
 
 	.align 2
@@ -248,6 +288,8 @@ gTileset_PokemonSchool:: @ 83DF8E4
 	.4byte gMetatiles_PokemonSchool
 	.4byte gMetatileAttributes_PokemonSchool
 	.4byte gMetatileAttributes2_PokemonSchool
+	.4byte gMetatileMaterialTop_PokemonSchool
+	.4byte gMetatileMaterialBottom_PokemonSchool
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -260,6 +302,8 @@ gTileset_PokemonFanClub:: @ 83DF8FC
 	.4byte gMetatiles_PokemonFanClub
 	.4byte gMetatileAttributes_PokemonFanClub
 	.4byte gMetatileAttributes2_PokemonFanClub
+	.4byte gMetatileMaterialTop_PokemonFanClub
+	.4byte gMetatileMaterialBottom_PokemonFanClub
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -272,6 +316,8 @@ gTileset_Unused1:: @ 83DF914
 	.4byte gMetatiles_Unused1
 	.4byte gMetatileAttributes_Unused1
 	.4byte gMetatileAttributes2_Unused1
+	.4byte gMetatileMaterialTop_Unused1
+	.4byte gMetatileMaterialBottom_Unused1
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -284,6 +330,8 @@ gTileset_MeteorFalls:: @ 83DF92C
 	.4byte gMetatiles_MeteorFalls
 	.4byte gMetatileAttributes_MeteorFalls
 	.4byte gMetatileAttributes2_MeteorFalls
+	.4byte gMetatileMaterialTop_MeteorFalls
+	.4byte gMetatileMaterialBottom_MeteorFalls
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -296,6 +344,8 @@ gTileset_OceanicMuseum:: @ 83DF944
 	.4byte gMetatiles_OceanicMuseum
 	.4byte gMetatileAttributes_OceanicMuseum
 	.4byte gMetatileAttributes2_OceanicMuseum
+	.4byte gMetatileMaterialTop_OceanicMuseum
+	.4byte gMetatileMaterialBottom_OceanicMuseum
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -308,6 +358,8 @@ gTileset_CableClub:: @ 83DF95C
 	.4byte gMetatiles_CableClub
 	.4byte gMetatileAttributes_CableClub
 	.4byte gMetatileAttributes2_CableClub
+	.4byte gMetatileMaterialTop_CableClub
+	.4byte gMetatileMaterialBottom_CableClub
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -320,6 +372,8 @@ gTileset_SeashoreHouse:: @ 83DF974
 	.4byte gMetatiles_SeashoreHouse
 	.4byte gMetatileAttributes_SeashoreHouse
 	.4byte gMetatileAttributes2_SeashoreHouse
+	.4byte gMetatileMaterialTop_SeashoreHouse
+	.4byte gMetatileMaterialBottom_SeashoreHouse
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -332,6 +386,8 @@ gTileset_PrettyPetalFlowerShop:: @ 83DF98C
 	.4byte gMetatiles_PrettyPetalFlowerShop
 	.4byte gMetatileAttributes_PrettyPetalFlowerShop
 	.4byte gMetatileAttributes2_PrettyPetalFlowerShop
+	.4byte gMetatileMaterialTop_PrettyPetalFlowerShop
+	.4byte gMetatileMaterialBottom_PrettyPetalFlowerShop
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -344,6 +400,8 @@ gTileset_PokemonDayCare:: @ 83DF9A4
 	.4byte gMetatiles_PokemonDayCare
 	.4byte gMetatileAttributes_PokemonDayCare
 	.4byte gMetatileAttributes2_PokemonDayCare
+	.4byte gMetatileMaterialTop_PokemonDayCare
+	.4byte gMetatileMaterialBottom_PokemonDayCare
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -356,6 +414,8 @@ gTileset_Facility:: @ 83DF9BC
 	.4byte gMetatiles_Facility
 	.4byte gMetatileAttributes_Facility
 	.4byte gMetatileAttributes2_Facility
+	.4byte gMetatileMaterialTop_Facility
+	.4byte gMetatileMaterialBottom_Facility
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -368,6 +428,8 @@ gTileset_BikeShop:: @ 83DF9D4
 	.4byte gMetatiles_BikeShop
 	.4byte gMetatileAttributes_BikeShop
 	.4byte gMetatileAttributes2_BikeShop
+	.4byte gMetatileMaterialTop_BikeShop
+	.4byte gMetatileMaterialBottom_BikeShop
 	.4byte InitTilesetAnim_BikeShop
 
 	.align 2
@@ -380,6 +442,8 @@ gTileset_RusturfTunnel:: @ 83DF9EC
 	.4byte gMetatiles_RusturfTunnel
 	.4byte gMetatileAttributes_RusturfTunnel
 	.4byte gMetatileAttributes2_RusturfTunnel
+	.4byte gMetatileMaterialTop_RusturfTunnel
+	.4byte gMetatileMaterialBottom_RusturfTunnel
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -392,6 +456,8 @@ gTileset_SecretBaseBrownCave:: @ 83DFA04
 	.4byte gMetatiles_SecretBaseSecondary
 	.4byte gMetatileAttributes_SecretBaseSecondary
 	.4byte gMetatileAttributes2_SecretBaseSecondary
+	.4byte gMetatileMaterialTop_SecretBaseSecondary
+	.4byte gMetatileMaterialBottom_SecretBaseSecondary
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -404,6 +470,8 @@ gTileset_SecretBaseTree:: @ 83DFA1C
 	.4byte gMetatiles_SecretBaseSecondary
 	.4byte gMetatileAttributes_SecretBaseSecondary
 	.4byte gMetatileAttributes2_SecretBaseSecondary
+	.4byte gMetatileMaterialTop_SecretBaseSecondary
+	.4byte gMetatileMaterialBottom_SecretBaseSecondary
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -416,6 +484,8 @@ gTileset_SecretBaseShrub:: @ 83DFA34
 	.4byte gMetatiles_SecretBaseSecondary
 	.4byte gMetatileAttributes_SecretBaseSecondary
 	.4byte gMetatileAttributes2_SecretBaseSecondary
+	.4byte gMetatileMaterialTop_SecretBaseSecondary
+	.4byte gMetatileMaterialBottom_SecretBaseSecondary
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -428,6 +498,8 @@ gTileset_SecretBaseBlueCave:: @ 83DFA4C
 	.4byte gMetatiles_SecretBaseSecondary
 	.4byte gMetatileAttributes_SecretBaseSecondary
 	.4byte gMetatileAttributes2_SecretBaseSecondary
+	.4byte gMetatileMaterialTop_SecretBaseSecondary
+	.4byte gMetatileMaterialBottom_SecretBaseSecondary
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -440,6 +512,8 @@ gTileset_SecretBaseYellowCave:: @ 83DFA64
 	.4byte gMetatiles_SecretBaseSecondary
 	.4byte gMetatileAttributes_SecretBaseSecondary
 	.4byte gMetatileAttributes2_SecretBaseSecondary
+	.4byte gMetatileMaterialTop_SecretBaseSecondary
+	.4byte gMetatileMaterialBottom_SecretBaseSecondary
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -452,6 +526,8 @@ gTileset_SecretBaseRedCave:: @ 83DFA7C
 	.4byte gMetatiles_SecretBaseSecondary
 	.4byte gMetatileAttributes_SecretBaseSecondary
 	.4byte gMetatileAttributes2_SecretBaseSecondary
+	.4byte gMetatileMaterialTop_SecretBaseSecondary
+	.4byte gMetatileMaterialBottom_SecretBaseSecondary
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -464,6 +540,8 @@ gTileset_InsideOfTruck:: @ 83DFA94
 	.4byte gMetatiles_InsideOfTruck
 	.4byte gMetatileAttributes_InsideOfTruck
 	.4byte gMetatileAttributes2_InsideOfTruck
+	.4byte gMetatileMaterialTop_InsideOfTruck
+	.4byte gMetatileMaterialBottom_InsideOfTruck
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -476,6 +554,8 @@ gTileset_Unused2:: @ 83DFAAC
 	.4byte gMetatiles_Unused2
 	.4byte gMetatileAttributes_Unused2
 	.4byte gMetatileAttributes2_Unused2
+	.4byte gMetatileMaterialTop_Unused2
+	.4byte gMetatileMaterialBottom_Unused2
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -488,6 +568,8 @@ gTileset_Contest:: @ 83DFAC4
 	.4byte gMetatiles_Contest
 	.4byte gMetatileAttributes_Contest
 	.4byte gMetatileAttributes2_Contest
+	.4byte gMetatileMaterialTop_Contest
+	.4byte gMetatileMaterialBottom_Contest
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -500,6 +582,8 @@ gTileset_LilycoveMuseum:: @ 83DFADC
 	.4byte gMetatiles_LilycoveMuseum
 	.4byte gMetatileAttributes_LilycoveMuseum
 	.4byte gMetatileAttributes2_LilycoveMuseum
+	.4byte gMetatileMaterialTop_LilycoveMuseum
+	.4byte gMetatileMaterialBottom_LilycoveMuseum
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -512,6 +596,8 @@ gTileset_BrendansMaysHouse:: @ 83DFAF4
 	.4byte gMetatiles_BrendansMaysHouse
 	.4byte gMetatileAttributes_BrendansMaysHouse
 	.4byte gMetatileAttributes2_BrendansMaysHouse
+	.4byte gMetatileMaterialTop_BrendansMaysHouse
+	.4byte gMetatileMaterialBottom_BrendansMaysHouse
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -524,6 +610,8 @@ gTileset_Lab:: @ 83DFB0C
 	.4byte gMetatiles_Lab
 	.4byte gMetatileAttributes_Lab
 	.4byte gMetatileAttributes2_Lab
+	.4byte gMetatileMaterialTop_Lab
+	.4byte gMetatileMaterialBottom_Lab
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -536,6 +624,8 @@ gTileset_Underwater:: @ 83DFB24
 	.4byte gMetatiles_Underwater
 	.4byte gMetatileAttributes_Underwater
 	.4byte gMetatileAttributes2_Underwater
+	.4byte gMetatileMaterialTop_Underwater
+	.4byte gMetatileMaterialBottom_Underwater
 	.4byte InitTilesetAnim_Underwater
 
 	.align 2
@@ -548,6 +638,8 @@ gTileset_PetalburgGym:: @ 83DFB3C
 	.4byte gMetatiles_PetalburgGym
 	.4byte gMetatileAttributes_PetalburgGym
 	.4byte gMetatileAttributes2_PetalburgGym
+	.4byte gMetatileMaterialTop_PetalburgGym
+	.4byte gMetatileMaterialBottom_PetalburgGym
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -560,6 +652,8 @@ gTileset_SootopolisGym:: @ 83DFB54
 	.4byte gMetatiles_SootopolisGym
 	.4byte gMetatileAttributes_SootopolisGym
 	.4byte gMetatileAttributes2_SootopolisGym
+	.4byte gMetatileMaterialTop_SootopolisGym
+	.4byte gMetatileMaterialBottom_SootopolisGym
 	.4byte InitTilesetAnim_SootopolisGym
 
 	.align 2
@@ -572,6 +666,8 @@ gTileset_GenericBuilding:: @ 83DFB6C
 	.4byte gMetatiles_GenericBuilding
 	.4byte gMetatileAttributes_GenericBuilding
 	.4byte gMetatileAttributes2_GenericBuilding
+	.4byte gMetatileMaterialTop_GenericBuilding
+	.4byte gMetatileMaterialBottom_GenericBuilding
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -584,6 +680,8 @@ gTileset_MauvilleGameCorner:: @ 83DFB84
 	.4byte gMetatiles_MauvilleGameCorner
 	.4byte gMetatileAttributes_MauvilleGameCorner
 	.4byte gMetatileAttributes2_MauvilleGameCorner
+	.4byte gMetatileMaterialTop_MauvilleGameCorner
+	.4byte gMetatileMaterialBottom_MauvilleGameCorner
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -596,6 +694,8 @@ gTileset_RustboroGym:: @ 83DFB9C
 	.4byte gMetatiles_RustboroGym
 	.4byte gMetatileAttributes_RustboroGym
 	.4byte gMetatileAttributes2_RustboroGym
+	.4byte gMetatileMaterialTop_RustboroGym
+	.4byte gMetatileMaterialBottom_RustboroGym
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -608,6 +708,8 @@ gTileset_DewfordGym:: @ 83DFBB4
 	.4byte gMetatiles_DewfordGym
 	.4byte gMetatileAttributes_DewfordGym
 	.4byte gMetatileAttributes2_DewfordGym
+	.4byte gMetatileMaterialTop_DewfordGym
+	.4byte gMetatileMaterialBottom_DewfordGym
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -620,6 +722,8 @@ gTileset_MauvilleGym:: @ 83DFBCC
 	.4byte gMetatiles_MauvilleGym
 	.4byte gMetatileAttributes_MauvilleGym
 	.4byte gMetatileAttributes2_MauvilleGym
+	.4byte gMetatileMaterialTop_MauvilleGym
+	.4byte gMetatileMaterialBottom_MauvilleGym
 	.4byte InitTilesetAnim_MauvilleGym
 
 	.align 2
@@ -632,6 +736,8 @@ gTileset_LavaridgeGym:: @ 83DFBE4
 	.4byte gMetatiles_LavaridgeGym
 	.4byte gMetatileAttributes_LavaridgeGym
 	.4byte gMetatileAttributes2_LavaridgeGym
+	.4byte gMetatileMaterialTop_LavaridgeGym
+	.4byte gMetatileMaterialBottom_LavaridgeGym
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -644,6 +750,8 @@ gTileset_TrickHousePuzzle:: @ 83DFBFC
 	.4byte gMetatiles_TrickHousePuzzle
 	.4byte gMetatileAttributes_TrickHousePuzzle
 	.4byte gMetatileAttributes2_TrickHousePuzzle
+	.4byte gMetatileMaterialTop_TrickHousePuzzle
+	.4byte gMetatileMaterialBottom_TrickHousePuzzle
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -656,6 +764,8 @@ gTileset_FortreeGym:: @ 83DFC14
 	.4byte gMetatiles_FortreeGym
 	.4byte gMetatileAttributes_FortreeGym
 	.4byte gMetatileAttributes2_FortreeGym
+	.4byte gMetatileMaterialTop_FortreeGym
+	.4byte gMetatileMaterialBottom_FortreeGym
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -668,6 +778,8 @@ gTileset_MossdeepGym:: @ 83DFC2C
 	.4byte gMetatiles_MossdeepGym
 	.4byte gMetatileAttributes_MossdeepGym
 	.4byte gMetatileAttributes2_MossdeepGym
+	.4byte gMetatileMaterialTop_MossdeepGym
+	.4byte gMetatileMaterialBottom_MossdeepGym
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -680,6 +792,8 @@ gTileset_InsideShip:: @ 83DFC44
 	.4byte gMetatiles_InsideShip
 	.4byte gMetatileAttributes_InsideShip
 	.4byte gMetatileAttributes2_InsideShip
+	.4byte gMetatileMaterialTop_InsideShip
+	.4byte gMetatileMaterialBottom_InsideShip
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -692,6 +806,8 @@ gTileset_SecretBase:: @ 83DFC5C
 	.4byte gMetatiles_SecretBasePrimary
 	.4byte gMetatileAttributes_SecretBasePrimary
 	.4byte gMetatileAttributes2_SecretBasePrimary
+	.4byte gMetatileMaterialTop_SecretBasePrimary
+	.4byte gMetatileMaterialBottom_SecretBasePrimary
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -712,6 +828,8 @@ gTileset_EliteFour:: @ 83DFC7C
 	.4byte gMetatiles_EliteFour
 	.4byte gMetatileAttributes_EliteFour
 	.4byte gMetatileAttributes2_EliteFour
+	.4byte gMetatileMaterialTop_EliteFour
+	.4byte gMetatileMaterialBottom_EliteFour
 	.4byte InitTilesetAnim_EliteFour
 
 	.align 2
@@ -724,6 +842,8 @@ gTileset_BattleFrontier:: @ 83DFC94
 	.4byte gMetatiles_BattleFrontier
 	.4byte gMetatileAttributes_BattleFrontier
 	.4byte gMetatileAttributes2_BattleFrontier
+	.4byte gMetatileMaterialTop_BattleFrontier
+	.4byte gMetatileMaterialBottom_BattleFrontier
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -736,6 +856,8 @@ gTileset_BattlePalace:: @ 83DFCAC
 	.4byte gMetatiles_BattlePalace
 	.4byte gMetatileAttributes_BattlePalace
 	.4byte gMetatileAttributes2_BattlePalace
+	.4byte gMetatileMaterialTop_BattlePalace
+	.4byte gMetatileMaterialBottom_BattlePalace
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -748,6 +870,8 @@ gTileset_BattleDome:: @ 83DFCC4
 	.4byte gMetatiles_BattleDome
 	.4byte gMetatileAttributes_BattleDome
 	.4byte gMetatileAttributes2_BattleDome
+	.4byte gMetatileMaterialTop_BattleDome
+	.4byte gMetatileMaterialBottom_BattleDome
 	.4byte InitTilesetAnim_BattleDome
 
 	.align 2
@@ -760,6 +884,8 @@ gTileset_BattleFactory:: @ 83DFCDC
 	.4byte gMetatiles_BattleFactory
 	.4byte gMetatileAttributes_BattleFactory
 	.4byte gMetatileAttributes2_BattleFactory
+	.4byte gMetatileMaterialTop_BattleFactory
+	.4byte gMetatileMaterialBottom_BattleFactory
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -772,6 +898,8 @@ gTileset_BattlePike:: @ 83DFCF4
 	.4byte gMetatiles_BattlePike
 	.4byte gMetatileAttributes_BattlePike
 	.4byte gMetatileAttributes2_BattlePike
+	.4byte gMetatileMaterialTop_BattlePike
+	.4byte gMetatileMaterialBottom_BattlePike
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -784,6 +912,8 @@ gTileset_BattleArena:: @ 83DFD0C
 	.4byte gMetatiles_BattleArena
 	.4byte gMetatileAttributes_BattleArena
 	.4byte gMetatileAttributes2_BattleArena
+	.4byte gMetatileMaterialTop_BattleArena
+	.4byte gMetatileMaterialBottom_BattleArena
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -796,6 +926,8 @@ gTileset_BattlePyramid:: @ 83DFD24
 	.4byte gMetatiles_BattlePyramid
 	.4byte gMetatileAttributes_BattlePyramid
 	.4byte gMetatileAttributes2_BattlePyramid
+	.4byte gMetatileMaterialTop_BattlePyramid
+	.4byte gMetatileMaterialBottom_BattlePyramid
 	.4byte InitTilesetAnim_BattlePyramid
 
 	.align 2
@@ -808,6 +940,8 @@ gTileset_MirageTower:: @ 83DFD3C
 	.4byte gMetatiles_MirageTower
 	.4byte gMetatileAttributes_MirageTower
 	.4byte gMetatileAttributes2_MirageTower
+	.4byte gMetatileMaterialTop_MirageTower
+	.4byte gMetatileMaterialBottom_MirageTower
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -820,6 +954,8 @@ gTileset_MossdeepGameCorner:: @ 83DFD54
 	.4byte gMetatiles_MossdeepGameCorner
 	.4byte gMetatileAttributes_MossdeepGameCorner
 	.4byte gMetatileAttributes2_MossdeepGameCorner
+	.4byte gMetatileMaterialTop_MossdeepGameCorner
+	.4byte gMetatileMaterialBottom_MossdeepGameCorner
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -832,6 +968,8 @@ gTileset_IslandHarbor:: @ 83DFD6C
 	.4byte gMetatiles_IslandHarbor
 	.4byte gMetatileAttributes_IslandHarbor
 	.4byte gMetatileAttributes2_IslandHarbor
+	.4byte gMetatileMaterialTop_IslandHarbor
+	.4byte gMetatileMaterialBottom_IslandHarbor
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -844,6 +982,8 @@ gTileset_TrainerHill:: @ 83DFD84
 	.4byte gMetatiles_TrainerHill
 	.4byte gMetatileAttributes_TrainerHill
 	.4byte gMetatileAttributes2_TrainerHill
+	.4byte gMetatileMaterialTop_TrainerHill
+	.4byte gMetatileMaterialBottom_TrainerHill
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -856,6 +996,8 @@ gTileset_NavelRock:: @ 83DFD9C
 	.4byte gMetatiles_NavelRock
 	.4byte gMetatileAttributes_NavelRock
 	.4byte gMetatileAttributes2_NavelRock
+	.4byte gMetatileMaterialTop_NavelRock
+	.4byte gMetatileMaterialBottom_NavelRock
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -868,6 +1010,8 @@ gTileset_BattleFrontierRankingHall:: @ 83DFDB4
 	.4byte gMetatiles_BattleFrontierRankingHall
 	.4byte gMetatileAttributes_BattleFrontierRankingHall
 	.4byte gMetatileAttributes2_BattleFrontierRankingHall
+	.4byte gMetatileMaterialTop_BattleFrontierRankingHall
+	.4byte gMetatileMaterialBottom_BattleFrontierRankingHall
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -880,6 +1024,8 @@ gTileset_BattleTent:: @ 83DFDCC
 	.4byte gMetatiles_BattleTent
 	.4byte gMetatileAttributes_BattleTent
 	.4byte gMetatileAttributes2_BattleTent
+	.4byte gMetatileMaterialTop_BattleTent
+	.4byte gMetatileMaterialBottom_BattleTent
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -892,6 +1038,8 @@ gTileset_MysteryEventsHouse:: @ 83DFDE4
 	.4byte gMetatiles_MysteryEventsHouse
 	.4byte gMetatileAttributes_MysteryEventsHouse
 	.4byte gMetatileAttributes2_MysteryEventsHouse
+	.4byte gMetatileMaterialTop_MysteryEventsHouse
+	.4byte gMetatileMaterialBottom_MysteryEventsHouse
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -904,6 +1052,8 @@ gTileset_UnionRoom:: @ 83DFDFC
 	.4byte gMetatiles_UnionRoom
 	.4byte gMetatileAttributes_UnionRoom
 	.4byte gMetatileAttributes2_UnionRoom
+	.4byte gMetatileMaterialTop_UnionRoom
+	.4byte gMetatileMaterialBottom_UnionRoom
 	.4byte NULL @ animation callback
 
 	.align 2
@@ -916,4 +1066,6 @@ gTileset_Plains::
 	.4byte gMetatiles_Plains
 	.4byte gMetatileAttributes_Plains
 	.4byte gMetatileAttributes2_Plains
+	.4byte gMetatileMaterialTop_Plains
+	.4byte gMetatileMaterialBottom_Plains
 	.4byte NULL
