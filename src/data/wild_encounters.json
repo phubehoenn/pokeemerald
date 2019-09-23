@@ -11034,63 +11034,63 @@
                         "encounter_rate": 20,
                         "mons": [
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_AGGRON"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_ALAKAZAM"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_ANORITH"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_BLISSEY"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_BELDUM"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_CORSOLA"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_DUSTOX"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_FLAREON"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_MILTANK"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_NOCTOWL"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_SANDSHREW"
                             },
                             {
-                                "max_level": 5,
-                                "min_level": 5,
+                                "max_level": 0,
+                                "min_level": 0,
                                 "species": "SPECIES_SUNFLORA"
                             }
                         ]
