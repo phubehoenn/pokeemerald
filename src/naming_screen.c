@@ -1877,7 +1877,7 @@ static const struct NamingScreenTemplate pcBoxNamingTemplate =
 static const struct NamingScreenTemplate monNamingScreenTemplate =
 {
     .copyExistingString = 0,
-    .maxChars = 10,
+    .maxChars = 13,
     .iconFunction = 3,
     .addGenderIcon = 1,
     .initialPage = KBPAGE_LETTERS_UPPER,

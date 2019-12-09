@@ -42,7 +42,7 @@ extern const u8 gExpandedPlaceholder_May[];
 u8 *StringCopy10(u8 *dest, const u8 *src)
 {
     u8 i;
-    u32 limit = 10;
+    u32 limit = 13;
 
     for (i = 0; i < limit; i++)
     {
@@ -59,7 +59,7 @@ u8 *StringCopy10(u8 *dest, const u8 *src)
 u8 *StringGetEnd10(u8 *str)
 {
     u8 i;
-    u32 limit = 10;
+    u32 limit = 13;
 
     for (i = 0; i < limit; i++)
         if (str[i] == EOS)

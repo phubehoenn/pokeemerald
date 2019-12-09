@@ -127,7 +127,6 @@
 #define MON_DATA_OT_NAME            7
 #define MON_DATA_MARKINGS           8
 #define MON_DATA_CHECKSUM           9
-#define MON_DATA_ENCRYPT_SEPARATOR 10
 
 // Substruct 0
 #define MON_DATA_SPECIES           11
