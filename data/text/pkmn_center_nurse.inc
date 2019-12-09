@@ -49,3 +49,9 @@ gText_ThankYouForWaiting:: @ 82729F0
 
 gText_WeHopeToSeeYouAgain2:: @ 8272A07
     .string "We hope to see you again!$"
+
+gText_WelcomeHardlocke::
+	.string "Hello, and welcome to\nthe POKéMON CENTER.\pI'm afraid there is nothing\nI can do for you right now...\pYou can only heal your POKéMON\nhere if you lower your Nuzlocke level.\pWe hope to see you again!$"
+	
+gText_WelcomeDeadlocke::
+	.string "Hello, and welcome to\nthe POKéMON CENTER.$"

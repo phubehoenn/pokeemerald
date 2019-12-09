@@ -174,7 +174,7 @@ static void sub_80A08A4(u8 taskId);
 static bool8 sub_809FA00(void);
 
 // Script
-extern const u8 EventScript_NoRegisteredMenuOption[];
+extern const u8 Common_EventScript_NoRegisteredMenuOption[];
 
 static const struct WindowTemplate sSafariBallsWindowTemplate = {0, 1, 1, 9, 4, 0xF, 8};
 
@@ -482,7 +482,7 @@ static void ShowNuzlockeWindow(void)
 	// Append "FAINTED:\n"
     StringAppend(gStringVar4, gText_Fainted);
 	// Convert fainted counter to string, store in gStringVar1
-	ConvertIntToDecimalStringN(gStringVar1, gSaveBlock1Ptr->nuzlockeCounter, STR_CONV_MODE_LEFT_ALIGN, 5);
+	ConvertIntToDecimalStringN(gStringVar1, gSaveBlock2Ptr->nuzlockeCounter, STR_CONV_MODE_LEFT_ALIGN, 5);
 	// Append the counter to the gStringVar4
 	StringAppend(gStringVar4, gStringVar1);
 	// Finally print
@@ -1836,7 +1836,7 @@ bool32 UseRegisteredMenuOption(void)
 	}
 	// If nothing is registered, run script
 	else
-		ScriptContext1_SetupScript(EventScript_NoRegisteredMenuOption);
+		ScriptContext1_SetupScript(Common_EventScript_NoRegisteredMenuOption);
 	return TRUE;
 }
 

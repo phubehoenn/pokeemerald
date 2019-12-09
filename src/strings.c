@@ -1577,6 +1577,16 @@ const u8 gText_Floor6[] = _("Floor 6");
 const u8 gText_Floor7[] = _("Floor 7");
 const u8 gText_Peak[] = _("Peak");
 
+const u8 gText_HowLongToWait[] = _("It is currently {COLOR RED}{STR_VAR_2}{COLOR DARK_GREY}).\nHow long would you like to wait?$");
+const u8 gText_YouCantWaitNow[] = _("You can't wait right now.$");
+const u8 gText_WaitingTooOften[] = _("You've waited for too long! Keep going\nto recharge your wait time.$");
+const u8 gText_HoursRemaining[] = _("TIME LEFT:\n{COLOR RED}{STR_VAR_2}$");
+const u8 gText_Hour[] = _("HOUR$");
+const u8 gText_S[] = _("S$");
+const u8 gText_NotEnoughTime[] = _("You can't wait for that long. Would you\nlike to wait for as long as possible?$");
+const u8 gText_LRWithoutRegisteredItem[] = _("Press L and R on items in the bag\nto register them for quick use.$");
+const u8 gText_NoRegisteredMenuOption[] = _("Press SELECT on an option in the start\nmenu to bind it to SELECT for quick use.$");
+
 // Clock strings
 const u8 gText_TimeAM[] = _("AM$");
 const u8 gText_TimePM[] = _("PM$");

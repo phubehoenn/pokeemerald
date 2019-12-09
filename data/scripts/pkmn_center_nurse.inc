@@ -1,6 +1,25 @@
 Common_EventScript_PkmnCenterNurse:: @ 827191E
     lock
     faceplayer
+	specialvar VAR_RESULT, GetNuzlockeMode 
+	compare VAR_RESULT, 0 @ Heal normally on normal/Nuzlocke modes
+	goto_if_eq EventScript_PkmnCenterNurse_Normal
+	compare VAR_RESULT, 1
+	goto_if_eq EventScript_PkmnCenterNurse_Normal
+	compare VAR_RESULT, 2 @ Display unhelpful message and do nothing on Hardlocke
+	goto_if_eq EventScript_PkmnCenterNurse_Hardlocke
+	msgbox gText_WelcomeDeadlocke @ Must be on Deadlocke mode, save game instead of heal if true
+	call Common_EventScript_SaveGame
+	message gText_WeHopeToSeeYouAgain
+	release
+	end
+	
+EventScript_PkmnCenterNurse_Hardlocke:: @ Display unhelpful message and do nothing
+	msgbox gText_WelcomeHardlocke
+	release
+	end
+	
+EventScript_PkmnCenterNurse_Normal:: @ Standard behavior
     setvar VAR_0x8004, 0
     specialvar VAR_RESULT, CountPlayerTrainerStars
     compare VAR_RESULT, 4

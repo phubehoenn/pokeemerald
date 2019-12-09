@@ -191,7 +191,7 @@ u8 UpdateWeatherPal(void)
 	u8 index = 15;
 	if (gWeatherPtr->currWeather == WEATHER_SANDSTORM)
 		LoadPaletteWithDayNightFilter(gSandstormWeatherPalette, 16 * index + 0x100, 1, FILTER_MODE_SPRITE);
-	else if (gWeatherPtr->currWeather == WEATHER_CLOUDS)
+	else if (gWeatherPtr->currWeather == WEATHER_SUNNY_CLOUDS)
 		LoadPaletteWithDayNightFilter(gCloudsWeatherPalette, 16 * index + 0x100, 1, FILTER_MODE_REFLECTION); // Clouds are reflections in water, so mode = 2
 	else
 		LoadPaletteWithDayNightFilter(gUnknown_083970E8, 16 * index + 0x100, 1, FILTER_MODE_SPRITE);

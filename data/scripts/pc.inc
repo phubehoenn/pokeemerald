@@ -4,7 +4,21 @@ EventScript_PC:: @ 8271D92
 	special DoPCTurnOnEffect
 	playse SE_PC_ON
 	msgbox Text_BootUpPC, MSGBOX_DEFAULT
+	
+	@ Can only use player pc in hardlocke and deadlocke modes
+	specialvar VAR_RESULT, GetNuzlockeMode
+	compare VAR_RESULT, 2 @hardlocke
+	goto_if_eq EventScript_PCPlayerOnly
+	compare VAR_RESULT, 3 @deadlocke
+	goto_if_eq EventScript_PCPlayerOnly
+	
 	goto EventScript_PCMainMenu
+	end
+	
+EventScript_PCPlayerOnly:
+	special PlayerPC
+	waitstate
+	goto EventScript_TurnOffPC
 	end
 
 EventScript_PCMainMenu:: @ 8271DAC
