@@ -234,8 +234,7 @@ static const struct PacifidlogMetatileOffsets *GetPacifidlogBridgeMetatileOffset
 
 static void SetPacifidlogBridgeMetatiles(const struct PacifidlogMetatileOffsets *offsets, s16 x, s16 y, bool32 redrawMap)
 {
-    offsets = GetPacifidlogBridgeMetatileOffsets(offsets, MapGridGetMetatileBehaviorAt(x, y));
-    if (offsets)
+    if (GetPacifidlogBridgeMetatileOffsets(offsets, MapGridGetMetatileBehaviorAt(x, y)) || GetPacifidlogBridgeMetatileOffsets(offsets, MapGridGetMetatileBehavior2At(x, y)))
     {
         MapGridSetMetatileIdAt(x + offsets[0].x, y + offsets[0].y, offsets[0].tileId);
         if (redrawMap)
@@ -265,23 +264,24 @@ static void UpdateFloatingBridgeMetatiles(s16 x, s16 y, bool32 redrawMap)
 static bool32 StandingOnNewPacifidlogBridge(s16 x1, s16 y1, s16 x2, s16 y2)
 {
     u16 metatileBehavior = MapGridGetMetatileBehaviorAt(x2, y2);
+	u16 metatileBehavior2 = MapGridGetMetatileBehavior2At(x2, y2);
 
-    if (MetatileBehavior_IsPacifilogVerticalLog1(metatileBehavior))
+    if (MetatileBehavior_IsPacifilogVerticalLog1(metatileBehavior) || MetatileBehavior_IsPacifilogVerticalLog1(metatileBehavior2))
     {
         if (y1 > y2)
             return FALSE;
     }
-    else if (MetatileBehavior_IsPacifilogVerticalLog2(metatileBehavior))
+    else if (MetatileBehavior_IsPacifilogVerticalLog2(metatileBehavior) || MetatileBehavior_IsPacifilogVerticalLog2(metatileBehavior2))
     {
         if (y1 < y2)
             return FALSE;
     }
-    else if (MetatileBehavior_IsPacifilogHorizontalLog1(metatileBehavior))
+    else if (MetatileBehavior_IsPacifilogHorizontalLog1(metatileBehavior) || MetatileBehavior_IsPacifilogHorizontalLog1(metatileBehavior2))
     {
         if (x1 > x2)
             return FALSE;
     }
-    else if (MetatileBehavior_IsPacifilogHorizontalLog2(metatileBehavior))
+    else if (MetatileBehavior_IsPacifilogHorizontalLog2(metatileBehavior) || MetatileBehavior_IsPacifilogHorizontalLog2(metatileBehavior2))
     {
         if (x1 < x2)
             return FALSE;
@@ -292,23 +292,24 @@ static bool32 StandingOnNewPacifidlogBridge(s16 x1, s16 y1, s16 x2, s16 y2)
 static bool32 StandingOnSamePacifidlogBridge(s16 x1, s16 y1, s16 x2, s16 y2)
 {
     u16 metatileBehavior = MapGridGetMetatileBehaviorAt(x1, y1);
+	u16 metatileBehavior2 = MapGridGetMetatileBehavior2At(x1, y1);
 
-    if (MetatileBehavior_IsPacifilogVerticalLog1(metatileBehavior))
+    if (MetatileBehavior_IsPacifilogVerticalLog1(metatileBehavior) || MetatileBehavior_IsPacifilogVerticalLog1(metatileBehavior2))
     {
         if (y1 < y2)
             return FALSE;
     }
-    else if (MetatileBehavior_IsPacifilogVerticalLog2(metatileBehavior))
+    else if (MetatileBehavior_IsPacifilogVerticalLog2(metatileBehavior) || MetatileBehavior_IsPacifilogVerticalLog2(metatileBehavior2))
     {
         if (y1 > y2)
             return FALSE;
     }
-    else if (MetatileBehavior_IsPacifilogHorizontalLog1(metatileBehavior))
+    else if (MetatileBehavior_IsPacifilogHorizontalLog1(metatileBehavior) || MetatileBehavior_IsPacifilogHorizontalLog1(metatileBehavior2))
     {
         if (x1 < x2)
             return FALSE;
     }
-    else if (MetatileBehavior_IsPacifilogHorizontalLog2(metatileBehavior))
+    else if (MetatileBehavior_IsPacifilogHorizontalLog2(metatileBehavior) || MetatileBehavior_IsPacifilogHorizontalLog2(metatileBehavior2))
     {
         if (x1 > x2)
             return FALSE;
@@ -357,7 +358,7 @@ static void PacifidlogBridgePerStepCallback(u8 taskId)
 
                 data[2] = x;
                 data[3] = y;
-                if (MetatileBehavior_IsPacifidlogLog(MapGridGetMetatileBehaviorAt(x, y)))
+                if (MetatileBehavior_IsPacifidlogLog(MapGridGetMetatileBehaviorAt(x, y)) || MetatileBehavior_IsPacifidlogLog(MapGridGetMetatileBehavior2At(x, y)))
                     PlaySE(SE_MIZU);
             }
             break;
@@ -423,7 +424,7 @@ static void FortreeBridgePerStepCallback(u8 taskId)
         case 0:
             data[2] = x;
             data[3] = y;
-            if (MetatileBehavior_IsFortreeBridge(MapGridGetMetatileBehaviorAt(x, y)))
+            if (MetatileBehavior_IsFortreeBridge(MapGridGetMetatileBehaviorAt(x, y), MapGridGetMetatileBehavior2At(x, y)))
             {
                 SetLoweredForetreeBridgeMetatile(x, y);
                 CurrentMapDrawMetatileAt(x, y);
@@ -436,8 +437,8 @@ static void FortreeBridgePerStepCallback(u8 taskId)
             if (x == x2 && y == y2)
                 break;
 
-            isFortreeBridgeCur = MetatileBehavior_IsFortreeBridge(MapGridGetMetatileBehaviorAt(x, y));
-            isFortreeBridgePrev = MetatileBehavior_IsFortreeBridge(MapGridGetMetatileBehaviorAt(x2, y2));
+            isFortreeBridgeCur = MetatileBehavior_IsFortreeBridge(MapGridGetMetatileBehaviorAt(x, y), MapGridGetMetatileBehavior2At(x, y));
+            isFortreeBridgePrev = MetatileBehavior_IsFortreeBridge(MapGridGetMetatileBehaviorAt(x2, y2), MapGridGetMetatileBehavior2At(x2, y2));
             z = PlayerGetZCoord();
             flag = 0;
             if ((u8)(z & 1) == 0)
@@ -539,6 +540,7 @@ static void SootopolisGymIcePerStepCallback(u8 taskId)
 {
     s16 x, y;
     u16 tileBehavior;
+	u16 tileBehavior2;
     u16 *iceStepCount;
     s16 *data = gTasks[taskId].data;
     switch (data[1])
@@ -556,8 +558,9 @@ static void SootopolisGymIcePerStepCallback(u8 taskId)
                 data[2] = x;
                 data[3] = y;
                 tileBehavior = MapGridGetMetatileBehaviorAt(x, y);
+				tileBehavior2 = MapGridGetMetatileBehavior2At(x, y);
                 iceStepCount = GetVarPointer(VAR_ICE_STEP_COUNT);
-                if (MetatileBehavior_IsThinIce(tileBehavior) == TRUE)
+                if (MetatileBehavior_IsThinIce(tileBehavior) == TRUE || MetatileBehavior_IsThinIce(tileBehavior2) == TRUE)
                 {
                     (*iceStepCount)++;
                     data[6] = 4;
@@ -565,7 +568,7 @@ static void SootopolisGymIcePerStepCallback(u8 taskId)
                     data[4] = x;
                     data[5] = y;
                 }
-                else if (MetatileBehavior_IsCrackedIce(tileBehavior) == TRUE)
+                else if (MetatileBehavior_IsCrackedIce(tileBehavior) == TRUE || MetatileBehavior_IsCrackedIce(tileBehavior2) == TRUE)
                 {
                     *iceStepCount = 0;
                     data[6] = 4;
@@ -619,7 +622,7 @@ static void AshGrassPerStepCallback(u8 taskId)
     {
         data[1] = x;
         data[2] = y;
-        if (MetatileBehavior_IsAshGrass(MapGridGetMetatileBehaviorAt(x, y)))
+        if (MetatileBehavior_IsAshGrass(MapGridGetMetatileBehaviorAt(x, y)) || MetatileBehavior_IsAshGrass(MapGridGetMetatileBehavior2At(x, y)))
         {
             if (MapGridGetMetatileIdAt(x, y) == METATILE_ID(Fallarbor, AshGrass))
                 StartAshFieldEffect(x, y, METATILE_ID(Fallarbor, NormalGrass), 4);
@@ -646,23 +649,25 @@ static void CrackedFloorPerStepCallback(u8 taskId)
 {
     s16 x, y;
     u16 behavior;
+	u16 behavior2;
     s16 *data = gTasks[taskId].data;
     PlayerGetDestCoords(&x, &y);
     behavior = MapGridGetMetatileBehaviorAt(x, y);
+	behavior2 = MapGridGetMetatileBehavior2At(x, y);
     if (data[4] != 0 && (--data[4]) == 0)
         SetCrackedFloorHoleMetatile(data[5], data[6]);
 
     if (data[7] != 0 && (--data[7]) == 0)
         SetCrackedFloorHoleMetatile(data[8], data[9]);
 
-    if (MetatileBehavior_IsCrackedFloorHole(behavior))
+    if (MetatileBehavior_IsCrackedFloorHole(behavior) || MetatileBehavior_IsCrackedFloorHole(behavior2))
         VarSet(VAR_ICE_STEP_COUNT, 0); // this var does double duty
 
     if ((x != data[2] || y != data[3]))
     {
         data[2] = x;
         data[3] = y;
-        if (MetatileBehavior_IsCrackedFloor(behavior))
+        if (MetatileBehavior_IsCrackedFloor(behavior) || MetatileBehavior_IsCrackedFloor(behavior2))
         {
             if (GetPlayerSpeed() != 4)
                 VarSet(VAR_ICE_STEP_COUNT, 0); // this var does double duty
@@ -721,7 +726,7 @@ static void Task_MuddySlope(u8 taskId)
             {
                 data[2] = x;
                 data[3] = y;
-                if (MetatileBehavior_IsMuddySlope(MapGridGetMetatileBehaviorAt(x, y)))
+                if (MetatileBehavior_IsMuddySlope(MapGridGetMetatileBehaviorAt(x, y)) || MetatileBehavior_IsMuddySlope(MapGridGetMetatileBehavior2At(x, y)))
                 {
                     for (i = 4; i < 14; i += 3)
                     {

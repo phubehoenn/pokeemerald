@@ -20,6 +20,8 @@ struct FieldInput
     bool8 input_field_1_6:1;
     bool8 input_field_1_7:1;
     u8 dpadDirection;
+	bool8 pressedLButton:1;
+	bool8 pressedRButton:1;
 };
 
 void FieldClearPlayerInput(struct FieldInput *pStruct);
@@ -34,7 +36,7 @@ bool8 sub_8068870(u16 a);
 bool8 sub_8068894(void);
 bool8 sub_8068A64(struct MapPosition *, u16);
 u8 sub_8068F18(void);
-bool8 dive_warp(struct MapPosition *position, u16 b);
+bool8 dive_warp(struct MapPosition *position, u16 b, u16 c);
 int SetCableClubWarp(void);
 u8 TrySetDiveWarp(void);
 const u8 *GetInteractedLinkPlayerScript(struct MapPosition *position, u8 metatileBehavior, u8 direction);

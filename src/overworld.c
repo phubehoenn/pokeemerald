@@ -182,9 +182,10 @@ static void SetKeyInterceptCallback(u16 (*func)(u32));
 static void SetFieldVBlankCallback(void);
 static void FieldClearVBlankHBlankCallbacks(void);
 static void sub_8085810(void);
-static u8 GetAdjustedInitialTransitionFlags(struct InitialPlayerAvatarState *playerStruct, u16 a2, u8 a3);
-static u8 GetAdjustedInitialDirection(struct InitialPlayerAvatarState *playerStruct, u8 a2, u16 a3, u8 a4);
+static u8 GetAdjustedInitialTransitionFlags(struct InitialPlayerAvatarState *playerStruct, u16 a2, u16 a3, u8 a4);
+static u8 GetAdjustedInitialDirection(struct InitialPlayerAvatarState *playerStruct, u8 a2, u16 a3, u16 a4, u8 a5);
 static u16 GetCenterScreenMetatileBehavior(void);
+static u16 GetCenterScreenMetatileBehavior2(void);
 
 // IWRAM bss vars
 static void *sUnusedOverworldCallback;
@@ -921,20 +922,21 @@ static struct InitialPlayerAvatarState *GetInitialPlayerAvatarState(void)
     struct InitialPlayerAvatarState playerStruct;
     u8 mapType = GetCurrentMapType();
     u16 metatileBehavior = GetCenterScreenMetatileBehavior();
-    u8 transitionFlags = GetAdjustedInitialTransitionFlags(&gInitialPlayerAvatarState, metatileBehavior, mapType);
+	u16 metatileBehavior2 = GetCenterScreenMetatileBehavior2();
+    u8 transitionFlags = GetAdjustedInitialTransitionFlags(&gInitialPlayerAvatarState, metatileBehavior, metatileBehavior2, mapType);
     playerStruct.transitionFlags = transitionFlags;
-    playerStruct.direction = GetAdjustedInitialDirection(&gInitialPlayerAvatarState, transitionFlags, metatileBehavior, mapType);
+    playerStruct.direction = GetAdjustedInitialDirection(&gInitialPlayerAvatarState, transitionFlags, metatileBehavior, metatileBehavior2, mapType);
     gInitialPlayerAvatarState = playerStruct;
     return &gInitialPlayerAvatarState;
 }
 
-static u8 GetAdjustedInitialTransitionFlags(struct InitialPlayerAvatarState *playerStruct, u16 metatileBehavior, u8 mapType)
+static u8 GetAdjustedInitialTransitionFlags(struct InitialPlayerAvatarState *playerStruct, u16 metatileBehavior, u16 metatileBehavior2, u8 mapType)
 {
     if (mapType != MAP_TYPE_INDOOR && FlagGet(FLAG_SYS_CRUISE_MODE))
         return PLAYER_AVATAR_FLAG_ON_FOOT;
     else if (mapType == MAP_TYPE_UNDERWATER)
         return PLAYER_AVATAR_FLAG_UNDERWATER;
-    else if (MetatileBehavior_IsSurfableWaterOrUnderwater(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsSurfableWaterOrUnderwater(metatileBehavior) == TRUE || MetatileBehavior_IsSurfableWaterOrUnderwater(metatileBehavior2) == TRUE)
         return PLAYER_AVATAR_FLAG_SURFING;
     else if (Overworld_IsBikingAllowed() != TRUE)
         return PLAYER_AVATAR_FLAG_ON_FOOT;
@@ -946,26 +948,27 @@ static u8 GetAdjustedInitialTransitionFlags(struct InitialPlayerAvatarState *pla
         return PLAYER_AVATAR_FLAG_ACRO_BIKE;
 }
 
-static u8 GetAdjustedInitialDirection(struct InitialPlayerAvatarState *playerStruct, u8 transitionFlags, u16 metatileBehavior, u8 mapType)
+static u8 GetAdjustedInitialDirection(struct InitialPlayerAvatarState *playerStruct, u8 transitionFlags, u16 metatileBehavior, u16 metatileBehavior2, u8 mapType)
 {
     if (FlagGet(FLAG_SYS_CRUISE_MODE) && mapType == MAP_TYPE_OCEAN_ROUTE)
         return DIR_EAST;
-    else if (MetatileBehavior_IsDeepSouthWarp(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsDeepSouthWarp(metatileBehavior) == TRUE || MetatileBehavior_IsDeepSouthWarp(metatileBehavior2) == TRUE)
         return DIR_NORTH;
-    else if (MetatileBehavior_IsNonAnimDoor(metatileBehavior) == TRUE || MetatileBehavior_IsDoor(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsNonAnimDoor(metatileBehavior) == TRUE || MetatileBehavior_IsDoor(metatileBehavior) == TRUE
+		  || MetatileBehavior_IsNonAnimDoor(metatileBehavior2) == TRUE || MetatileBehavior_IsDoor(metatileBehavior2) == TRUE)
         return DIR_SOUTH;
-    else if (MetatileBehavior_IsSouthArrowWarp(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsSouthArrowWarp(metatileBehavior) == TRUE || MetatileBehavior_IsSouthArrowWarp(metatileBehavior2) == TRUE)
         return DIR_NORTH;
-    else if (MetatileBehavior_IsNorthArrowWarp(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsNorthArrowWarp(metatileBehavior) == TRUE || MetatileBehavior_IsNorthArrowWarp(metatileBehavior2) == TRUE)
         return DIR_SOUTH;
-    else if (MetatileBehavior_IsWestArrowWarp(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsWestArrowWarp(metatileBehavior) == TRUE || MetatileBehavior_IsWestArrowWarp(metatileBehavior2) == TRUE)
         return DIR_EAST;
-    else if (MetatileBehavior_IsEastArrowWarp(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsEastArrowWarp(metatileBehavior) == TRUE || MetatileBehavior_IsEastArrowWarp(metatileBehavior2) == TRUE)
         return DIR_WEST;
     else if ((playerStruct->transitionFlags == PLAYER_AVATAR_FLAG_UNDERWATER  && transitionFlags == PLAYER_AVATAR_FLAG_SURFING)
      || (playerStruct->transitionFlags == PLAYER_AVATAR_FLAG_SURFING && transitionFlags == PLAYER_AVATAR_FLAG_UNDERWATER ))
         return playerStruct->direction;
-    else if (MetatileBehavior_IsLadder(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsLadder(metatileBehavior) == TRUE || MetatileBehavior_IsLadder(metatileBehavior2) == TRUE)
         return playerStruct->direction;
     else
         return DIR_SOUTH;
@@ -974,6 +977,11 @@ static u8 GetAdjustedInitialDirection(struct InitialPlayerAvatarState *playerStr
 static u16 GetCenterScreenMetatileBehavior(void)
 {
     return MapGridGetMetatileBehaviorAt(gSaveBlock1Ptr->pos.x + 7, gSaveBlock1Ptr->pos.y + 7);
+}
+
+static u16 GetCenterScreenMetatileBehavior2(void)
+{
+    return MapGridGetMetatileBehavior2At(gSaveBlock1Ptr->pos.x + 7, gSaveBlock1Ptr->pos.y + 7);
 }
 
 bool32 Overworld_IsBikingAllowed(void)
@@ -1265,7 +1273,8 @@ static void PlayAmbientCry(void)
 
     PlayerGetDestCoords(&x, &y);
     if (sIsAmbientCryWaterMon == TRUE
-     && !MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehaviorAt(x, y)))
+     && (!MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehaviorAt(x, y))
+	 && !MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehavior2At(x, y))))
         return;
     pan = (Random() % 88) + 212;
     volume = (Random() % 30) + 50;
@@ -1558,19 +1567,34 @@ void CB2_WhiteOut(void)
 
     if (++gMain.state >= 120)
     {
-        FieldClearVBlankHBlankCallbacks();
-        StopMapMusic();
-        ResetSafariZoneFlag_();
-        DoWhiteOut();
-        ResetInitialPlayerAvatarState();
-        ScriptContext1_Init();
-        ScriptContext2_Disable();
-        gFieldCallback = sub_80AF3C8;
-        val = 0;
-        do_load_map_stuff_loop(&val);
-        SetFieldVBlankCallback();
-        SetMainCallback1(CB1_Overworld);
-        SetMainCallback2(CB2_Overworld);
+		// Check nuzlocke mode
+		switch(gSaveBlock2Ptr->nuzlockeMode)
+		{
+			// Do normal whiteout if not on nuzlocke mode
+			case NUZLOCKE_MODE_OFF:
+				FieldClearVBlankHBlankCallbacks();
+				StopMapMusic();
+				ResetSafariZoneFlag_();
+				DoWhiteOut();
+				ResetInitialPlayerAvatarState();
+				ScriptContext1_Init();
+				ScriptContext2_Disable();
+				gFieldCallback = sub_80AF3C8;
+				val = 0;
+				do_load_map_stuff_loop(&val);
+				SetFieldVBlankCallback();
+				SetMainCallback1(CB1_Overworld);
+				SetMainCallback2(CB2_Overworld);
+				break;
+			// Delete save file (unless different one is saved) in deadlocke then fall through
+			case NUZLOCKE_MODE_DEADLOCKE:
+				if (!gDifferentSaveFile)
+					ClearSaveData();
+			// Nuzlocke & hardlocke - reset game
+			default:
+				DoSoftReset();
+				break;
+		}
     }
 }
 
@@ -1674,6 +1698,15 @@ void CB2_ReturnToFieldFromMultiplayer(void)
 
 void CB2_ReturnToFieldWithOpenMenu(void)
 {
+	// If start menu option is called via SELECT don't open start menu, just return to overworld
+	if (gMain.optionRegister)
+	{
+		// Also allow clock to update again
+		gMain.stopClockUpdating = FALSE;
+		gMain.optionRegister = FALSE;
+		CB2_ReturnToField();
+		return;
+    }
     FieldClearVBlankHBlankCallbacks();
     gFieldCallback2 = sub_80AF6A4;
     CB2_ReturnToField();
@@ -2142,10 +2175,7 @@ static void sub_8086988(u32 a1)
     ResetAllPicSprites();
     ResetCameraUpdateInfo();
     InstallCameraPanAheadCallback();
-    if (!a1)
-        InitEventObjectPalettes(0);
-    else
-        InitEventObjectPalettes(1);
+    FreeAllSpritePalettes();
 
     FieldEffectActiveListClear();
     StartWeather();
@@ -2709,6 +2739,7 @@ static void LoadTradeRoomPlayer(s32 linkPlayerId, s32 myPlayerId, struct TradeRo
     trainer->pos.y = y;
     trainer->pos.height = GetLinkPlayerElevation(linkPlayerId);
     trainer->field_C = MapGridGetMetatileBehaviorAt(x, y);
+	trainer->field_D = MapGridGetMetatileBehavior2At(x, y);
 }
 
 static bool32 sub_8087340(struct TradeRoomPlayer *player)
@@ -3185,14 +3216,14 @@ static void CreateLinkPlayerSprite(u8 linkPlayerId, u8 gameVersion)
         {
         case VERSION_FIRE_RED:
         case VERSION_LEAF_GREEN:
-            eventObj->spriteId = AddPseudoEventObject(GetFRLGAvatarGraphicsIdByGender(eventObj->singleMovementActive), SpriteCB_LinkPlayer, 0, 0, 0);
+            eventObj->spriteId = AddPseudoEventObject(GetFRLGAvatarGraphicsIdByGender(eventObj->singleMovementActive), SpriteCB_LinkPlayer, 0, 0, 0, FALSE);
             break;
         case VERSION_RUBY:
         case VERSION_SAPPHIRE:
-            eventObj->spriteId = AddPseudoEventObject(GetRSAvatarGraphicsIdByGender(eventObj->singleMovementActive), SpriteCB_LinkPlayer, 0, 0, 0);
+            eventObj->spriteId = AddPseudoEventObject(GetRSAvatarGraphicsIdByGender(eventObj->singleMovementActive), SpriteCB_LinkPlayer, 0, 0, 0, FALSE);
             break;
         case VERSION_EMERALD:
-            eventObj->spriteId = AddPseudoEventObject(GetRivalAvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, eventObj->singleMovementActive), SpriteCB_LinkPlayer, 0, 0, 0);
+            eventObj->spriteId = AddPseudoEventObject(GetRivalAvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, eventObj->singleMovementActive), SpriteCB_LinkPlayer, 0, 0, 0, FALSE);
             break;
         }
 

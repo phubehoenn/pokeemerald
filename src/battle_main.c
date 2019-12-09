@@ -33,6 +33,7 @@
 #include "pokeball.h"
 #include "pokedex.h"
 #include "pokemon.h"
+#include "pokemon_storage_system.h"
 #include "random.h"
 #include "recorded_battle.h"
 #include "roamer.h"
@@ -2918,7 +2919,12 @@ static void BattleStartClearSetData(void)
         gHitMarker |= HITMARKER_NO_ANIMATIONS;
     }
 
-    gBattleScripting.battleStyle = gSaveBlock2Ptr->optionsBattleStyle;
+	// Read battle style option if not nuzlocke
+	if (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
+		gBattleScripting.battleStyle = gSaveBlock2Ptr->optionsBattleStyle;
+	// Ignore and always use SET battle style in a nuzlocke game
+	else
+		gBattleScripting.battleStyle = OPTIONS_BATTLE_STYLE_SET;
 	gBattleScripting.expOnCatch = (B_EXP_CATCH >= GEN_6);
 	gBattleScripting.monCaught = FALSE;
 
@@ -4689,9 +4695,9 @@ static void HandleEndTurn_BattleWon(void)
         gBattlescriptCurrInstr = BattleScript_FrontierTrainerBattleWon;
 
         if (gTrainerBattleOpponent_A == TRAINER_FRONTIER_BRAIN)
-            PlayBGM(MUS_KACHI3);
+            PlayBGM(MUS_KACHI3, TRUE);
         else
-            PlayBGM(MUS_KACHI1);
+            PlayBGM(MUS_KACHI1, TRUE);
     }
     else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER && !(gBattleTypeFlags & BATTLE_TYPE_LINK))
     {
@@ -4702,7 +4708,7 @@ static void HandleEndTurn_BattleWon(void)
         {
         case TRAINER_CLASS_ELITE_FOUR:
         case TRAINER_CLASS_CHAMPION:
-            PlayBGM(MUS_KACHI5);
+            PlayBGM(MUS_KACHI5, TRUE);
             break;
         case TRAINER_CLASS_TEAM_AQUA:
         case TRAINER_CLASS_TEAM_MAGMA:
@@ -4710,13 +4716,13 @@ static void HandleEndTurn_BattleWon(void)
         case TRAINER_CLASS_AQUA_LEADER:
         case TRAINER_CLASS_MAGMA_ADMIN:
         case TRAINER_CLASS_MAGMA_LEADER:
-            PlayBGM(MUS_KACHI4);
+            PlayBGM(MUS_KACHI4, TRUE);
             break;
         case TRAINER_CLASS_LEADER:
-            PlayBGM(MUS_KACHI3);
+            PlayBGM(MUS_KACHI3, TRUE);
             break;
         default:
-            PlayBGM(MUS_KACHI1);
+            PlayBGM(MUS_KACHI1, TRUE);
             break;
         }
     }
@@ -4811,6 +4817,24 @@ static void HandleEndTurn_MonFled(void)
 static void HandleEndTurn_FinishBattle(void)
 {
     u32 i;
+	
+	// Delete mons with 0 HP if on nuzlocke mode
+	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+	{
+		// Loop through party
+		for (i = 0; i < PARTY_SIZE; i++)
+		{
+			// Mon has 0 HP, so delete (if it's not an empty slot)
+			if (GetMonData(&gPlayerParty[i], MON_DATA_HP, 0) == 0
+				&& GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, 0) != SPECIES_NONE)
+			{
+				ZeroMonData(&gPlayerParty[i]);
+				CompactPartySlots();
+				if (gSaveBlock2Ptr->nuzlockeCounter != 0xFFFF)
+					gSaveBlock2Ptr->nuzlockeCounter++; // Add 1 to fainted mon counter unless it's maxed out
+			}
+		}
+	}
 
     if (gCurrentActionFuncId == B_ACTION_TRY_FINISH || gCurrentActionFuncId == B_ACTION_FINISHED)
     {

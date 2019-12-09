@@ -77,7 +77,7 @@ void MapMusicMain(void)
         break;
     case 1:
         sMapMusicState = 2;
-        PlayBGM(sCurrentMapMusic);
+        PlayBGM(sCurrentMapMusic, FALSE);
         break;
     case 2:
     case 3:
@@ -96,7 +96,7 @@ void MapMusicMain(void)
             sCurrentMapMusic = sNextMapMusic;
             sNextMapMusic = 0;
             sMapMusicState = 2;
-            PlayBGM(sCurrentMapMusic);
+            PlayBGM(sCurrentMapMusic, FALSE);
         }
         break;
     case 7:
@@ -108,6 +108,11 @@ void MapMusicMain(void)
             sMapMusicState = 2;
             sMapMusicFadeInSpeed = 0;
         }
+        break;
+	// Battle music
+	case 8:
+		sMapMusicState = 2;
+        PlayBGM(sCurrentMapMusic, TRUE);
         break;
     }
 }
@@ -123,6 +128,13 @@ void ResetMapMusic(void)
 u16 GetCurrentMapMusic(void)
 {
     return sCurrentMapMusic;
+}
+
+void PlayNewBattleMusic(u16 songNum)
+{
+    sCurrentMapMusic = songNum;
+    sNextMapMusic = 0;
+    sMapMusicState = 8;
 }
 
 void PlayNewMapMusic(u16 songNum)
@@ -529,8 +541,13 @@ static void RestoreBGMVolumeAfterPokemonCry(void)
         CreateTask(Task_DuckBGMForPokemonCry, 80);
 }
 
-void PlayBGM(u16 songNum)
+// If arg 2 (battle) is FALSE, music will be disabled if music option is set to battle
+// If set to 2 or above, song will ignore option and play regardless
+void PlayBGM(u16 songNum, u8 battle)
 {
+	if (gSaveBlock2Ptr->optionsMusic == OPTIONS_MUSIC_OFF
+	 || (gSaveBlock2Ptr->optionsMusic == OPTIONS_MUSIC_BATTLES && battle == FALSE))
+		songNum = 0;
     if (gDisableMusic)
         songNum = 0;
     if (songNum == MUS_NONE)
@@ -540,6 +557,10 @@ void PlayBGM(u16 songNum)
 
 void PlaySE(u16 songNum)
 {
+	// Don't play keypad beep if keypad sound is off
+	if (gSaveBlock2Ptr->optionsKeypadSound == OPTIONS_OFF
+	 && songNum == SE_SELECT)
+		return;
     m4aSongNumStart(songNum);
 }
 

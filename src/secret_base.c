@@ -253,26 +253,35 @@ static u8 GetSecretBaseTypeInFrontOfPlayer_(void)
 {
     s16 x, y;
     s16 behavior;
+	s16 behavior2;
 
     GetXYCoordsOneStepInFrontOfPlayer(&x, &y);
     behavior = MapGridGetMetatileBehaviorAt(x, y) & 0xFFF;
-    if (behavior == MB_SECRET_BASE_SPOT_RED_CAVE || behavior == MB_SECRET_BASE_SPOT_RED_CAVE_OPEN)
+	behavior2 = MapGridGetMetatileBehavior2At(x, y) & 0xFFF;
+    if (behavior == MB_SECRET_BASE_SPOT_RED_CAVE || behavior == MB_SECRET_BASE_SPOT_RED_CAVE_OPEN
+	 || behavior2 == MB_SECRET_BASE_SPOT_RED_CAVE || behavior2 == MB_SECRET_BASE_SPOT_RED_CAVE_OPEN)
         return SECRET_BASE_RED_CAVE;
 
-    if (behavior == MB_SECRET_BASE_SPOT_BROWN_CAVE || behavior == MB_SECRET_BASE_SPOT_BROWN_CAVE_OPEN)
+    if (behavior == MB_SECRET_BASE_SPOT_BROWN_CAVE || behavior == MB_SECRET_BASE_SPOT_BROWN_CAVE_OPEN
+	 || behavior2 == MB_SECRET_BASE_SPOT_BROWN_CAVE || behavior2 == MB_SECRET_BASE_SPOT_BROWN_CAVE_OPEN)
         return SECRET_BASE_BROWN_CAVE;
 
-    if (behavior == MB_SECRET_BASE_SPOT_BLUE_CAVE || behavior == MB_SECRET_BASE_SPOT_BLUE_CAVE_OPEN)
+    if (behavior == MB_SECRET_BASE_SPOT_BLUE_CAVE || behavior == MB_SECRET_BASE_SPOT_BLUE_CAVE_OPEN
+	 || behavior2 == MB_SECRET_BASE_SPOT_BLUE_CAVE || behavior2 == MB_SECRET_BASE_SPOT_BLUE_CAVE_OPEN)
         return SECRET_BASE_BLUE_CAVE;
 
-    if (behavior == MB_SECRET_BASE_SPOT_YELLOW_CAVE || behavior == MB_SECRET_BASE_SPOT_YELLOW_CAVE_OPEN)
+    if (behavior == MB_SECRET_BASE_SPOT_YELLOW_CAVE || behavior == MB_SECRET_BASE_SPOT_YELLOW_CAVE_OPEN
+	 || behavior2 == MB_SECRET_BASE_SPOT_YELLOW_CAVE || behavior2 == MB_SECRET_BASE_SPOT_YELLOW_CAVE_OPEN)
         return SECRET_BASE_YELLOW_CAVE;
 
     if (behavior == MB_SECRET_BASE_SPOT_TREE_LEFT  || behavior == MB_SECRET_BASE_SPOT_TREE_LEFT_OPEN
-     || behavior == MB_SECRET_BASE_SPOT_TREE_RIGHT || behavior == MB_SECRET_BASE_SPOT_TREE_RIGHT_OPEN)
+     || behavior == MB_SECRET_BASE_SPOT_TREE_RIGHT || behavior == MB_SECRET_BASE_SPOT_TREE_RIGHT_OPEN
+	 || behavior2 == MB_SECRET_BASE_SPOT_TREE_LEFT  || behavior2 == MB_SECRET_BASE_SPOT_TREE_LEFT_OPEN
+     || behavior2 == MB_SECRET_BASE_SPOT_TREE_RIGHT || behavior2 == MB_SECRET_BASE_SPOT_TREE_RIGHT_OPEN)
         return SECRET_BASE_TREE;
 
-    if (behavior == MB_SECRET_BASE_SPOT_SHRUB || behavior == MB_SECRET_BASE_SPOT_SHRUB_OPEN)
+    if (behavior == MB_SECRET_BASE_SPOT_SHRUB || behavior == MB_SECRET_BASE_SPOT_SHRUB_OPEN
+	 || behavior2 == MB_SECRET_BASE_SPOT_SHRUB || behavior2 == MB_SECRET_BASE_SPOT_SHRUB_OPEN)
         return SECRET_BASE_SHRUB;
 
     return 0;
@@ -533,6 +542,7 @@ void InitSecretBaseDecorationSprites(void)
     u8 *decorationPositions;
     u8 eventObjectId;
     u8 metatileBehavior;
+	u8 metatileBehavior2;
     u8 category;
     u8 permission;
     u8 numDecorations;
@@ -573,8 +583,11 @@ void InitSecretBaseDecorationSprites(void)
             gSpecialVar_0x8006 = decorationPositions[i] >> 4;
             gSpecialVar_0x8007 = decorationPositions[i] & 0xF;
             metatileBehavior = MapGridGetMetatileBehaviorAt(gSpecialVar_0x8006 + 7, gSpecialVar_0x8007 + 7);
+			metatileBehavior2 = MapGridGetMetatileBehavior2At(gSpecialVar_0x8006 + 7, gSpecialVar_0x8007 + 7);
             if (MetatileBehavior_HoldsSmallDecoration(metatileBehavior) == TRUE
-             || MetatileBehavior_HoldsLargeDecoration(metatileBehavior) == TRUE)
+             || MetatileBehavior_HoldsLargeDecoration(metatileBehavior) == TRUE
+			 || MetatileBehavior_HoldsSmallDecoration(metatileBehavior2) == TRUE
+             || MetatileBehavior_HoldsLargeDecoration(metatileBehavior2) == TRUE)
             {
                 gSpecialVar_Result = VAR_OBJ_GFX_ID_0 + (gMapHeader.events->eventObjects[eventObjectId].graphicsId - EVENT_OBJ_GFX_VAR_0);
                 VarSet(gSpecialVar_Result, gDecorations[decorations[i]].tiles[0]);
@@ -1149,6 +1162,7 @@ void SecretBasePerStepCallback(u8 taskId)
     s16 x;
     s16 y;
     u8 behavior;
+	u8 behavior2;
     u16 tileId;
     s16 *data;
 
@@ -1172,6 +1186,7 @@ void SecretBasePerStepCallback(u8 taskId)
             data[3] = y;
             VarSet(VAR_SECRET_BASE_STEP_COUNTER, VarGet(VAR_SECRET_BASE_STEP_COUNTER) + 1);
             behavior = MapGridGetMetatileBehaviorAt(x, y);
+			behavior2 = MapGridGetMetatileBehavior2At(x, y);
             tileId = MapGridGetMetatileIdAt(x, y);
             if (tileId == 0x234 || tileId == 0x23C)
             {
@@ -1190,12 +1205,13 @@ void SecretBasePerStepCallback(u8 taskId)
                 if (sInFriendSecretBase == TRUE)
                     VarSet(VAR_SECRET_BASE_LOW_TV_FLAGS, VarGet(VAR_SECRET_BASE_LOW_TV_FLAGS) | 0x04);
             }
-            else if ((behavior == 0x34 && tileId == 0x26d) || (behavior == 0x35 && MapGridGetMetatileIdAt(x, y) == 0x26a))
+            else if ((behavior == 0x34 && tileId == 0x26d) || (behavior == 0x35 && MapGridGetMetatileIdAt(x, y) == 0x26a)
+				 || (behavior2 == 0x34 && tileId == 0x26d) || (behavior2 == 0x35 && MapGridGetMetatileIdAt(x, y) == 0x26a))
             {
                 if (sInFriendSecretBase == TRUE)
                     VarSet(VAR_SECRET_BASE_HIGH_TV_FLAGS, VarGet(VAR_SECRET_BASE_HIGH_TV_FLAGS) | 0x200);
             }
-            else if (behavior == 0xc1 && tileId == 0x23d)
+            else if ((behavior == 0xc1 || behavior2 == 0xc1) && tileId == 0x23d)
             {
                 if (sInFriendSecretBase == TRUE)
                 {
@@ -1203,7 +1219,7 @@ void SecretBasePerStepCallback(u8 taskId)
                     VarSet(VAR_SECRET_BASE_HIGH_TV_FLAGS, VarGet(VAR_SECRET_BASE_HIGH_TV_FLAGS) | 0x2000);
                 }
             }
-            else if (behavior == 0x47 && tileId == 0x23e)
+            else if ((behavior == 0x47 || behavior2 == 0x47) && tileId == 0x23e)
             {
                 if (sInFriendSecretBase == TRUE)
                 {
@@ -1211,12 +1227,12 @@ void SecretBasePerStepCallback(u8 taskId)
                     VarSet(VAR_SECRET_BASE_HIGH_TV_FLAGS, VarGet(VAR_SECRET_BASE_HIGH_TV_FLAGS) ^ 0x2000);
                 }
             }
-            else if (MetatileBehavior_IsSecretBaseGlitterMat(behavior) == TRUE)
+            else if (MetatileBehavior_IsSecretBaseGlitterMat(behavior) == TRUE || MetatileBehavior_IsSecretBaseGlitterMat(behavior2) == TRUE)
             {
                 if (sInFriendSecretBase == TRUE)
                     VarSet(VAR_SECRET_BASE_HIGH_TV_FLAGS, VarGet(VAR_SECRET_BASE_HIGH_TV_FLAGS) | 0x80);
             }
-            else if (MetatileBehavior_IsSecretBaseBalloon(behavior) == TRUE)
+            else if (MetatileBehavior_IsSecretBaseBalloon(behavior) == TRUE || MetatileBehavior_IsSecretBaseBalloon(behavior2) == TRUE)
             {
                 PopSecretBaseBalloon(MapGridGetMetatileIdAt(x, y), x, y);
                 if (sInFriendSecretBase == TRUE)
@@ -1234,23 +1250,24 @@ void SecretBasePerStepCallback(u8 taskId)
                     }
                 }
             }
-            else if (MetatileBehavior_IsSecretBaseBreakableDoor(behavior) == TRUE)
+            else if (MetatileBehavior_IsSecretBaseBreakableDoor(behavior) == TRUE || MetatileBehavior_IsSecretBaseBreakableDoor(behavior2) == TRUE)
             {
                 if (sInFriendSecretBase == TRUE)
                     VarSet(VAR_SECRET_BASE_HIGH_TV_FLAGS, VarGet(VAR_SECRET_BASE_HIGH_TV_FLAGS) | 0x400);
 
                 ShatterSecretBaseBreakableDoor(x, y);
             }
-            else if (MetatileBehavior_IsSecretBaseSoundMat(behavior) == TRUE){
+            else if (MetatileBehavior_IsSecretBaseSoundMat(behavior) == TRUE || MetatileBehavior_IsSecretBaseSoundMat(behavior2) == TRUE)
+			{
                 if (sInFriendSecretBase == TRUE)
                     VarSet(VAR_SECRET_BASE_LOW_TV_FLAGS, VarGet(VAR_SECRET_BASE_LOW_TV_FLAGS) | 0x8000);
             }
-            else if (MetatileBehavior_IsSecretBaseJumpMat(behavior) == TRUE)
+            else if (MetatileBehavior_IsSecretBaseJumpMat(behavior) == TRUE || MetatileBehavior_IsSecretBaseJumpMat(behavior2) == TRUE)
             {
                 if (sInFriendSecretBase == TRUE)
                     VarSet(VAR_SECRET_BASE_HIGH_TV_FLAGS, VarGet(VAR_SECRET_BASE_HIGH_TV_FLAGS) | 0x4000);
             }
-            else if (MetatileBehavior_IsSecretBaseSpinMat(behavior) == TRUE)
+            else if (MetatileBehavior_IsSecretBaseSpinMat(behavior) == TRUE || MetatileBehavior_IsSecretBaseSpinMat(behavior2) == TRUE)
             {
                 if (sInFriendSecretBase == TRUE)
                     VarSet(VAR_SECRET_BASE_HIGH_TV_FLAGS, VarGet(VAR_SECRET_BASE_HIGH_TV_FLAGS) | 0x02);

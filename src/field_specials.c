@@ -4363,3 +4363,9 @@ u8 Script_TryGainNewFanFromCounter(void)
 {
     return TryGainNewFanFromCounter(gSpecialVar_0x8004);
 }
+
+// Returns nuzlocke mode
+u8 GetNuzlockeMode(void)
+{
+	return gSaveBlock2Ptr->nuzlockeMode;
+}

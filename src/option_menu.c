@@ -2,6 +2,7 @@
 #include "option_menu.h"
 #include "main.h"
 #include "menu.h"
+#include "menu_helpers.h"
 #include "scanline_effect.h"
 #include "palette.h"
 #include "sprite.h"
@@ -12,48 +13,64 @@
 #include "text.h"
 #include "text_window.h"
 #include "international_string_util.h"
+#include "string_util.h"
 #include "strings.h"
+#include "sound.h"
+#include "constants/songs.h"
+#include "new_game.h"
 #include "gba/m4a_internal.h"
 #include "constants/rgb.h"
+
+extern void SetPokemonCryStereo(u32 val);
 
 // Task data
 enum
 {
     TD_MENUSELECTION,
-    TD_TEXTSPEED,
-    TD_BATTLESCENE,
-    TD_BATTLESTYLE,
-    TD_SOUND,
-    TD_BUTTONMODE,
-    TD_FRAMETYPE,
+	TD_MENUSCROLL,
+	TD_MENUINPUT, //blocks option menu input if true (for handling yes/no boxes)
+	TD_BIKEMODE,
+	TD_FULLPARTY,
+	TD_BATTLESTYLE,
+	TD_BATTLESCENE,
+	TD_QUICKFLEE,
+	TD_KEYBOARD,
+	TD_FRAMETYPE,
+	TD_MUSIC,
+	TD_LOWHPSOUND,
+	TD_KEYPADSOUND,
+	TD_SOUNDOUTPUT,
+	TD_MUSICBUFFER, //stores the music option setting when the option menu is loaded
 };
 
 // Menu items
 enum
 {
-    MENUITEM_TEXTSPEED,
-    MENUITEM_BATTLESCENE,
-    MENUITEM_BATTLESTYLE,
-    MENUITEM_SOUND,
-    MENUITEM_BUTTONMODE,
-    MENUITEM_FRAMETYPE,
+	MENUITEM_BIKEMODE,
+	MENUITEM_FULLPARTY,
+	MENUITEM_BATTLESTYLE,
+	MENUITEM_BATTLESCENE,
+	MENUITEM_QUICKFLEE,
+	MENUITEM_KEYBOARD,
+    MENUITEM_FRAME,
+	MENUITEM_MUSIC,
+	MENUITEM_LOWHPSOUND,
+	MENUITEM_KEYPADSOUND,
+	MENUITEM_SOUNDOUTPUT,
+	MENUITEM_RESETDEFAULTS,
+	MENUITEM_LOWERNUZLOCKE,
+	MENUITEM_FREEZENUZLOCKE,
     MENUITEM_CANCEL,
-    MENUITEM_COUNT,
 };
+
+#define MENUITEM_COUNT 15
 
 // Window Ids
 enum
 {
-    WIN_TEXT_OPTION,
-    WIN_OPTIONS
+	WIN_OPTIONS,
+    WIN_DESCRIPTION
 };
-
-#define YPOS_TEXTSPEED    (MENUITEM_TEXTSPEED * 16)
-#define YPOS_BATTLESCENE  (MENUITEM_BATTLESCENE * 16)
-#define YPOS_BATTLESTYLE  (MENUITEM_BATTLESTYLE * 16)
-#define YPOS_SOUND        (MENUITEM_SOUND * 16)
-#define YPOS_BUTTONMODE   (MENUITEM_BUTTONMODE * 16)
-#define YPOS_FRAMETYPE    (MENUITEM_FRAMETYPE * 16)
 
 // this file's functions
 static void Task_OptionMenuFadeIn(u8 taskId);
@@ -61,21 +78,35 @@ static void Task_OptionMenuProcessInput(u8 taskId);
 static void Task_OptionMenuSave(u8 taskId);
 static void Task_OptionMenuFadeOut(u8 taskId);
 static void HighlightOptionMenuItem(u8 selection);
-static u8   TextSpeed_ProcessInput(u8 selection);
-static void TextSpeed_DrawChoices(u8 selection);
-static u8   BattleScene_ProcessInput(u8 selection);
-static void BattleScene_DrawChoices(u8 selection);
-static u8   BattleStyle_ProcessInput(u8 selection);
-static void BattleStyle_DrawChoices(u8 selection);
-static u8   Sound_ProcessInput(u8 selection);
-static void Sound_DrawChoices(u8 selection);
-static u8   FrameType_ProcessInput(u8 selection);
-static void FrameType_DrawChoices(u8 selection);
-static u8   ButtonMode_ProcessInput(u8 selection);
-static void ButtonMode_DrawChoices(u8 selection);
-static void DrawTextOption(void);
-static void DrawOptionMenuTexts(void);
-static void sub_80BB154(void);
+static void Task_CopyOptionsToTask(u8 taskId);
+static u8 Task_CalcMenuShift(u8 taskId);
+static void Task_PrintOptions(u8 taskId);
+static void Task_DrawDescriptionWindow(u8 taskId);
+static void PrepareConfirmMessage(void);
+static void Task_DisplayNuzlockeConfirmMessage(u8 taskId);
+static void Task_LowerNuzlocke(u8 taskId);
+static void Task_DisplayFreezeConfirmMessage(u8 taskId);
+static void Task_FreezeNuzlocke(u8 taskId);
+static void Task_CancelConfirm(u8 taskId);
+static void OnOff_DrawChoices(u8 selection, int yPos);
+static u8   OnOff_ProcessInput(u8 selection, u8 taskId);
+static void BikeMode_DrawChoices(u8 selection, int yPos);
+static u8   BikeMode_ProcessInput(u8 selection, u8 taskId);
+static void FullParty_DrawChoices(u8 selection, int yPos);
+static u8   FullParty_ProcessInput(u8 selection, u8 taskId);
+static void BattleStyle_DrawChoices(u8 selection, int yPos);
+static u8   BattleStyle_ProcessInput(u8 selection, u8 taskId);
+static void Keyboard_DrawChoices(u8 selection, int yPos);
+static u8   Keyboard_ProcessInput(u8 selection, u8 taskId);
+static void FrameType_DrawChoices(u8 selection, int yPos);
+static u8   FrameType_ProcessInput(u8 selection, u8 taskId);
+static void Music_DrawChoices(u8 selection, int yPos);
+static u8   Music_ProcessInput(u8 selection, u8 taskId);
+static void Sound_DrawChoices(u8 selection, int yPos);
+static u8   Sound_ProcessInput(u8 selection, u8 taskId);
+static void DrawOptionsBorder(void);
+static void DrawDescriptionBorder(void);
+static void DrawConfirmBorder(void);
 
 // EWRAM vars
 EWRAM_DATA static bool8 sArrowPressed = FALSE;
@@ -85,44 +116,104 @@ static const u16 sUnknown_0855C604[] = INCBIN_U16("graphics/misc/option_menu_tex
 // note: this is only used in the Japanese release
 static const u8 sEqualSignGfx[] = INCBIN_U8("graphics/misc/option_menu_equals_sign.4bpp");
 
+// Names of options (printed on left side)
 static const u8 *const sOptionMenuItemsNames[MENUITEM_COUNT] =
 {
-    [MENUITEM_TEXTSPEED]   = gText_TextSpeed,
-    [MENUITEM_BATTLESCENE] = gText_BattleScene,
-    [MENUITEM_BATTLESTYLE] = gText_BattleStyle,
-    [MENUITEM_SOUND]       = gText_Sound,
-    [MENUITEM_BUTTONMODE]  = gText_ButtonMode,
-    [MENUITEM_FRAMETYPE]   = gText_Frame,
-    [MENUITEM_CANCEL]      = gText_OptionMenuCancel,
+    [MENUITEM_BIKEMODE]gText_BikeMode,
+    [MENUITEM_FULLPARTY]gText_FullParty,
+    [MENUITEM_BATTLESTYLE]gText_BattleStyle,
+    [MENUITEM_BATTLESCENE]gText_BattleScene,
+    [MENUITEM_QUICKFLEE]gText_QuickFlee,
+    [MENUITEM_KEYBOARD]gText_Keyboard,
+	[MENUITEM_FRAME]gText_Frame,
+	[MENUITEM_MUSIC]gText_Music,
+	[MENUITEM_LOWHPSOUND]gText_LowHPSound,
+	[MENUITEM_KEYPADSOUND]gText_KeypadSound,
+	[MENUITEM_SOUNDOUTPUT]gText_SoundOutput,
+	[MENUITEM_RESETDEFAULTS]gText_ResetDefaults,
+	[MENUITEM_LOWERNUZLOCKE]gText_DisableNuzlockeMode,
+	[MENUITEM_FREEZENUZLOCKE]gText_FreezeNuzlockeMode,
+    [MENUITEM_CANCEL]gText_OptionMenuCancel,
 };
 
+// Option descriptions, printed in bottom window
+static const u8 *const sOptionsDescriptionList[MENUITEM_COUNT] = 
+{
+	gText_BikeModeDescription, 
+	gText_FullPartyDescription, 
+	gText_BattleStyleDescription, 
+	gText_BattleSceneDescription, 
+	gText_QuickFleeDescription, 
+	gText_KeyboardDescription, 
+	gText_FrameDescription, 
+	gText_MusicDescription, 
+	gText_LowHPSoundDescription, 
+	gText_KeypadSoundDescription, 
+	gText_SoundOutputDescription, 
+	gText_ResetDefaultsDescription, 
+	gText_DisableNuzlockeModeDescription, 
+	gText_FreezeNuzlockeModeDescription, 
+	gText_CancelDescription
+};
+
+// Other description text
+extern const u8 gText_DowngradeToHardlockeMode[];
+extern const u8 gText_DowngradeToNuzlockeMode[];
+extern const u8 gText_AreYouSure[];
+extern const u8 gText_Nuzlocke[];
+extern const u8 gText_HardlockeOrDeadlocke[];
+
+// Keyboard names
+const u8 *gKeyboardNameList[] = 
+{
+	gKeyboardText_QWERTY, 
+	gKeyboardText_QWERTYPlus, 
+	gKeyboardText_ABC, 
+	gKeyboardText_ABCPlus, 
+	gKeyboardText_Vanilla
+};
+
+// Text window dimensions
 static const struct WindowTemplate sOptionMenuWinTemplates[] =
 {
-    {
-        .bg = 1,
-        .tilemapLeft = 2,
-        .tilemapTop = 1,
-        .width = 26,
-        .height = 2,
-        .paletteNum = 1,
-        .baseBlock = 2
-    },
+	// Options window (top)
     {
         .bg = 0,
         .tilemapLeft = 2,
-        .tilemapTop = 5,
+        .tilemapTop = 1,
         .width = 26,
-        .height = 14,
+        .height = 12,
         .paletteNum = 1,
-        .baseBlock = 0x36
+        .baseBlock = 2
     },
-    DUMMY_WIN_TEMPLATE
+	// Description window
+    {
+        .bg = 1,
+        .tilemapLeft = 2,
+        .tilemapTop = 15,
+        .width = 26,
+        .height = 4,
+        .paletteNum = 15, // For black text
+        .baseBlock = 0x13A //26 * 12 + 2 (width * height of options box + 2)
+    },
+};
+
+// Dimensions for yes/no box in bottom right corner
+static const struct WindowTemplate sYesNoWindowTemplate =
+{
+    .bg = 1,
+    .tilemapLeft = 23,
+    .tilemapTop = 15,
+    .width = 5,
+    .height = 4,
+    .paletteNum = 15,
+    .baseBlock = 0x1AB
 };
 
 static const struct BgTemplate sOptionMenuBgTemplates[] =
 {
    {
-       .bg = 1,
+       .bg = 0,
        .charBaseIndex = 1,
        .mapBaseIndex = 30,
        .screenSize = 0,
@@ -131,17 +222,28 @@ static const struct BgTemplate sOptionMenuBgTemplates[] =
        .baseTile = 0
    },
    {
-       .bg = 0,
+       .bg = 1,
        .charBaseIndex = 1,
        .mapBaseIndex = 31,
        .screenSize = 0,
        .paletteMode = 0,
        .priority = 1,
        .baseTile = 0
-   }
+   },
 };
 
-static const u16 sUnknown_0855C6A0[] = {0x7E51};
+// Functions for the lower nuzlocke yes/no box
+const struct YesNoFuncTable gLowerNuzlockeFuncs = {
+    Task_LowerNuzlocke, Task_CancelConfirm
+};
+
+// Functions for the freeze nuzlocke yes/no box
+const struct YesNoFuncTable gFreezeNuzlockeFuncs = {
+    Task_FreezeNuzlocke, Task_CancelConfirm
+};
+
+// BG color (white)
+static const u16 sUnknown_0855C6A0[] = {0x7FFF};
 
 // code
 static void MainCB2(void)
@@ -159,6 +261,11 @@ static void VBlankCB(void)
     TransferPlttBuffer();
 }
 
+//=============================================================================================================================
+//	CREATE OPTIONS MENU
+//=============================================================================================================================
+
+// Do option menu step by step
 void CB2_InitOptionMenu(void)
 {
     switch (gMain.state)
@@ -219,7 +326,6 @@ void CB2_InitOptionMenu(void)
         break;
     case 6:
         PutWindowTilemap(0);
-        DrawTextOption();
         gMain.state++;
         break;
     case 7:
@@ -227,33 +333,28 @@ void CB2_InitOptionMenu(void)
         break;
     case 8:
         PutWindowTilemap(1);
-        DrawOptionMenuTexts();
         gMain.state++;
     case 9:
-        sub_80BB154();
+		DrawOptionsBorder();
+		DrawDescriptionBorder();
         gMain.state++;
         break;
     case 10:
     {
         u8 taskId = CreateTask(Task_OptionMenuFadeIn, 0);
+		u16 palette;
+		gTasks[taskId].data[TD_MENUSELECTION] = 0;
+		gTasks[taskId].data[TD_MENUSCROLL] = 0;
+		// Reset color 2 in palette 15 to white to draw option menu correctly (is overwritten in main_menu.c)
+		// Without this, the background of the description window will be borked
+		palette = RGB(31, 31, 31);
+        LoadPalette(&palette, 241, 2);
+		Task_DrawDescriptionWindow(taskId);
+		HighlightOptionMenuItem(gTasks[taskId].data[TD_MENUSELECTION]);
+        Task_CopyOptionsToTask(taskId);
+		gTasks[taskId].data[TD_MUSICBUFFER] = gSaveBlock2Ptr->optionsMusic; // Stores the music option when the menu is loaded
+		Task_PrintOptions(taskId);
 
-        gTasks[taskId].data[TD_MENUSELECTION] = 0;
-        gTasks[taskId].data[TD_TEXTSPEED] = gSaveBlock2Ptr->optionsTextSpeed;
-        gTasks[taskId].data[TD_BATTLESCENE] = gSaveBlock2Ptr->optionsBattleSceneOff;
-        gTasks[taskId].data[TD_BATTLESTYLE] = gSaveBlock2Ptr->optionsBattleStyle;
-        gTasks[taskId].data[TD_SOUND] = gSaveBlock2Ptr->optionsSound;
-        gTasks[taskId].data[TD_BUTTONMODE] = gSaveBlock2Ptr->optionsButtonMode;
-        gTasks[taskId].data[TD_FRAMETYPE] = gSaveBlock2Ptr->optionsWindowFrameType;
-
-        TextSpeed_DrawChoices(gTasks[taskId].data[TD_TEXTSPEED]);
-        BattleScene_DrawChoices(gTasks[taskId].data[TD_BATTLESCENE]);
-        BattleStyle_DrawChoices(gTasks[taskId].data[TD_BATTLESTYLE]);
-        Sound_DrawChoices(gTasks[taskId].data[TD_SOUND]);
-        ButtonMode_DrawChoices(gTasks[taskId].data[TD_BUTTONMODE]);
-        FrameType_DrawChoices(gTasks[taskId].data[TD_FRAMETYPE]);
-        HighlightOptionMenuItem(gTasks[taskId].data[TD_MENUSELECTION]);
-
-        CopyWindowToVram(WIN_OPTIONS, 3);
         gMain.state++;
         break;
     }
@@ -273,10 +374,38 @@ static void Task_OptionMenuFadeIn(u8 taskId)
 
 static void Task_OptionMenuProcessInput(u8 taskId)
 {
+	if (gTasks[taskId].data[TD_MENUINPUT])
+		return;
+	
     if (gMain.newKeys & A_BUTTON)
     {
-        if (gTasks[taskId].data[TD_MENUSELECTION] == MENUITEM_CANCEL)
-            gTasks[taskId].func = Task_OptionMenuSave;
+		switch (gTasks[taskId].data[TD_MENUSELECTION] + gTasks[taskId].data[TD_MENUSCROLL] + Task_CalcMenuShift(taskId))
+		{
+			case MENUITEM_RESETDEFAULTS:
+				PlaySE(SE_SELECT);	
+				SetDefaultOptions();
+				Task_CopyOptionsToTask(taskId);
+				// Reload frames
+				LoadBgTiles(1, GetWindowFrameTilesPal(gTasks[taskId].data[TD_FRAMETYPE])->tiles, 0x120, 0x1A2);
+				LoadPalette(GetWindowFrameTilesPal(gTasks[taskId].data[TD_FRAMETYPE])->pal, 0x70, 0x20);
+				// Reprint options
+				Task_PrintOptions(taskId);
+				break;
+			case MENUITEM_LOWERNUZLOCKE:
+				PlaySE(SE_SELECT);	
+				gTasks[taskId].data[TD_MENUINPUT] = TRUE;
+				Task_DisplayNuzlockeConfirmMessage(taskId);
+				break;
+			case MENUITEM_FREEZENUZLOCKE:
+				PlaySE(SE_SELECT);	
+				gTasks[taskId].data[TD_MENUINPUT] = TRUE;
+				Task_DisplayFreezeConfirmMessage(taskId);
+				break;
+			case MENUITEM_CANCEL:
+				PlaySE(SE_SELECT);
+				gTasks[taskId].func = Task_OptionMenuSave;
+				break;
+		}
     }
     else if (gMain.newKeys & B_BUTTON)
     {
@@ -286,70 +415,122 @@ static void Task_OptionMenuProcessInput(u8 taskId)
     {
         if (gTasks[taskId].data[TD_MENUSELECTION] > 0)
             gTasks[taskId].data[TD_MENUSELECTION]--;
-        else
-            gTasks[taskId].data[TD_MENUSELECTION] = MENUITEM_CANCEL;
+		else if (gTasks[taskId].data[TD_MENUSELECTION] + gTasks[taskId].data[TD_MENUSCROLL] != MENUITEM_BIKEMODE)
+		{
+            gTasks[taskId].data[TD_MENUSCROLL]--;
+			Task_PrintOptions(taskId);
+		}
         HighlightOptionMenuItem(gTasks[taskId].data[TD_MENUSELECTION]);
+		Task_DrawDescriptionWindow(taskId);
     }
     else if (gMain.newKeys & DPAD_DOWN)
     {
-        if (gTasks[taskId].data[TD_MENUSELECTION] < MENUITEM_CANCEL)
+        if (gTasks[taskId].data[TD_MENUSELECTION] < 5)
             gTasks[taskId].data[TD_MENUSELECTION]++;
-        else
-            gTasks[taskId].data[TD_MENUSELECTION] = 0;
+		else if (gTasks[taskId].data[TD_MENUSELECTION] + gTasks[taskId].data[TD_MENUSCROLL] + Task_CalcMenuShift(taskId) != MENUITEM_CANCEL)
+		{
+            gTasks[taskId].data[TD_MENUSCROLL]++;
+			Task_PrintOptions(taskId);
+		}
         HighlightOptionMenuItem(gTasks[taskId].data[TD_MENUSELECTION]);
+		Task_DrawDescriptionWindow(taskId);
     }
     else
     {
         u8 previousOption;
 
-        switch (gTasks[taskId].data[TD_MENUSELECTION])
+        switch (gTasks[taskId].data[TD_MENUSELECTION] + gTasks[taskId].data[TD_MENUSCROLL])
         {
-        case MENUITEM_TEXTSPEED:
-            previousOption = gTasks[taskId].data[TD_TEXTSPEED];
-            gTasks[taskId].data[TD_TEXTSPEED] = TextSpeed_ProcessInput(gTasks[taskId].data[TD_TEXTSPEED]);
+        case MENUITEM_BIKEMODE:
+            previousOption = gTasks[taskId].data[TD_BIKEMODE];
+            gTasks[taskId].data[TD_BIKEMODE] = BikeMode_ProcessInput(gTasks[taskId].data[TD_BIKEMODE], taskId);
 
-            if (previousOption != gTasks[taskId].data[TD_TEXTSPEED])
-                TextSpeed_DrawChoices(gTasks[taskId].data[TD_TEXTSPEED]);
+            if (previousOption != gTasks[taskId].data[TD_BIKEMODE])
+                BikeMode_DrawChoices(gTasks[taskId].data[TD_BIKEMODE], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
             break;
-        case MENUITEM_BATTLESCENE:
-            previousOption = gTasks[taskId].data[TD_BATTLESCENE];
-            gTasks[taskId].data[TD_BATTLESCENE] = BattleScene_ProcessInput(gTasks[taskId].data[TD_BATTLESCENE]);
+		case MENUITEM_FULLPARTY:
+            previousOption = gTasks[taskId].data[TD_FULLPARTY];
+            gTasks[taskId].data[TD_FULLPARTY] = FullParty_ProcessInput(gTasks[taskId].data[TD_FULLPARTY], taskId);
 
-            if (previousOption != gTasks[taskId].data[TD_BATTLESCENE])
-                BattleScene_DrawChoices(gTasks[taskId].data[TD_BATTLESCENE]);
+            if (previousOption != gTasks[taskId].data[TD_FULLPARTY])
+                FullParty_DrawChoices(gTasks[taskId].data[TD_FULLPARTY], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
             break;
-        case MENUITEM_BATTLESTYLE:
+		case MENUITEM_BATTLESTYLE:
             previousOption = gTasks[taskId].data[TD_BATTLESTYLE];
-            gTasks[taskId].data[TD_BATTLESTYLE] = BattleStyle_ProcessInput(gTasks[taskId].data[TD_BATTLESTYLE]);
+            gTasks[taskId].data[TD_BATTLESTYLE] = BattleStyle_ProcessInput(gTasks[taskId].data[TD_BATTLESTYLE], taskId);
 
             if (previousOption != gTasks[taskId].data[TD_BATTLESTYLE])
-                BattleStyle_DrawChoices(gTasks[taskId].data[TD_BATTLESTYLE]);
+                BattleStyle_DrawChoices(gTasks[taskId].data[TD_BATTLESTYLE], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
             break;
-        case MENUITEM_SOUND:
-            previousOption = gTasks[taskId].data[TD_SOUND];
-            gTasks[taskId].data[TD_SOUND] = Sound_ProcessInput(gTasks[taskId].data[TD_SOUND]);
+		case MENUITEM_BATTLESCENE:
+            previousOption = gTasks[taskId].data[TD_BATTLESCENE];
+            gTasks[taskId].data[TD_BATTLESCENE] = OnOff_ProcessInput(gTasks[taskId].data[TD_BATTLESCENE], taskId);
 
-            if (previousOption != gTasks[taskId].data[TD_SOUND])
-                Sound_DrawChoices(gTasks[taskId].data[TD_SOUND]);
+            if (previousOption != gTasks[taskId].data[TD_BATTLESCENE])
+                OnOff_DrawChoices(gTasks[taskId].data[TD_BATTLESCENE], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
             break;
-        case MENUITEM_BUTTONMODE:
-            previousOption = gTasks[taskId].data[TD_BUTTONMODE];
-            gTasks[taskId].data[TD_BUTTONMODE] = ButtonMode_ProcessInput(gTasks[taskId].data[TD_BUTTONMODE]);
+		case MENUITEM_QUICKFLEE:
+            previousOption = gTasks[taskId].data[TD_QUICKFLEE];
+            gTasks[taskId].data[TD_QUICKFLEE] = OnOff_ProcessInput(gTasks[taskId].data[TD_QUICKFLEE], taskId);
 
-            if (previousOption != gTasks[taskId].data[TD_BUTTONMODE])
-                ButtonMode_DrawChoices(gTasks[taskId].data[TD_BUTTONMODE]);
+            if (previousOption != gTasks[taskId].data[TD_QUICKFLEE])
+                OnOff_DrawChoices(gTasks[taskId].data[TD_QUICKFLEE], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
             break;
-        case MENUITEM_FRAMETYPE:
+		case MENUITEM_KEYBOARD:
+            previousOption = gTasks[taskId].data[TD_KEYBOARD];
+            gTasks[taskId].data[TD_KEYBOARD] = Keyboard_ProcessInput(gTasks[taskId].data[TD_KEYBOARD], taskId);
+
+            if (previousOption != gTasks[taskId].data[TD_KEYBOARD])
+			{
+                Keyboard_DrawChoices(gTasks[taskId].data[TD_KEYBOARD], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
+				Task_PrintOptions(taskId);
+			}
+            break;
+		case MENUITEM_FRAME:
             previousOption = gTasks[taskId].data[TD_FRAMETYPE];
-            gTasks[taskId].data[TD_FRAMETYPE] = FrameType_ProcessInput(gTasks[taskId].data[TD_FRAMETYPE]);
+            gTasks[taskId].data[TD_FRAMETYPE] = FrameType_ProcessInput(gTasks[taskId].data[TD_FRAMETYPE], taskId);
 
             if (previousOption != gTasks[taskId].data[TD_FRAMETYPE])
-                FrameType_DrawChoices(gTasks[taskId].data[TD_FRAMETYPE]);
+			{
+                FrameType_DrawChoices(gTasks[taskId].data[TD_FRAMETYPE], gTasks[taskId].data[TD_MENUSELECTION] * 16);
+				Task_PrintOptions(taskId);
+			}
+            break;
+		case MENUITEM_MUSIC:
+            previousOption = gTasks[taskId].data[TD_MUSIC];
+            gTasks[taskId].data[TD_MUSIC] = Music_ProcessInput(gTasks[taskId].data[TD_MUSIC], taskId);
+
+            if (previousOption != gTasks[taskId].data[TD_MUSIC])
+			{
+                Music_DrawChoices(gTasks[taskId].data[TD_MUSIC], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
+				Task_PrintOptions(taskId);
+			}
+            break;
+		case MENUITEM_LOWHPSOUND:
+            previousOption = gTasks[taskId].data[TD_LOWHPSOUND];
+            gTasks[taskId].data[TD_LOWHPSOUND] = OnOff_ProcessInput(gTasks[taskId].data[TD_LOWHPSOUND], taskId);
+
+            if (previousOption != gTasks[taskId].data[TD_LOWHPSOUND])
+                OnOff_DrawChoices(gTasks[taskId].data[TD_LOWHPSOUND], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
+            break;
+		case MENUITEM_KEYPADSOUND:
+            previousOption = gTasks[taskId].data[TD_KEYPADSOUND];
+            gTasks[taskId].data[TD_KEYPADSOUND] = OnOff_ProcessInput(gTasks[taskId].data[TD_KEYPADSOUND], taskId);
+
+            if (previousOption != gTasks[taskId].data[TD_KEYPADSOUND])
+                OnOff_DrawChoices(gTasks[taskId].data[TD_KEYPADSOUND], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
+            break;
+		case MENUITEM_SOUNDOUTPUT:
+            previousOption = gTasks[taskId].data[TD_SOUNDOUTPUT];
+            gTasks[taskId].data[TD_SOUNDOUTPUT] = Sound_ProcessInput(gTasks[taskId].data[TD_SOUNDOUTPUT], taskId);
+
+            if (previousOption != gTasks[taskId].data[TD_SOUNDOUTPUT])
+                Sound_DrawChoices(gTasks[taskId].data[TD_SOUNDOUTPUT], gTasks[taskId].data[TD_MENUSELECTION] * 16 - 8);
             break;
         default:
             return;
         }
-
+		
         if (sArrowPressed)
         {
             sArrowPressed = FALSE;
@@ -360,12 +541,21 @@ static void Task_OptionMenuProcessInput(u8 taskId)
 
 static void Task_OptionMenuSave(u8 taskId)
 {
-    gSaveBlock2Ptr->optionsTextSpeed = gTasks[taskId].data[TD_TEXTSPEED];
-    gSaveBlock2Ptr->optionsBattleSceneOff = gTasks[taskId].data[TD_BATTLESCENE];
-    gSaveBlock2Ptr->optionsBattleStyle = gTasks[taskId].data[TD_BATTLESTYLE];
-    gSaveBlock2Ptr->optionsSound = gTasks[taskId].data[TD_SOUND];
-    gSaveBlock2Ptr->optionsButtonMode = gTasks[taskId].data[TD_BUTTONMODE];
-    gSaveBlock2Ptr->optionsWindowFrameType = gTasks[taskId].data[TD_FRAMETYPE];
+    gSaveBlock2Ptr->optionsBikeMode = gTasks[taskId].data[TD_BIKEMODE];
+	gSaveBlock2Ptr->optionsFullParty = gTasks[taskId].data[TD_FULLPARTY];
+	gSaveBlock2Ptr->optionsBattleStyle = gTasks[taskId].data[TD_BATTLESTYLE];
+	gSaveBlock2Ptr->optionsBattleSceneOff = gTasks[taskId].data[TD_BATTLESCENE];
+	gSaveBlock2Ptr->optionsQuickFlee = gTasks[taskId].data[TD_QUICKFLEE];
+	gSaveBlock2Ptr->optionsKeyboard = gTasks[taskId].data[TD_KEYBOARD];
+	gSaveBlock2Ptr->optionsMusic = gTasks[taskId].data[TD_MUSIC];
+	gSaveBlock2Ptr->optionsWindowFrameType = gTasks[taskId].data[TD_FRAMETYPE];
+	gSaveBlock2Ptr->optionsLowHPSound = gTasks[taskId].data[TD_LOWHPSOUND];
+	gSaveBlock2Ptr->optionsKeypadSound = gTasks[taskId].data[TD_KEYPADSOUND];
+	gSaveBlock2Ptr->optionsSound = gTasks[taskId].data[TD_SOUNDOUTPUT];
+	
+	// Reload map music if music option has been changed & music isn't turned off
+	if (gTasks[taskId].data[TD_MUSICBUFFER] != gSaveBlock2Ptr->optionsMusic)
+		PlayNewMapMusic(GetCurrentMapMusic());
 
     BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 0x10, RGB_BLACK);
     gTasks[taskId].func = Task_OptionMenuFadeOut;
@@ -384,7 +574,223 @@ static void Task_OptionMenuFadeOut(u8 taskId)
 static void HighlightOptionMenuItem(u8 index)
 {
     SetGpuReg(REG_OFFSET_WIN0H, WIN_RANGE(16, 224));
-    SetGpuReg(REG_OFFSET_WIN0V, WIN_RANGE(index * 16 + 40, index * 16 + 56));
+    SetGpuReg(REG_OFFSET_WIN0V, WIN_RANGE(index * 16 + 8, index * 16 + 24));
+}
+
+static void Task_CopyOptionsToTask(u8 taskId)
+{
+	gTasks[taskId].data[TD_BIKEMODE] = gSaveBlock2Ptr->optionsBikeMode;
+	gTasks[taskId].data[TD_FULLPARTY] = gSaveBlock2Ptr->optionsFullParty;
+	gTasks[taskId].data[TD_BATTLESTYLE] = gSaveBlock2Ptr->optionsBattleStyle;
+	gTasks[taskId].data[TD_BATTLESCENE] = gSaveBlock2Ptr->optionsBattleSceneOff;
+	gTasks[taskId].data[TD_QUICKFLEE] = gSaveBlock2Ptr->optionsQuickFlee;
+	gTasks[taskId].data[TD_KEYBOARD] = gSaveBlock2Ptr->optionsKeyboard;
+	gTasks[taskId].data[TD_MUSIC] = gSaveBlock2Ptr->optionsMusic;
+	gTasks[taskId].data[TD_FRAMETYPE] = gSaveBlock2Ptr->optionsWindowFrameType;
+	gTasks[taskId].data[TD_LOWHPSOUND] = gSaveBlock2Ptr->optionsLowHPSound;
+	gTasks[taskId].data[TD_KEYPADSOUND] = gSaveBlock2Ptr->optionsKeypadSound;
+	gTasks[taskId].data[TD_SOUNDOUTPUT] = gSaveBlock2Ptr->optionsSound;
+}
+
+//=============================================================================================================================
+//	PRINT STRINGS AND DESCRIPTIONS
+//=============================================================================================================================
+
+// Compensates for missing nuzlocke options when they aren't present
+static u8 Task_CalcMenuShift(u8 taskId)
+{
+	if (gTasks[taskId].data[TD_MENUSELECTION] + gTasks[taskId].data[TD_MENUSCROLL] > MENUITEM_RESETDEFAULTS)
+	{
+		if (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF
+			|| gSaveBlock2Ptr->freezeNuzlocke == TRUE)
+			return 2; //no nuzlocke options
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
+// Creates the list of options in the top window
+static void Task_PrintOptions(u8 taskId)
+{
+	int i;
+	
+	FillWindowPixelBuffer(WIN_OPTIONS, 0x11); // Clear window first
+	
+	for (i = 0; i < 6; i++) // 6 options on screen at once
+	{
+		// Print "close menu" instead of nuzlocke options when scrolling past "reset default options" if Nuzlocke is off or frozen
+		if (gTasks[taskId].data[TD_MENUSCROLL] + i > MENUITEM_RESETDEFAULTS
+			&& (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF
+			|| gSaveBlock2Ptr->freezeNuzlocke == TRUE))
+		{
+			AddTextPrinterParameterized(WIN_OPTIONS, 1, gText_OptionMenuCancel, 8, (i * 16) + 1, TEXT_SPEED_FF, NULL);
+		}
+		// If nuzlocke is on or unfrozen and that option will be printed, get the correct string
+		else if (sOptionMenuItemsNames[gTasks[taskId].data[TD_MENUSCROLL] + i] == gText_DisableNuzlockeMode)
+		{
+			switch (gSaveBlock2Ptr->nuzlockeMode)
+			{
+				case NUZLOCKE_MODE_DEADLOCKE:
+					AddTextPrinterParameterized(WIN_OPTIONS, 1, gText_DowngradeToHardlockeMode, 8, (i * 16) + 1, TEXT_SPEED_FF, NULL);
+					break;
+				case NUZLOCKE_MODE_HARDLOCKE:
+					AddTextPrinterParameterized(WIN_OPTIONS, 1, gText_DowngradeToNuzlockeMode, 8, (i * 16) + 1, TEXT_SPEED_FF, NULL);
+					break;
+				case NUZLOCKE_MODE_NUZLOCKE:
+					AddTextPrinterParameterized(WIN_OPTIONS, 1, gText_DisableNuzlockeMode, 8, (i * 16) + 1, TEXT_SPEED_FF, NULL);
+					break;
+			}
+		}
+		// Otherwise, just print the relevant option name
+		else
+			AddTextPrinterParameterized(WIN_OPTIONS, 1, sOptionMenuItemsNames[i + gTasks[taskId].data[TD_MENUSCROLL]], 8, (i * 16) + 1, TEXT_SPEED_FF, NULL);
+		
+		// Draw choices for each option
+		switch (i + gTasks[taskId].data[TD_MENUSCROLL])
+		{
+			case 0: //BIKE MODE
+				BikeMode_DrawChoices(gTasks[taskId].data[TD_BIKEMODE], i * 16 - 8);
+				break;
+				
+			case 1: //FULL PARTY
+				FullParty_DrawChoices(gTasks[taskId].data[TD_FULLPARTY], i * 16 - 8);
+				break;
+				
+			case 2: //BATTLE STYLE
+				BattleStyle_DrawChoices(gTasks[taskId].data[TD_BATTLESTYLE], i * 16 - 8);
+				break;
+				
+			case 3: //BATTLE SCENE
+				OnOff_DrawChoices(gTasks[taskId].data[TD_BATTLESCENE], i * 16 - 8);
+				break;
+				
+			case 4: //QUICK FLEE
+				OnOff_DrawChoices(gTasks[taskId].data[TD_QUICKFLEE], i * 16 - 8);
+				break;	
+				
+			case 5: //KEYBOARD
+				Keyboard_DrawChoices(gTasks[taskId].data[TD_KEYBOARD], i * 16 - 8);
+				break;
+				
+			case 6: //FRAME
+				FrameType_DrawChoices(gTasks[taskId].data[TD_FRAMETYPE], i * 16);
+				break;
+				
+			case 7: //MUSIC
+				Music_DrawChoices(gTasks[taskId].data[TD_MUSIC], i * 16 - 8);
+				break;
+				
+			case 8: //LOW HP SOUND
+				OnOff_DrawChoices(gTasks[taskId].data[TD_LOWHPSOUND], i * 16 - 8);
+				break;
+				
+			case 9: //KEYPAD SOUND
+				OnOff_DrawChoices(gTasks[taskId].data[TD_KEYPADSOUND], i * 16 - 8);
+				break;
+				
+			case 10: //SOUND OUTPUT
+				Sound_DrawChoices(gTasks[taskId].data[TD_SOUNDOUTPUT], i * 16 - 8);
+				break;
+		}
+	}
+	
+	// Copy the whole thing to the window
+	CopyWindowToVram(WIN_OPTIONS, 3);
+}
+
+static void Task_DrawDescriptionWindow(u8 taskId)
+{
+    u8 i;
+
+	FillWindowPixelBuffer(WIN_DESCRIPTION, 0x11);
+	if (sOptionsDescriptionList[gTasks[taskId].data[TD_MENUSELECTION] + gTasks[taskId].data[TD_MENUSCROLL] + Task_CalcMenuShift(taskId)] == gText_DisableNuzlockeModeDescription)
+	{
+		switch (gSaveBlock2Ptr->nuzlockeMode)
+		{
+			case NUZLOCKE_MODE_DEADLOCKE:
+				AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gText_DowngradeToHardlockeModeDescription, 8, 1, TEXT_SPEED_FF, NULL);
+				break;
+			case NUZLOCKE_MODE_HARDLOCKE:
+				AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gText_DowngradeToNuzlockeModeDescription, 8, 1, TEXT_SPEED_FF, NULL);
+				break;
+			case NUZLOCKE_MODE_NUZLOCKE:
+				AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gText_DisableNuzlockeModeDescription, 8, 1, TEXT_SPEED_FF, NULL);
+				break;
+		}
+	}
+	else
+		AddTextPrinterParameterized(WIN_DESCRIPTION, 1, sOptionsDescriptionList[gTasks[taskId].data[TD_MENUSELECTION] + gTasks[taskId].data[TD_MENUSCROLL] + Task_CalcMenuShift(taskId)], 8, 1, TEXT_SPEED_FF, NULL);
+    CopyWindowToVram(WIN_DESCRIPTION, 3);
+}
+
+// Does everything to display a yes/no confirm box
+static void PrepareConfirmMessage()
+{
+	// Creates confirm window border
+	DrawConfirmBorder();
+	// Clear window
+	FillWindowPixelBuffer(WIN_DESCRIPTION, 0x11);
+	// Print confirmation text
+	AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gText_AreYouSure, 8, 1, TEXT_SPEED_FF, NULL);
+    CopyWindowToVram(WIN_DESCRIPTION, 3);
+	// Add yes/no box
+	sub_81973A4();
+	CreateYesNoMenu(&sYesNoWindowTemplate, 0x214, 14, 1);
+}
+
+// Lower nuzlocke option was selected
+static void Task_DisplayNuzlockeConfirmMessage(u8 taskId)
+{
+	PrepareConfirmMessage();
+	DoYesNoFuncWithChoice(taskId, &gLowerNuzlockeFuncs);
+}
+
+// Player has chosen to lower nuzlocke level from Task_DisplayNuzlockeConfirmMessage
+static void Task_LowerNuzlocke(u8 taskId)
+{
+	// If nuzlocke isn't already off, lower by 1 stage
+	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+		gSaveBlock2Ptr->nuzlockeMode--;
+	// If it is now off, adjust menu scrolling
+	if (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
+		gTasks[taskId].data[TD_MENUSCROLL] -= 2;
+	// Return to option menu
+	Task_CancelConfirm(taskId);
+}
+
+// Freeze nuzlocke option was selected
+static void Task_DisplayFreezeConfirmMessage(u8 taskId)
+{
+	PrepareConfirmMessage();
+	DoYesNoFuncWithChoice(taskId, &gFreezeNuzlockeFuncs);
+}
+
+// Player has chosen to lower nuzlocke level from Task_DisplayNuzlockeConfirmMessage
+static void Task_FreezeNuzlocke(u8 taskId)
+{
+	// Set freeze nuzlocke to TRUE
+	gSaveBlock2Ptr->freezeNuzlocke = TRUE;
+	// Adjust menu scrolling
+	gTasks[taskId].data[TD_MENUSCROLL] -= 2;
+	// Return to option menu
+	Task_CancelConfirm(taskId);
+}
+
+// Player has chosen not to lower nuzlocke level, freeze nuzlocke mode
+// Or, they HAVE chosen to in which case this will run after Task_LowerNuzlocke or Task_FreezeNuzlocke
+static void Task_CancelConfirm(u8 taskId)
+{
+	// Redraw option description and border
+	PutWindowTilemap(1); // Clears the extra piece of border from the confirm window
+	Task_DrawDescriptionWindow(taskId);
+	DrawDescriptionBorder();
+	// Update options
+	Task_PrintOptions(taskId);
+	// Re-enable input into the main options menu and return
+	gTasks[taskId].data[TD_MENUINPUT] = FALSE;
+	gTasks[taskId].func = Task_OptionMenuProcessInput;
 }
 
 static void DrawOptionMenuChoice(const u8 *text, u8 x, u8 y, u8 style)
@@ -392,7 +798,7 @@ static void DrawOptionMenuChoice(const u8 *text, u8 x, u8 y, u8 style)
     u8 dst[16];
     u16 i;
 
-    for (i = 0; *text != EOS && i <= 14; i++)
+    for (i = 0; *text != EOS && i <= 20; i++)
         dst[i] = *(text++);
 
     if (style != 0)
@@ -405,64 +811,93 @@ static void DrawOptionMenuChoice(const u8 *text, u8 x, u8 y, u8 style)
     AddTextPrinterParameterized(WIN_OPTIONS, 1, dst, x, y + 1, TEXT_SPEED_FF, NULL);
 }
 
-static u8 TextSpeed_ProcessInput(u8 selection)
+//=============================================================================================================================
+//	DRAW MENU OPTIONS & PROCESS INPUT
+//=============================================================================================================================
+
+static void OnOff_DrawChoices(u8 selection, int yPos)
 {
-    if (gMain.newKeys & DPAD_RIGHT)
-    {
-        if (selection <= 1)
-            selection++;
-        else
-            selection = 0;
+    u8 styles[2];
 
-        sArrowPressed = TRUE;
-    }
-    if (gMain.newKeys & DPAD_LEFT)
-    {
-        if (selection != 0)
-            selection--;
-        else
-            selection = 2;
+    styles[0] = 0;
+    styles[1] = 0;
+    styles[selection] = 1;
 
-        sArrowPressed = TRUE;
+    DrawOptionMenuChoice(gText_On,  106, 8 + yPos, styles[0]);
+    DrawOptionMenuChoice(gText_Off, 176, 8 + yPos, styles[1]);
+}
+
+static u8 OnOff_ProcessInput(u8 selection, u8 taskId)
+{
+    if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
+	{
+        selection ^= 1;
+		sArrowPressed = TRUE;
+	}
+    return selection;
+}
+
+static u8 BikeMode_ProcessInput(u8 selection, u8 taskId)
+{
+    if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
+    {
+        selection ^= 1;
+		sArrowPressed = TRUE;
     }
     return selection;
 }
 
-static void TextSpeed_DrawChoices(u8 selection)
+static void BikeMode_DrawChoices(u8 selection, int yPos)
 {
     u8 styles[3];
-    s32 widthSlow, widthMid, widthFast, xMid;
 
     styles[0] = 0;
     styles[1] = 0;
-    styles[2] = 0;
     styles[selection] = 1;
 
-    DrawOptionMenuChoice(gText_TextSpeedSlow, 104, YPOS_TEXTSPEED, styles[0]);
-
-    widthSlow = GetStringWidth(1, gText_TextSpeedSlow, 0);
-    widthMid = GetStringWidth(1, gText_TextSpeedMid, 0);
-    widthFast = GetStringWidth(1, gText_TextSpeedFast, 0);
-
-    widthMid -= 94;
-    xMid = (widthSlow - widthMid - widthFast) / 2 + 104;
-    DrawOptionMenuChoice(gText_TextSpeedMid, xMid, YPOS_TEXTSPEED, styles[1]);
-
-    DrawOptionMenuChoice(gText_TextSpeedFast, GetStringRightAlignXOffset(1, gText_TextSpeedFast, 198), YPOS_TEXTSPEED, styles[2]);
+    DrawOptionMenuChoice(gText_HoldB, 106, 8 + yPos, styles[0]);
+    DrawOptionMenuChoice(gText_Auto,  170, 8 + yPos, styles[1]);
 }
 
-static u8 BattleScene_ProcessInput(u8 selection)
+static void FullParty_DrawChoices(u8 selection, int yPos)
 {
-    if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
-    {
-        selection ^= 1;
-        sArrowPressed = TRUE;
-    }
+    u8 styles[2];
+	
+    styles[0] = 0;
+    styles[1] = 0;
+    styles[selection] = 1;
 
-    return selection;
+    DrawOptionMenuChoice(gText_SwapPC, 106, 8 + yPos, styles[0]);
+    DrawOptionMenuChoice(gText_SendToPC, 140, 8 + yPos, styles[1]);
 }
 
-static void BattleScene_DrawChoices(u8 selection)
+static u8 FullParty_ProcessInput(u8 selection, u8 taskId)
+{
+	if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
+	{
+		// Change option as normal if not in Hardlocke or Deadlocke mode
+		if (gSaveBlock2Ptr->nuzlockeMode < NUZLOCKE_MODE_HARDLOCKE)
+		{
+			selection ^= 1;
+			sArrowPressed = TRUE;
+			return selection;
+		}
+		// Play error sound effect, display a message and don't change option if in Deadlocke mode
+		else
+		{
+			FillWindowPixelBuffer(WIN_DESCRIPTION, 0x11);
+			StringCopy(gStringVar1, gText_HardlockeOrDeadlocke);
+			StringExpandPlaceholders(gStringVar4, gText_CantBeChanged);
+			AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gStringVar4, 8, 1, TEXT_SPEED_FF, NULL);
+			CopyWindowToVram(WIN_DESCRIPTION, 3);
+			PlaySE(SE_BOO);
+			// Return SWAP
+			return 0;
+		}
+	}
+}
+
+static void BattleStyle_DrawChoices(u8 selection, int yPos)
 {
     u8 styles[2];
 
@@ -470,199 +905,249 @@ static void BattleScene_DrawChoices(u8 selection)
     styles[1] = 0;
     styles[selection] = 1;
 
-    DrawOptionMenuChoice(gText_BattleSceneOn, 104, YPOS_BATTLESCENE, styles[0]);
-    DrawOptionMenuChoice(gText_BattleSceneOff, GetStringRightAlignXOffset(1, gText_BattleSceneOff, 198), YPOS_BATTLESCENE, styles[1]);
+    DrawOptionMenuChoice(gText_BattleStyleShift, 106, 8 + yPos, styles[0]);
+    DrawOptionMenuChoice(gText_BattleStyleSet,   176,   8 + yPos, styles[1]);
 }
 
-static u8 BattleStyle_ProcessInput(u8 selection)
+static u8 BattleStyle_ProcessInput(u8 selection, u8 taskId)
 {
-    if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
-    {
-        selection ^= 1;
-        sArrowPressed = TRUE;
-    }
+	if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
+	{
+		// Change option as normal if not in Nuzlocke mode
+		if (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
+		{
+			selection ^= 1;
+			sArrowPressed = TRUE;
+			return selection;
+		}
+		// Play error sound effect, display a message and don't change option if in Nuzlocke mode
+		else
+		{
+			FillWindowPixelBuffer(WIN_DESCRIPTION, 0x11);
+			StringCopy(gStringVar1, gText_Nuzlocke);
+			StringExpandPlaceholders(gStringVar4, gText_CantBeChanged);
+			AddTextPrinterParameterized(WIN_DESCRIPTION, 1, gStringVar4, 8, 1, TEXT_SPEED_FF, NULL);
+			CopyWindowToVram(WIN_DESCRIPTION, 3);
+			PlaySE(SE_BOO);
+			// Return SET
+			return 1;
+		}
+	}
+}
 
+static void Keyboard_DrawChoices(u8 selection, int yPos)
+{
+    DrawOptionMenuChoice(gKeyboardNameList[selection], 106, 8 + yPos, 1);
+}
+
+static u8 Keyboard_ProcessInput(u8 selection, u8 taskId)
+{
+	if ((gMain.newKeys & DPAD_RIGHT) || (gMain.newKeys & DPAD_LEFT))
+	{
+		if (gMain.newKeys & DPAD_RIGHT)
+		{
+			if (selection < 4)
+				selection++;
+			else
+				selection = 0;
+		}
+		if (gMain.newKeys & DPAD_LEFT)
+		{
+			if (selection > 0)
+				selection--;
+			else
+				selection = 4;
+		}
+		sArrowPressed = TRUE;
+	}
     return selection;
 }
 
-static void BattleStyle_DrawChoices(u8 selection)
+#define CHAR_0 0xA1 //Character code of '0' character
+#define CHAR_F9 0xF9 //Must come before left or right arrows
+#define CHAR_LEFT_ARROW_2 0x02 //Character code of left arrow 2 character
+#define CHAR_RIGHT_ARROW_2 0x03 //Character code of right arrow 2 character
+
+static void FrameType_DrawChoices(u8 selection, int yPos)
 {
-    u8 styles[2];
-
-    styles[0] = 0;
-    styles[1] = 0;
-    styles[selection] = 1;
-
-    DrawOptionMenuChoice(gText_BattleStyleShift, 104, YPOS_BATTLESTYLE, styles[0]);
-    DrawOptionMenuChoice(gText_BattleStyleSet, GetStringRightAlignXOffset(1, gText_BattleStyleSet, 198), YPOS_BATTLESTYLE, styles[1]);
-}
-
-static u8 Sound_ProcessInput(u8 selection)
-{
-    if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
-    {
-        selection ^= 1;
-        SetPokemonCryStereo(selection);
-        sArrowPressed = TRUE;
-    }
-
-    return selection;
-}
-
-static void Sound_DrawChoices(u8 selection)
-{
-    u8 styles[2];
-
-    styles[0] = 0;
-    styles[1] = 0;
-    styles[selection] = 1;
-
-    DrawOptionMenuChoice(gText_SoundMono, 104, YPOS_SOUND, styles[0]);
-    DrawOptionMenuChoice(gText_SoundStereo, GetStringRightAlignXOffset(1, gText_SoundStereo, 198), YPOS_SOUND, styles[1]);
-}
-
-static u8 FrameType_ProcessInput(u8 selection)
-{
-    if (gMain.newKeys & DPAD_RIGHT)
-    {
-        if (selection < WINDOW_FRAMES_COUNT - 1)
-            selection++;
-        else
-            selection = 0;
-
-        LoadBgTiles(1, GetWindowFrameTilesPal(selection)->tiles, 0x120, 0x1A2);
-        LoadPalette(GetWindowFrameTilesPal(selection)->pal, 0x70, 0x20);
-        sArrowPressed = TRUE;
-    }
-    if (gMain.newKeys & DPAD_LEFT)
-    {
-        if (selection != 0)
-            selection--;
-        else
-            selection = WINDOW_FRAMES_COUNT - 1;
-
-        LoadBgTiles(1, GetWindowFrameTilesPal(selection)->tiles, 0x120, 0x1A2);
-        LoadPalette(GetWindowFrameTilesPal(selection)->pal, 0x70, 0x20);
-        sArrowPressed = TRUE;
-    }
-    return selection;
-}
-
-static void FrameType_DrawChoices(u8 selection)
-{
-    u8 text[16];
+    u8 text[8];
     u8 n = selection + 1;
     u16 i;
 
-    for (i = 0; gText_FrameTypeNumber[i] != EOS && i <= 5; i++)
+    for (i = 0; gText_FrameTypeNumber[i] != EOS && i < 6; i++)
         text[i] = gText_FrameTypeNumber[i];
+	
+	text[i] = CHAR_F9;
+	i++;
+	text[i] = CHAR_LEFT_ARROW_2;
+	i++;
+	text[i] = 0;
+	i++;
 
-    // Convert a number to decimal string
+    //Convert number to decimal string
     if (n / 10 != 0)
     {
         text[i] = n / 10 + CHAR_0;
         i++;
         text[i] = n % 10 + CHAR_0;
         i++;
+		text[i] = CHAR_SPACE;
+        i++;
     }
     else
     {
         text[i] = n % 10 + CHAR_0;
         i++;
-        text[i] = 0x77;
+        text[i] = CHAR_SPACE;
         i++;
     }
-
+	
+	text[i] = CHAR_F9;
+	i++;
+	text[i] = CHAR_RIGHT_ARROW_2;
+	i++;
     text[i] = EOS;
 
-    DrawOptionMenuChoice(gText_FrameType, 104, YPOS_FRAMETYPE, 0);
-    DrawOptionMenuChoice(text, 128, YPOS_FRAMETYPE, 1);
+    DrawOptionMenuChoice(gText_FrameType, 106, yPos, 0);
+    DrawOptionMenuChoice(text, 139, yPos, 1);
 }
 
-static u8 ButtonMode_ProcessInput(u8 selection)
+static u8 FrameType_ProcessInput(u8 selection, u8 taskId)
 {
-    if (gMain.newKeys & DPAD_RIGHT)
-    {
-        if (selection <= 1)
-            selection++;
-        else
-            selection = 0;
+	if ((gMain.newKeys & DPAD_RIGHT) || (gMain.newKeys & DPAD_LEFT))
+	{
+		if (gMain.newKeys & DPAD_RIGHT)
+		{
+			if (selection < WINDOW_FRAMES_COUNT - 1)
+				selection++;
+			else
+				selection = 0;
+			
+			LoadBgTiles(1, GetWindowFrameTilesPal(selection)->tiles, 0x120, 0x1A2);
+			LoadPalette(GetWindowFrameTilesPal(selection)->pal, 0x70, 0x20);
+			sArrowPressed = TRUE;
+		}
+		if (gMain.newKeys & DPAD_LEFT)
+		{
+			if (selection > 0)
+				selection--;
+			else
+				selection = WINDOW_FRAMES_COUNT - 1;
+			
+			LoadBgTiles(1, GetWindowFrameTilesPal(selection)->tiles, 0x120, 0x1A2);
+			LoadPalette(GetWindowFrameTilesPal(selection)->pal, 0x70, 0x20);
+			sArrowPressed = TRUE;
+		}
+		sArrowPressed = TRUE;
+	}
+    return selection;
+}
 
-        sArrowPressed = TRUE;
-    }
-    if (gMain.newKeys & DPAD_LEFT)
-    {
-        if (selection != 0)
-            selection--;
-        else
-            selection = 2;
+static void Music_DrawChoices(u8 selection, int yPos)
+{
+    u8 styles[2];
+	
+    styles[0] = 0;
+    styles[1] = 0;
+	styles[2] = 0;
+    styles[selection] = 1;
 
-        sArrowPressed = TRUE;
+    DrawOptionMenuChoice(gText_On,  106, 8 + yPos, styles[0]);
+	DrawOptionMenuChoice(gText_Battles,  126, 8 + yPos, styles[1]);
+    DrawOptionMenuChoice(gText_Off, 176, 8 + yPos, styles[2]);
+}
+
+static u8 Music_ProcessInput(u8 selection, u8 taskId)
+{
+	if ((gMain.newKeys & DPAD_RIGHT) || (gMain.newKeys & DPAD_LEFT))
+	{
+		if (gMain.newKeys & DPAD_RIGHT)
+		{
+			if (selection < 2)
+				selection++;
+			else
+				selection = 0;
+		}
+		if (gMain.newKeys & DPAD_LEFT)
+		{
+			if (selection > 0)
+				selection--;
+			else
+				selection = 2;
+		}
+		sArrowPressed = TRUE;
+	}
+    return selection;
+}
+
+static void Sound_DrawChoices(u8 selection, int yPos)
+{
+    u8 styles[2];
+
+    styles[0] = 0;
+    styles[1] = 0;
+    styles[selection] = 1;
+
+    DrawOptionMenuChoice(gText_SoundMono,   106, 8 + yPos, styles[0]);
+    DrawOptionMenuChoice(gText_SoundStereo, 158, 8 + yPos, styles[1]);
+}
+
+static u8 Sound_ProcessInput(u8 selection, u8 taskId)
+{
+    if (gMain.newKeys & (DPAD_LEFT | DPAD_RIGHT))
+    {
+        selection ^= 1;
+		sArrowPressed = TRUE;
+        SetPokemonCryStereo(selection);
     }
     return selection;
 }
 
-static void ButtonMode_DrawChoices(u8 selection)
-{
-    s32 widthNormal, widthLR, widthLA, xLR;
-    u8 styles[3];
+//=============================================================================================================================
+//	DRAW WINDOW BORDERS
+//=============================================================================================================================
 
-    styles[0] = 0;
-    styles[1] = 0;
-    styles[2] = 0;
-    styles[selection] = 1;
-
-    DrawOptionMenuChoice(gText_ButtonTypeNormal, 104, YPOS_BUTTONMODE, styles[0]);
-
-    widthNormal = GetStringWidth(1, gText_ButtonTypeNormal, 0);
-    widthLR = GetStringWidth(1, gText_ButtonTypeLR, 0);
-    widthLA = GetStringWidth(1, gText_ButtonTypeLEqualsA, 0);
-
-    widthLR -= 94;
-    xLR = (widthNormal - widthLR - widthLA) / 2 + 104;
-    DrawOptionMenuChoice(gText_ButtonTypeLR, xLR, YPOS_BUTTONMODE, styles[1]);
-
-    DrawOptionMenuChoice(gText_ButtonTypeLEqualsA, GetStringRightAlignXOffset(1, gText_ButtonTypeLEqualsA, 198), YPOS_BUTTONMODE, styles[2]);
-}
-
-static void DrawTextOption(void)
-{
-    FillWindowPixelBuffer(WIN_TEXT_OPTION, PIXEL_FILL(1));
-    AddTextPrinterParameterized(WIN_TEXT_OPTION, 1, gText_Option, 8, 1, TEXT_SPEED_FF, NULL);
-    CopyWindowToVram(WIN_TEXT_OPTION, 3);
-}
-
-static void DrawOptionMenuTexts(void)
-{
-    u8 i;
-
-    FillWindowPixelBuffer(WIN_OPTIONS, PIXEL_FILL(1));
-    for (i = 0; i < MENUITEM_COUNT; i++)
-    {
-        AddTextPrinterParameterized(WIN_OPTIONS, 1, sOptionMenuItemsNames[i], 8, (i * 16) + 1, TEXT_SPEED_FF, NULL);
-    }
-    CopyWindowToVram(WIN_OPTIONS, 3);
-}
-
-static void sub_80BB154(void)
+// Creates the frame of the top options window
+static void DrawOptionsBorder(void)
 {
     //                   bg, tileNum, x,    y,    width, height,  pal
-    FillBgTilemapBufferRect(1, 0x1A2, 1,    0,      1,      1,      7);
+	FillBgTilemapBufferRect(1, 0x1A2, 1,    0,      1,      1,      7);
     FillBgTilemapBufferRect(1, 0x1A3, 2,    0,      0x1B,   1,      7);
     FillBgTilemapBufferRect(1, 0x1A4, 28,   0,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A5, 1,    1,      1,      2,      7);
-    FillBgTilemapBufferRect(1, 0x1A7, 28,   1,      1,      2,      7);
-    FillBgTilemapBufferRect(1, 0x1A8, 1,    3,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A9, 2,    3,      0x1B,   1,      7);
-    FillBgTilemapBufferRect(1, 0x1AA, 28,   3,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A2, 1,    4,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A3, 2,    4,      0x1A,   1,      7);
-    FillBgTilemapBufferRect(1, 0x1A4, 28,   4,      1,      1,      7);
-    FillBgTilemapBufferRect(1, 0x1A5, 1,    5,      1,      0x12,   7);
-    FillBgTilemapBufferRect(1, 0x1A7, 28,   5,      1,      0x12,   7);
+    FillBgTilemapBufferRect(1, 0x1A5, 1,    1,      1,      12,     7);
+    FillBgTilemapBufferRect(1, 0x1A7, 28,   1,      1,      12,     7);
+    FillBgTilemapBufferRect(1, 0x1A8, 1,    13,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A9, 2,    13,     0x1B,   1,      7);
+    FillBgTilemapBufferRect(1, 0x1AA, 28,   13,     1,      1,      7);
+	CopyBgTilemapBufferToVram(1);
+}
+
+// Creates the frame of the bottom window that contains the option descriptions
+static void DrawDescriptionBorder(void)
+{
+	//                   bg, tileNum, x,    y,    width, height,  pal
+    FillBgTilemapBufferRect(1, 0x1A2, 1,    14,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A3, 2,    14,     0x1A,   1,      7);
+    FillBgTilemapBufferRect(1, 0x1A4, 28,   14,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A5, 1,    15,     1,      4,      7);
+    FillBgTilemapBufferRect(1, 0x1A7, 28,   15,     1,      4,      7);
     FillBgTilemapBufferRect(1, 0x1A8, 1,    19,     1,      1,      7);
     FillBgTilemapBufferRect(1, 0x1A9, 2,    19,     0x1A,   1,      7);
     FillBgTilemapBufferRect(1, 0x1AA, 28,   19,     1,      1,      7);
+	CopyBgTilemapBufferToVram(1);
+}
 
-    CopyBgTilemapBufferToVram(1);
+// Creates the "are you sure?" message frame when using Nuzlocke related options
+static void DrawConfirmBorder(void)
+{
+    //                   bg, tileNum, x,    y,    width, height,  pal
+	FillBgTilemapBufferRect(1, 0x1A2, 1,    14,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A3, 2,    14,     0x13,   1,      7);
+    FillBgTilemapBufferRect(1, 0x1A4, 21,   14,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A5, 1,    15,     1,      4,      7);
+    FillBgTilemapBufferRect(1, 0x1A7, 21,   15,     1,      4,      7);
+    FillBgTilemapBufferRect(1, 0x1A8, 1,    19,     1,      1,      7);
+    FillBgTilemapBufferRect(1, 0x1A9, 2,    19,     0x13,   1,      7);
+    FillBgTilemapBufferRect(1, 0x1AA, 21,   19,     1,      1,      7);
+	CopyBgTilemapBufferToVram(1);
 }

@@ -1,4 +1,8 @@
 #include "global.h"
+#include "day_night_filter.h"
+#include "fieldmap.h"
+#include "constants/map_types.h"
+#include "play_time.h"
 #include "palette.h"
 #include "util.h"
 #include "decompress.h"
@@ -42,6 +46,7 @@ struct PaletteStruct
     u8 ps_field_9;
 };
 
+static void CopyFilteredSpritePalettesForFade(void);
 static void unused_sub_80A1CDC(struct PaletteStruct *, u32 *);
 static void unused_sub_80A1E40(struct PaletteStruct *, u32 *);
 static void unused_sub_80A1F00(struct PaletteStruct *);
@@ -90,6 +95,89 @@ void LoadPalette(const void *src, u16 offset, u16 size)
 {
     CpuCopy16(src, gPlttBufferUnfaded + offset, size);
     CpuCopy16(src, gPlttBufferFaded + offset, size);
+}
+
+// Applies day/night filter to palette before loading
+// Also used to recalculate day/night filter
+void LoadPaletteWithDayNightFilter(const void *src, u16 offset, u16 size, u8 mode)
+{
+	int i, j;
+	u8 numColors; // How many colors in the palette need to be filtered?
+	u16 color;
+	
+	// Loop through number of palettes
+	for (i = 0; i < size; i++)
+	{
+		// Set numColors to filter whole palette by default
+		numColors = 0x10;
+		
+		// Loops through the palette
+		for (j = 0; j < 16; j++)
+		{	
+			// Copies the color
+			CpuCopy16(src + (i * 32) + (j * 2), &color, 2);
+			
+			// Check for special palettes that don't get filtered entirely (streetlights etc)
+			// If transparent color is between 0x4200 and 0x420F and filter mode is set to background
+			if (mode == FILTER_MODE_BACKGROUND && j == 0 && (color >= 0x4202 && color < 0x4210))
+			{
+				// Number of colors to filter in the palette is set between 2 and F
+				// Values less than 2 wouldn't have any effect as it would just filter the transparent color
+				// If you want to filter the first 8 colors, set the transparent color to 0x4208 for example
+				// (64, 132, 132 in RGB -  the number of palettes to filter is controlled by the red value)
+				// This can't work on BG palette 0!!
+				numColors = color - 0x4200;
+			}		
+			// If filter mode isn't off, it'll be affected by the day/night filter
+			else if (mode > FILTER_MODE_BACKGROUND)
+			{
+				// Tag the palette with 0x1234 if it's the transparent color
+				if (j == 0)
+					color = 0x1234;
+				// If mode is set to FILTER_MODE_REFLECTION, lighten the color
+				else if (mode == FILTER_MODE_REFLECTION)
+					color = MakeReflectionColor(color);
+				// Write color to gPlttBufferUnfaded
+				CpuFill16(color, gPlttBufferUnfaded + offset + (i * 16) + j, 2);
+			}
+			// The color is filtered if it's not the transparent color and if numColors isn't 0
+			if (j != 0 && numColors != 0)
+				color = DoDayNightFilter(color);
+			// Filtered color is written to gPlttBufferUnfaded if filter is off or set to background
+			if (mode < FILTER_MODE_SPRITE)
+				CpuFill16(color, gPlttBufferUnfaded + offset + (i * 16) + j, 2);
+			// Filtered color is written to gPlttBufferFaded
+			CpuFill16(color, gPlttBufferFaded + offset + (i * 16) + j, 2);
+			// Subtract 1 from numColors if it's not already 0
+			if (numColors != 0)
+				numColors--;
+		}
+	}
+}
+
+static void CopyFilteredSpritePalettesForFade(void)
+{
+	int i, j;
+	u16 color;
+	
+	// Weather palette is copied here
+	for (i = 0; i < 16; i++)
+	{
+		// Copy the transparent color
+		CpuCopy16(gPlttBufferFaded + 0x100 + (i * 16), &color, 2);
+		// Is the transparent color tagged as a filtered palette? (0x1234)
+		if (color == 0x1234)
+		{
+			// Loop through palette colors
+			for (j = 1; j < 16; j++)
+			{
+				// Copy the color from gPlttBufferFaded
+				CpuCopy16(gPlttBufferFaded + 0x100 + (i * 16) + j, &color, 2);
+				// Write the palette to gPlttBufferUnfaded if it is (ignoring transparent color)
+				CpuFill16(color, gPlttBufferUnfaded + 0x100 + (i * 16) + j, 2);
+			}
+		}
+	}
 }
 
 void FillPalette(u16 value, u16 offset, u16 size)
@@ -164,6 +252,10 @@ bool8 BeginNormalPaletteFade(u32 selectedPalettes, s8 delay, u8 startY, u8 targe
     }
     else
     {
+		// Writes filtered overworld palettes to gPlttBufferUnfaded
+		// Palettes look jank during the fade without this
+		CopyFilteredSpritePalettesForFade();
+		
         gPaletteFade.deltaY = 2;
 
         if (delay < 0)

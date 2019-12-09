@@ -10,6 +10,13 @@
 
 #define METATILE_ID(tileset, name) (METATILE_##tileset##_##name)
 
+#define MATERIAL_OTHER 0
+#define MATERIAL_GRASS 1
+#define MATERIAL_DIRT 2
+#define MATERIAL_ROCK 3
+#define MATERIAL_TREE 4
+#define MATERIAL_WATER 5
+
 enum
 {
     CONNECTION_SOUTH = 1,
@@ -30,7 +37,10 @@ struct Tileset
     /*0x08*/ void *palettes;
     /*0x0c*/ u16 *metatiles;
     /*0x10*/ u16 *metatileAttributes;
-    /*0x14*/ TilesetCB callback;
+	/*0x14*/ u16 *metatileAttributes2;
+	/*0x18*/ u16 *metatileMaterialTop;
+	/*0x1C*/ u16 *metatileMaterialBottom;
+    /*0x20*/ TilesetCB callback;
 };
 
 struct MapLayout
@@ -173,10 +183,12 @@ struct EventObject
              u32 disableJumpLandingGroundEffect:1;
              u32 fixedPriority:1;
              u32 hideReflection:1;
+			 u32 playerCopyableMovement:4;
     /*0x04*/ u8 spriteId;
     /*0x05*/ u8 graphicsId;
     /*0x06*/ u8 movementType;
-    /*0x07*/ u8 trainerType;
+    /*0x07*/ u8 trainerType:4;
+			 u8 previousMovementDirection:4;
     /*0x08*/ u8 localId;
     /*0x09*/ u8 mapNum;
     /*0x0A*/ u8 mapGroup;
@@ -200,9 +212,9 @@ struct EventObject
     /*0x1D*/ u8 trainerRange_berryTreeId;
     /*0x1E*/ u8 currentMetatileBehavior;
     /*0x1F*/ u8 previousMetatileBehavior;
-    /*0x20*/ u8 previousMovementDirection;
-    /*0x21*/ u8 directionSequenceIndex;
-    /*0x22*/ u8 playerCopyableMovement;
+    /*0x20*/ u8 previousMetatileBehavior2;
+    /*0x21*/ u8 currentMetatileBehavior2;
+    /*0x22*/ u8 directionSequenceIndex;
     /*size = 0x24*/
 };
 
@@ -218,7 +230,8 @@ struct EventObjectGraphicsInfo
              u8 shadowSize:2;
              u8 inanimate:1;
              u8 disableReflectionPaletteLoad:1;
-    /*0x0D*/ u8 tracks;
+    /*0x0D*/ u8 tracks:7;
+	/*0x0D*/ u8 filter:1;
     /*0x10*/ const struct OamData *oam;
     /*0x14*/ const struct SubspriteTable *subspriteTables;
     /*0x18*/ const union AnimCmd *const *anims;

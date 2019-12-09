@@ -63,13 +63,6 @@ static EWRAM_DATA void *gUnknown_0203CDAC[0x20] = {NULL};
 
 const u16 gUnknown_0860F074[] = INCBIN_U16("graphics/interface/860F074.gbapal");
 
-static const u8 sTextSpeedFrameDelays[] = 
-{ 
-    [OPTIONS_TEXT_SPEED_SLOW] = 8, 
-    [OPTIONS_TEXT_SPEED_MID]  = 4, 
-    [OPTIONS_TEXT_SPEED_FAST] = 1 
-};
-
 static const struct WindowTemplate sStandardTextBox_WindowTemplates[] =
 {
     {
@@ -476,23 +469,25 @@ void DisplayYesNoMenuWithDefault(u8 initialCursorPos)
 u32 GetPlayerTextSpeed(void)
 {
     if (gTextFlags.forceMidTextSpeed)
-        return OPTIONS_TEXT_SPEED_MID;
-    return gSaveBlock2Ptr->optionsTextSpeed;
+        return 2; // Text speed has been removed, so return 2 (mid)
+    return 1; // Otherwise return 1 (fast)
 }
 
 u8 GetPlayerTextSpeedDelay(void)
 {
-    u32 speed;
-    if (gSaveBlock2Ptr->optionsTextSpeed > OPTIONS_TEXT_SPEED_FAST)
-        gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_MID;
-    speed = GetPlayerTextSpeed();
-    return sTextSpeedFrameDelays[speed];
+	// Text speed has been removed, so always return 1 (fast)
+    return 1;
 }
 
+// Calculates start menu size
 u8 sub_81979C4(u8 a1)
 {
+	// Never more than 7 options
+	if (a1 > 7)
+		a1 = 7;
+	
     if (sStartMenuWindowId == 0xFF)
-        sStartMenuWindowId = sub_8198AA4(0, 0x16, 1, 7, (a1 * 2) + 2, 0xF, 0x139);
+        sStartMenuWindowId = sub_8198AA4(0, 0x16, 1, 7, (a1 * 2), 0xF, 0x139);
     return sStartMenuWindowId;
 }
 
@@ -2009,13 +2004,22 @@ void AddTextPrinterParameterized5(u8 windowId, u8 fontId, const u8 *str, u8 left
     AddTextPrinter(&printer, speed, callback);
 }
 
-void PrintPlayerNameOnWindow(u8 windowId, const u8 *src, u16 x, u16 y)
+const u8 gRedText[] = _("{COLOR RED}");
+
+void PrintPlayerNameOnWindow(u8 windowId, const u8 *src, u16 x, u16 y, bool8 red)
 {
     int count = 0;
     while (gSaveBlock2Ptr->playerName[count] != EOS)
         count++;
-
-    StringExpandPlaceholders(gStringVar4, src);
+	
+	if (red) // Turns player name red. Only used on start menu when trainer card is registered
+	{
+		StringExpandPlaceholders(gStringVar4, gRedText);
+		// For some reason, using src doesn't work here... but seeing as it's always the player's name this shouldn't be a problem??
+		StringAppend(gStringVar4, gSaveBlock2Ptr->playerName);
+	}
+	else
+		StringExpandPlaceholders(gStringVar4, src);
 
     AddTextPrinterParameterized(windowId, 1, gStringVar4, x, y, 0xFF, 0);
 }

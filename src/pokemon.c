@@ -6382,7 +6382,7 @@ void PlayBattleBGM(void)
 {
     ResetMapMusic();
     m4aMPlayAllStop();
-    PlayBGM(GetBattleBGM());
+    PlayBGM(GetBattleBGM(), TRUE);
 }
 
 void PlayMapChosenOrBattleBGM(u16 songId)
@@ -6390,9 +6390,9 @@ void PlayMapChosenOrBattleBGM(u16 songId)
     ResetMapMusic();
     m4aMPlayAllStop();
     if (songId)
-        PlayNewMapMusic(songId);
+        PlayNewBattleMusic(songId);
     else
-        PlayNewMapMusic(GetBattleBGM());
+        PlayNewBattleMusic(GetBattleBGM());
 }
 
 void sub_806E694(u16 songId)
@@ -6409,9 +6409,9 @@ void sub_806E694(u16 songId)
 static void sub_806E6CC(u8 taskId)
 {
     if (gTasks[taskId].data[0])
-        PlayNewMapMusic(gTasks[taskId].data[0]);
+        PlayNewBattleMusic(gTasks[taskId].data[0]);
     else
-        PlayNewMapMusic(GetBattleBGM());
+        PlayNewBattleMusic(GetBattleBGM());
     DestroyTask(taskId);
 }
 

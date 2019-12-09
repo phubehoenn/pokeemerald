@@ -281,6 +281,12 @@ $(FONTGFXDIR)/font1.latfont: $(FONTGFXDIR)/font1_latin.png
 
 $(FONTGFXDIR)/font2.latfont: $(FONTGFXDIR)/font2_latin.png
 	$(GFX) $< $@
+	
+$(FONTGFXDIR)/font3.latfont: $(FONTGFXDIR)/font3_latin.png
+	$(GFX) $< $@
+	
+$(FONTGFXDIR)/font4.latfont: $(FONTGFXDIR)/font4_latin.png
+	$(GFX) $< $@
 
 $(FONTGFXDIR)/font7.latfont: $(FONTGFXDIR)/font7_latin.png
 	$(GFX) $< $@

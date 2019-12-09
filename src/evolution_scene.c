@@ -713,7 +713,7 @@ static void Task_EvolutionScene(u8 taskID)
         {
             StringExpandPlaceholders(gStringVar4, gText_CongratsPkmnEvolved);
             BattlePutTextOnWindow(gStringVar4, 0);
-            PlayBGM(MUS_FANFA5);
+            PlayBGM(MUS_FANFA5, 2);
             gTasks[taskID].tState++;
             SetMonData(mon, MON_DATA_SPECIES, (void*)(&gTasks[taskID].tPostEvoSpecies));
             CalculateMonStats(mon);
@@ -1006,7 +1006,7 @@ static void Task_TradeEvolutionScene(u8 taskID)
     case 3:
         if (!IsSEPlaying())
         {
-            PlayBGM(MUS_SHINKA);
+            PlayBGM(MUS_SHINKA, TRUE);
             gTasks[taskID].tState++;
             BeginNormalPaletteFade(0x1C, 4, 0, 0x10, RGB_BLACK);
         }
@@ -1109,7 +1109,7 @@ static void Task_TradeEvolutionScene(u8 taskID)
             }
             else
             {
-                PlayBGM(MUS_SHINKA);
+                PlayBGM(MUS_SHINKA, TRUE);
                 DrawTextOnTradeWindow(0, gText_CommunicationStandby5, 1);
                 gTasks[taskID].tState++;
             }

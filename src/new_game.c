@@ -91,15 +91,50 @@ static void InitPlayerTrainerId(void)
     SetTrainerId(trainerId, gSaveBlock2Ptr->playerTrainerId);
 }
 
-// L=A isnt set here for some reason.
-static void SetDefaultOptions(void)
+void SetDefaultOptions(void)
 {
-    gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_MID;
     gSaveBlock2Ptr->optionsWindowFrameType = 0;
-    gSaveBlock2Ptr->optionsSound = OPTIONS_SOUND_MONO;
-    gSaveBlock2Ptr->optionsBattleStyle = OPTIONS_BATTLE_STYLE_SHIFT;
+    gSaveBlock2Ptr->optionsSound = OPTIONS_SOUND_STEREO;
+	// Battle style must be locked to SET in nuzlocke mode
+	if (gSaveBlock2Ptr->nuzlockeMode == NUZLOCKE_MODE_OFF)
+		gSaveBlock2Ptr->optionsBattleStyle = OPTIONS_BATTLE_STYLE_SHIFT;
+	else
+		gSaveBlock2Ptr->optionsBattleStyle = OPTIONS_BATTLE_STYLE_SET;
     gSaveBlock2Ptr->optionsBattleSceneOff = FALSE;
-    gSaveBlock2Ptr->regionMapZoom = FALSE;
+	gSaveBlock2Ptr->optionsQuickFlee = OPTIONS_OFF;
+	gSaveBlock2Ptr->optionsLowHPSound = OPTIONS_ON;
+	gSaveBlock2Ptr->optionsKeypadSound = OPTIONS_ON;
+	gSaveBlock2Ptr->optionsBikeMode = OPTIONS_BIKE_MODE_HOLD_B;
+	gSaveBlock2Ptr->optionsFullParty = OPTIONS_FULL_PARTY_SWAP;
+	gSaveBlock2Ptr->optionsKeyboard = OPTIONS_KEYBOARD_QWERTY;
+	gSaveBlock2Ptr->optionsMusic = OPTIONS_MUSIC_ON;
+}
+
+// Sets default game data, like game modes and in-game time
+static void SetDefaultData(void)
+{
+	gSaveBlock2Ptr->nuzlockeMode = NUZLOCKE_MODE_OFF;			//defaults to standard, non-nuzlocke mode
+	gSaveBlock2Ptr->freezeNuzlocke = FALSE;
+	gSaveBlock2Ptr->gameMode = GAME_MODE_STORY;					//defaults to story mode
+	gSaveBlock2Ptr->regionMapZoom = FALSE;
+	gSaveBlock2Ptr->waitStatus = WAIT_UNABLE;
+	gSaveBlock2Ptr->waitTime = 60;
+	gSaveBlock2Ptr->startMenuRegister = 0xF;					//0xF means no registered option
+	gSaveBlock2Ptr->screenFilterColor = 0;						//no custom screen filter
+	gSaveBlock2Ptr->screenFilterCoeff = 0;
+}
+
+// Sets default game time - 9AM Tuesday, Week 1, Spring, random year
+void SetDefaultGameTime(void)
+{
+	gSaveBlock2Ptr->timeSeconds = 0;
+	gSaveBlock2Ptr->timeMinute = 0;
+	gSaveBlock2Ptr->timeHour = TIME_HOUR_9AM;
+	UpdateDayNightStatus();
+	gSaveBlock2Ptr->timeDay = TIME_DAY_TUESDAY;
+	gSaveBlock2Ptr->timeWeek = TIME_WEEK_1;
+	gSaveBlock2Ptr->timeSeason = TIME_SEASON_SPRING;
+	gSaveBlock2Ptr->timeYear = Random() % 8;
 }
 
 static void ClearPokedexFlags(void)
@@ -135,7 +170,9 @@ static void WarpToTruck(void)
 void Sav2_ClearSetDefault(void)
 {
     ClearSav2();
-    SetDefaultOptions();
+	//In vanilla, default options are set here
+	//but it's bugged so nothing happens. lol
+    //SetDefaultOptions();
 }
 
 void ResetMenuAndMonGlobals(void)
@@ -206,6 +243,10 @@ void NewGameInitData(void)
     WipeTrainerNameRecords();
     ResetTrainerHillResults();
     ResetContestLinkResults();
+	// Default options is now set here
+	SetDefaultOptions();
+	SetDefaultData();
+	SetDefaultGameTime();
 }
 
 static void ResetMiniGamesResults(void)

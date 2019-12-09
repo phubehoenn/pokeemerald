@@ -913,10 +913,6 @@ gText_SandstormIsVicious:: @ 8272C5F
 	.string "The sandstorm is vicious.\n"
 	.string "It's impossible to keep going.$"
 
-gText_SelectWithoutRegisteredItem:: @ 8272C98
-	.string "An item in the BAG can be\n"
-	.string "registered to SELECT for easy use.$"
-
 gText_PokemonTrainerSchoolEmail:: @ 8272CD5
 	.string "There's an e-mail from POKéMON TRAINER\n"
 	.string "SCHOOL.\p"
@@ -1015,7 +1011,7 @@ gText_LegendaryFlewAway:: @ 8273204
 	.include "data/text/abnormal_weather.inc"
 
 EventScript_SelectWithoutRegisteredItem:: @ 82736B3
-	msgbox gText_SelectWithoutRegisteredItem, MSGBOX_SIGN
+	msgbox gText_LRWithoutRegisteredItem, MSGBOX_SIGN
 	end
 
 	.include "data/scripts/field_poison.inc"
@@ -1058,6 +1054,10 @@ Common_EventScript_LegendaryFlewAway:: @ 8273776
 	bufferspeciesname 0, VAR_0x8004
 	msgbox gText_LegendaryFlewAway, MSGBOX_DEFAULT
 	release
+	end
+	
+Common_EventScript_NoRegisteredMenuOption::
+	msgbox gText_NoRegisteredMenuOption, MSGBOX_SIGN
 	end
 
 	.include "data/scripts/pc_transfer.inc"

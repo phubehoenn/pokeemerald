@@ -26,7 +26,44 @@ gFont7LatinGlyphs:: @ 863BEE4
 	.align 2
 gFont7LatinGlyphWidths:: @ 8643EE4
 	.include "data/graphics/fonts/font7_latin_widths.inc"
+	
+@ MAGMA
+	.align 2
+gFont3LatinGlyphs::
+	.incbin "data/graphics/fonts/font3.latfont"
 
+	.align 2
+gFont3LatinGlyphWidths::
+	.include "data/graphics/fonts/font3_latin_widths.inc"
+	
+@ Japanese glyphs are copies of latin just in case
+	.align 2
+gFont3JapaneseGlyphs::
+	.incbin "data/graphics/fonts/font3.latfont"
+
+	.align 2
+gFont3JapaneseGlyphWidths::
+	.include "data/graphics/fonts/font3_latin_widths.inc"
+	
+@ GALACTIC
+	.align 2
+gFont4LatinGlyphs::
+	.incbin "data/graphics/fonts/font4.latfont"
+
+	.align 2
+gFont4LatinGlyphWidths::
+	.include "data/graphics/fonts/font4_latin_widths.inc"
+	
+@ Japanese glyphs are copies of latin just in case
+	.align 2
+gFont4JapaneseGlyphs::
+	.incbin "data/graphics/fonts/font4.latfont"
+
+	.align 2
+gFont4JapaneseGlyphWidths::
+	.include "data/graphics/fonts/font4_latin_widths.inc"
+
+@ ROCKET
 	.align 2
 gFont2LatinGlyphs:: @ 86440E4
 	.incbin "data/graphics/fonts/font2.latfont"
@@ -34,6 +71,8 @@ gFont2LatinGlyphs:: @ 86440E4
 	.align 2
 gFont2LatinGlyphWidths:: @ 864C0E4
 	.include "data/graphics/fonts/font2_latin_widths.inc"
+	
+@ MAGMA
 
 	.align 2
 gFont1LatinGlyphs:: @ 864C2E4

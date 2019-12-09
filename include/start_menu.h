@@ -12,5 +12,8 @@ void sub_80A0514(void);
 void sub_80A08CC(void);
 void HideStartMenu(void);
 void AppendToList(u8* list, u8* pos, u8 newEntry);
+bool32 UseRegisteredMenuOption(void);
+void RunRegisteredStartOption(void);
+void RegisteredOptionTask(u8 taskId);
 
 #endif // GUARD_START_MENU_H

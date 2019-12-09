@@ -1606,7 +1606,7 @@ static void RecordedOpponentHandlePlayFanfareOrBGM(void)
     if (gBattleResources->bufferA[gActiveBattler][3])
     {
         BattleStopLowHpSound();
-        PlayBGM(gBattleResources->bufferA[gActiveBattler][1] | (gBattleResources->bufferA[gActiveBattler][2] << 8));
+        PlayBGM(gBattleResources->bufferA[gActiveBattler][1] | (gBattleResources->bufferA[gActiveBattler][2] << 8), TRUE);
     }
     else
     {

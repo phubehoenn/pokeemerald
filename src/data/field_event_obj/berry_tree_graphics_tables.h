@@ -646,7 +646,7 @@ const struct SpriteFrameImage *const gBerryTreePicTablePointers[] = {
     [ITEM_MARANGA_BERRY - FIRST_BERRY_INDEX] = NULL,
 };
 
-const u8 *const gBerryTreePaletteSlotTablePointers[] = {
+const u8 *const gBerryTreePaletteTagTablePointers[] = {
     [ITEM_CHERI_BERRY - FIRST_BERRY_INDEX] = gBerryTreePaletteSlotTable_Cheri,
     [ITEM_CHESTO_BERRY - FIRST_BERRY_INDEX] = gBerryTreePaletteSlotTable_Chesto,
     [ITEM_PECHA_BERRY - FIRST_BERRY_INDEX] = gBerryTreePaletteSlotTable_Pecha,

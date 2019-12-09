@@ -578,10 +578,10 @@ static void Task_EggHatchPlayBGM(u8 taskID)
         PlayRainStoppingSoundEffect();
     }
     if (gTasks[taskID].data[0] == 1)
-        PlayBGM(MUS_ME_SHINKA);
+        PlayBGM(MUS_ME_SHINKA, TRUE);
     if (gTasks[taskID].data[0] > 60)
     {
-        PlayBGM(MUS_SHINKA);
+        PlayBGM(MUS_SHINKA, TRUE);
         DestroyTask(taskID);
         // UB: task is destroyed, yet the value is incremented
     }

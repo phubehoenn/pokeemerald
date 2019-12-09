@@ -461,11 +461,18 @@ u32 MapGridGetMetatileBehaviorAt(int x, int y)
     return GetBehaviorByMetatileId(metatile) & 0xff;
 }
 
+u32 MapGridGetMetatileBehavior2At(int x, int y)
+{
+    u16 metatile;
+    metatile = MapGridGetMetatileIdAt(x, y);
+    return GetBehavior2ByMetatileId(metatile) & 0xff;
+}
+
 u8 MapGridGetMetatileLayerTypeAt(int x, int y)
 {
     u16 metatile;
     metatile = MapGridGetMetatileIdAt(x, y);
-    return (GetBehaviorByMetatileId(metatile) & METATILE_ELEVATION_MASK) >> METATILE_ELEVATION_SHIFT;
+    return ((GetBehaviorByMetatileId(metatile) | GetBehavior2ByMetatileId(metatile)) & METATILE_ELEVATION_MASK) >> METATILE_ELEVATION_SHIFT;
 }
 
 void MapGridSetMetatileIdAt(int x, int y, u16 metatile)
@@ -501,6 +508,25 @@ u16 GetBehaviorByMetatileId(u16 metatile)
     else if (metatile < NUM_METATILES_TOTAL)
     {
         attributes = gMapHeader.mapLayout->secondaryTileset->metatileAttributes;
+        return attributes[metatile - NUM_METATILES_IN_PRIMARY];
+    }
+    else
+    {
+        return 0xFF;
+    }
+}
+
+u16 GetBehavior2ByMetatileId(u16 metatile)
+{
+    u16 *attributes;
+    if (metatile < NUM_METATILES_IN_PRIMARY)
+    {
+        attributes = gMapHeader.mapLayout->primaryTileset->metatileAttributes2;
+        return attributes[metatile];
+    }
+    else if (metatile < NUM_METATILES_TOTAL)
+    {
+        attributes = gMapHeader.mapLayout->secondaryTileset->metatileAttributes2;
         return attributes[metatile - NUM_METATILES_IN_PRIMARY];
     }
     else
@@ -983,14 +1009,12 @@ void apply_map_tileset_palette(struct Tileset const *tileset, u16 destOffset, u1
     {
         if (tileset->isSecondary == FALSE)
         {
-            LoadPalette(&black, destOffset, 2);
-            LoadPalette(((u16*)tileset->palettes) + 1, destOffset + 1, size - 2);
-            nullsub_3(destOffset + 1, (size - 2) >> 1);
+			LoadPaletteWithDayNightFilter(((u16*)tileset->palettes), destOffset, size, 1);
+			LoadPalette(&black, destOffset, 2);
         }
         else if (tileset->isSecondary == TRUE)
         {
-            LoadPalette(((u16*)tileset->palettes) + (NUM_PALS_IN_PRIMARY * 16), destOffset, size);
-            nullsub_3(destOffset, size >> 1);
+			LoadPaletteWithDayNightFilter(((u16*)tileset->palettes) + (NUM_PALS_IN_PRIMARY * 16), destOffset, size, FILTER_MODE_BACKGROUND);
         }
         else
         {
@@ -1017,12 +1041,12 @@ void copy_map_tileset2_to_vram_2(struct MapLayout const *mapLayout)
 
 void apply_map_tileset1_palette(struct MapLayout const *mapLayout)
 {
-    apply_map_tileset_palette(mapLayout->primaryTileset, 0, NUM_PALS_IN_PRIMARY * 16 * 2);
+    apply_map_tileset_palette(mapLayout->primaryTileset, 0, NUM_PALS_IN_PRIMARY);
 }
 
 void apply_map_tileset2_palette(struct MapLayout const *mapLayout)
 {
-    apply_map_tileset_palette(mapLayout->secondaryTileset, NUM_PALS_IN_PRIMARY * 16, (NUM_PALS_TOTAL - NUM_PALS_IN_PRIMARY) * 16 * 2);
+    apply_map_tileset_palette(mapLayout->secondaryTileset, NUM_PALS_IN_PRIMARY * 16, (NUM_PALS_TOTAL - NUM_PALS_IN_PRIMARY));
 }
 
 void copy_map_tileset1_tileset2_to_vram(struct MapLayout const *mapLayout)

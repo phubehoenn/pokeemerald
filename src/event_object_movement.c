@@ -52,8 +52,6 @@ static u8 setup##_callback(struct EventObject *eventObject, struct Sprite *sprit
     return 0;\
 }
 
-EWRAM_DATA u8 sCurrentReflectionType = 0;
-EWRAM_DATA u16 sCurrentSpecialObjectPaletteTag = 0;
 EWRAM_DATA struct LockedAnimEventObjects *gLockedAnimEventObjects = {0};
 
 static void MoveCoordsInDirection(u32, s16 *, s16 *, s16, s16);
@@ -86,7 +84,7 @@ static void GetGroundEffectFlags_Ripple(struct EventObject*, u32*);
 static void GetGroundEffectFlags_Seaweed(struct EventObject*, u32*);
 static void GetGroundEffectFlags_JumpLanding(struct EventObject*, u32*);
 static u8 EventObjectCheckForReflectiveSurface(struct EventObject*);
-static u8 GetReflectionTypeByMetatileBehavior(u32);
+static u8 GetReflectionTypeByMetatileBehavior(u32, u32);
 static void InitObjectPriorityByZCoord(struct Sprite *sprite, u8 z);
 static void EventObjectUpdateSubpriority(struct EventObject*, struct Sprite*);
 static void DoTracksGroundEffect_None(struct EventObject*, struct Sprite*, u8);
@@ -111,12 +109,11 @@ static void UpdateEventObjectVisibility(struct EventObject *, struct Sprite *);
 static void MakeObjectTemplateFromEventObjectTemplate(struct EventObjectTemplate *, struct SpriteTemplate *, const struct SubspriteTable **);
 static void GetEventObjectMovingCameraOffset(s16 *, s16 *);
 static struct EventObjectTemplate *GetEventObjectTemplateByLocalIdAndMap(u8, u8, u8);
-static void LoadEventObjectPalette(u16);
 static void RemoveEventObjectIfOutsideView(struct EventObject *);
 static void sub_808E1B8(u8, s16, s16);
 static void SetPlayerAvatarEventObjectIdAndObjectId(u8, u8);
 static void sub_808E38C(struct EventObject *);
-static u8 sub_808E8F4(const struct SpritePalette *);
+static u8 sub_808E8F4(const struct SpritePalette *, bool8 doFilter);
 static u8 FindEventObjectPaletteIndexByTag(u16);
 static void sub_808EAB0(u16, u8);
 static bool8 EventObjectDoesZCoordMatch(struct EventObject *, u8);
@@ -129,8 +126,6 @@ static void ClearEventObjectMovement(struct EventObject *, struct Sprite *);
 static void EventObjectSetSingleMovement(struct EventObject *, struct Sprite *, u8);
 static void oamt_npc_ministep_reset(struct Sprite *, u8, u8);
 static void UpdateEventObjectSpriteSubpriorityAndVisibility(struct Sprite *);
-
-const u8 gReflectionEffectPaletteMap[] = {1, 1, 6, 7, 8, 9, 6, 7, 8, 9, 11, 11, 0, 0, 0, 0};
 
 const struct SpriteTemplate gCameraSpriteTemplate = {0, 0xFFFF, &gDummyOamData, gDummySpriteAnimTable, NULL, gDummySpriteAffineAnimTable, ObjectCB_CameraObject};
 
@@ -431,15 +426,21 @@ const u8 gInitialMovementTypeFacingDirections[] = {
 #define EVENT_OBJ_PAL_TAG_32 0x1121
 #define EVENT_OBJ_PAL_TAG_33 0x1122
 #define EVENT_OBJ_PAL_TAG_34 0x1123
+#define EVENT_OBJ_PAL_TAG_35 0x1124 // filtered gEventObjectPalette2
+#define EVENT_OBJ_PAL_TAG_36 0x1125 // filtered gEventObjectPalette0
+#define EVENT_OBJ_PAL_TAG_37 0x1126 // filtered gEventObjectPalette14
+#define EVENT_OBJ_PAL_TAG_38 0x1127 // filtered gEventObjectPalette20
+#define EVENT_OBJ_PAL_TAG_39 0x1128 // filtered gEventObjectPalette21
+#define EVENT_OBJ_PAL_TAG_40 0x1129 // filtered gEventObjectPalette26
 #define EVENT_OBJ_PAL_TAG_NONE 0x11FF
 
-#include "data/field_event_obj/event_object_graphics_info_pointers.h"
 #include "data/field_event_obj/field_effect_object_template_pointers.h"
 #include "data/field_event_obj/event_object_pic_tables.h"
 #include "data/field_event_obj/event_object_anims.h"
 #include "data/field_event_obj/base_oam.h"
 #include "data/field_event_obj/event_object_subsprites.h"
 #include "data/field_event_obj/event_object_graphics_info.h"
+#include "data/field_event_obj/event_object_graphics_info_pointers.h"
 
 const struct SpritePalette sEventObjectSpritePalettes[] = {
     {gEventObjectPalette0,  EVENT_OBJ_PAL_TAG_0},
@@ -477,188 +478,14 @@ const struct SpritePalette sEventObjectSpritePalettes[] = {
     {gEventObjectPalette32, EVENT_OBJ_PAL_TAG_32},
     {gEventObjectPalette33, EVENT_OBJ_PAL_TAG_33},
     {gEventObjectPalette34, EVENT_OBJ_PAL_TAG_34},
+	// Filtered palettes begin here
+	{gEventObjectPalette2, EVENT_OBJ_PAL_TAG_35},
+	{gEventObjectPalette0, EVENT_OBJ_PAL_TAG_36},
+	{gEventObjectPalette14, EVENT_OBJ_PAL_TAG_37},
+	{gEventObjectPalette20, EVENT_OBJ_PAL_TAG_38},
+	{gEventObjectPalette21, EVENT_OBJ_PAL_TAG_39},
+	{gEventObjectPalette26, EVENT_OBJ_PAL_TAG_40},
     {NULL,                  0x0000},
-};
-
-const u16 gPlayerReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_9,
-    EVENT_OBJ_PAL_TAG_9,
-    EVENT_OBJ_PAL_TAG_9,
-    EVENT_OBJ_PAL_TAG_9,
-};
-
-const u16 Unknown_0850BCF0[] = {
-    EVENT_OBJ_PAL_TAG_18,
-    EVENT_OBJ_PAL_TAG_18,
-    EVENT_OBJ_PAL_TAG_18,
-    EVENT_OBJ_PAL_TAG_18,
-};
-
-const u16 gPlayerUnderwaterReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_11,
-    EVENT_OBJ_PAL_TAG_11,
-    EVENT_OBJ_PAL_TAG_11,
-    EVENT_OBJ_PAL_TAG_11,
-};
-
-const struct PairedPalettes gPlayerReflectionPaletteSets[] = {
-    {EVENT_OBJ_PAL_TAG_8, gPlayerReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_17, Unknown_0850BCF0},
-    {EVENT_OBJ_PAL_TAG_11, gPlayerUnderwaterReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_NONE, NULL},
-};
-
-const u16 gQuintyPlumpReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_13,
-    EVENT_OBJ_PAL_TAG_13,
-    EVENT_OBJ_PAL_TAG_13,
-    EVENT_OBJ_PAL_TAG_13,
-};
-
-const u16 gTruckReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_14,
-    EVENT_OBJ_PAL_TAG_14,
-    EVENT_OBJ_PAL_TAG_14,
-    EVENT_OBJ_PAL_TAG_14,
-};
-
-const u16 gVigorothMoverReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_15,
-    EVENT_OBJ_PAL_TAG_15,
-    EVENT_OBJ_PAL_TAG_15,
-    EVENT_OBJ_PAL_TAG_15,
-};
-
-const u16 gMovingBoxReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_19,
-    EVENT_OBJ_PAL_TAG_19,
-    EVENT_OBJ_PAL_TAG_19,
-    EVENT_OBJ_PAL_TAG_19,
-};
-
-const u16 gCableCarReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_20,
-    EVENT_OBJ_PAL_TAG_20,
-    EVENT_OBJ_PAL_TAG_20,
-    EVENT_OBJ_PAL_TAG_20,
-};
-
-const u16 gSSTidalReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_21,
-    EVENT_OBJ_PAL_TAG_21,
-    EVENT_OBJ_PAL_TAG_21,
-    EVENT_OBJ_PAL_TAG_21,
-};
-
-const u16 gSubmarineShadowReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_26,
-    EVENT_OBJ_PAL_TAG_26,
-    EVENT_OBJ_PAL_TAG_26,
-    EVENT_OBJ_PAL_TAG_26,
-};
-
-const u16 Unknown_0850BD58[] = { // Kyogre2?
-    EVENT_OBJ_PAL_TAG_23,
-    EVENT_OBJ_PAL_TAG_23,
-    EVENT_OBJ_PAL_TAG_23,
-    EVENT_OBJ_PAL_TAG_23,
-};
-
-const u16 Unknown_0850BD60[] = { // Groudon2?
-    EVENT_OBJ_PAL_TAG_25,
-    EVENT_OBJ_PAL_TAG_25,
-    EVENT_OBJ_PAL_TAG_25,
-    EVENT_OBJ_PAL_TAG_25,
-};
-
-const u16 Unknown_0850BD68[] = { // Invisible Keckleon?
-    EVENT_OBJ_PAL_TAG_6,
-    EVENT_OBJ_PAL_TAG_6,
-    EVENT_OBJ_PAL_TAG_6,
-    EVENT_OBJ_PAL_TAG_6,
-};
-
-const u16 gRedLeafReflectionPaletteTags[] = {
-    EVENT_OBJ_PAL_TAG_28,
-    EVENT_OBJ_PAL_TAG_28,
-    EVENT_OBJ_PAL_TAG_28,
-    EVENT_OBJ_PAL_TAG_28,
-};
-
-const struct PairedPalettes gSpecialObjectReflectionPaletteSets[] = {
-    {EVENT_OBJ_PAL_TAG_8, gPlayerReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_17, Unknown_0850BCF0},
-    {EVENT_OBJ_PAL_TAG_12, gQuintyPlumpReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_14, gTruckReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_15, gVigorothMoverReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_19, gMovingBoxReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_20, gCableCarReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_21, gSSTidalReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_22, Unknown_0850BD58},
-    {EVENT_OBJ_PAL_TAG_24, Unknown_0850BD60},
-    {EVENT_OBJ_PAL_TAG_2, Unknown_0850BD68},
-    {EVENT_OBJ_PAL_TAG_26, gSubmarineShadowReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_28, gRedLeafReflectionPaletteTags},
-    {EVENT_OBJ_PAL_TAG_NONE, NULL},
-};
-
-const u16 gObjectPaletteTags0[] = {
-    EVENT_OBJ_PAL_TAG_8,
-    EVENT_OBJ_PAL_TAG_9,
-    EVENT_OBJ_PAL_TAG_0,
-    EVENT_OBJ_PAL_TAG_1,
-    EVENT_OBJ_PAL_TAG_2,
-    EVENT_OBJ_PAL_TAG_3,
-    EVENT_OBJ_PAL_TAG_4,
-    EVENT_OBJ_PAL_TAG_5,
-    EVENT_OBJ_PAL_TAG_6,
-    EVENT_OBJ_PAL_TAG_7,
-};
-
-const u16 gObjectPaletteTags1[] = {
-    EVENT_OBJ_PAL_TAG_8,
-    EVENT_OBJ_PAL_TAG_9,
-    EVENT_OBJ_PAL_TAG_0,
-    EVENT_OBJ_PAL_TAG_1,
-    EVENT_OBJ_PAL_TAG_2,
-    EVENT_OBJ_PAL_TAG_3,
-    EVENT_OBJ_PAL_TAG_4,
-    EVENT_OBJ_PAL_TAG_5,
-    EVENT_OBJ_PAL_TAG_6,
-    EVENT_OBJ_PAL_TAG_7,
-};
-
-const u16 gObjectPaletteTags2[] = {
-    EVENT_OBJ_PAL_TAG_8,
-    EVENT_OBJ_PAL_TAG_9,
-    EVENT_OBJ_PAL_TAG_0,
-    EVENT_OBJ_PAL_TAG_1,
-    EVENT_OBJ_PAL_TAG_2,
-    EVENT_OBJ_PAL_TAG_3,
-    EVENT_OBJ_PAL_TAG_4,
-    EVENT_OBJ_PAL_TAG_5,
-    EVENT_OBJ_PAL_TAG_6,
-    EVENT_OBJ_PAL_TAG_7,
-};
-
-const u16 gObjectPaletteTags3[] = {
-    EVENT_OBJ_PAL_TAG_8,
-    EVENT_OBJ_PAL_TAG_9,
-    EVENT_OBJ_PAL_TAG_0,
-    EVENT_OBJ_PAL_TAG_1,
-    EVENT_OBJ_PAL_TAG_2,
-    EVENT_OBJ_PAL_TAG_3,
-    EVENT_OBJ_PAL_TAG_4,
-    EVENT_OBJ_PAL_TAG_5,
-    EVENT_OBJ_PAL_TAG_6,
-    EVENT_OBJ_PAL_TAG_7,
-};
-
-const u16 *const gObjectPaletteTagSets[] = {
-    gObjectPaletteTags0,
-    gObjectPaletteTags1,
-    gObjectPaletteTags2,
-    gObjectPaletteTags3,
 };
 
 #include "data/field_event_obj/berry_tree_graphics_tables.h"
@@ -1490,10 +1317,14 @@ void RemoveEventObjectByLocalIdAndMap(u8 localId, u8 mapNum, u8 mapGroup)
 
 static void RemoveEventObjectInternal(struct EventObject *eventObject)
 {
+	u8 paletteNum;
+	
     struct SpriteFrameImage image;
     image.size = GetEventObjectGraphicsInfo(eventObject->graphicsId)->size;
     gSprites[eventObject->spriteId].images = &image;
+	paletteNum = gSprites[eventObject->spriteId].oam.paletteNum;
     DestroySprite(&gSprites[eventObject->spriteId]);
+	FieldEffectFreePaletteIfUnused(paletteNum);
 }
 
 void RemoveAllEventObjectsExceptPlayer(void)
@@ -1522,25 +1353,15 @@ static u8 TrySetupEventObjectSprite(struct EventObjectTemplate *eventObjectTempl
 
     eventObject = &gEventObjects[eventObjectId];
     graphicsInfo = GetEventObjectGraphicsInfo(eventObject->graphicsId);
-    paletteSlot = graphicsInfo->paletteSlot;
-    if (paletteSlot == 0)
+    
+    if (spriteTemplate->paletteTag != 0xffff)
     {
-        LoadPlayerObjectReflectionPalette(graphicsInfo->paletteTag1, 0);
-    }
-    else if (paletteSlot == 10)
-    {
-        LoadSpecialObjectReflectionPalette(graphicsInfo->paletteTag1, 10);
-    }
-    else if (paletteSlot >= 16)
-    {
-        paletteSlot -= 16;
-        sub_808EAB0(graphicsInfo->paletteTag1, paletteSlot);
+        LoadEventObjectPalette(spriteTemplate->paletteTag, graphicsInfo->filter);
     }
 
     if (eventObject->movementType == MOVEMENT_TYPE_INVISIBLE)
         eventObject->invisible = TRUE;
 
-    *(u16 *)&spriteTemplate->paletteTag = 0xFFFF;
     spriteId = CreateSprite(spriteTemplate, 0, 0, 0);
     if (spriteId == MAX_SPRITES)
     {
@@ -1554,7 +1375,6 @@ static u8 TrySetupEventObjectSprite(struct EventObjectTemplate *eventObjectTempl
     sprite->centerToCornerVecY = -(graphicsInfo->height >> 1);
     sprite->pos1.x += 8;
     sprite->pos1.y += 16 + sprite->centerToCornerVecY;
-    sprite->oam.paletteNum = paletteSlot;
     sprite->coordOffsetEnabled = TRUE;
     sprite->data[0] = eventObjectId;
     eventObject->spriteId = spriteId;
@@ -1656,7 +1476,7 @@ static void MakeObjectTemplateFromEventObjectTemplate(struct EventObjectTemplate
     MakeObjectTemplateFromEventObjectGraphicsInfoWithCallbackIndex(eventObjectTemplate->graphicsId, eventObjectTemplate->movementType, spriteTemplate, subspriteTables);
 }
 
-u8 AddPseudoEventObject(u16 graphicsId, void (*callback)(struct Sprite *), s16 x, s16 y, u8 subpriority)
+u8 AddPseudoEventObject(u16 graphicsId, void (*callback)(struct Sprite *), s16 x, s16 y, u8 subpriority, bool8 doFilter)
 {
     struct SpriteTemplate *spriteTemplate;
     const struct SubspriteTable *subspriteTables;
@@ -1667,7 +1487,7 @@ u8 AddPseudoEventObject(u16 graphicsId, void (*callback)(struct Sprite *), s16 x
     MakeObjectTemplateFromEventObjectGraphicsInfo(graphicsId, callback, spriteTemplate, &subspriteTables);
     if (spriteTemplate->paletteTag != 0xFFFF)
     {
-        LoadEventObjectPalette(spriteTemplate->paletteTag);
+        LoadEventObjectPalette(spriteTemplate->paletteTag, doFilter);
     }
     spriteId = CreateSprite(spriteTemplate, x, y, subpriority);
     free(spriteTemplate);
@@ -1710,11 +1530,7 @@ u8 sprite_new(u8 graphicsId, u8 a1, s16 x, s16 y, u8 z, u8 direction)
         sprite->coordOffsetEnabled = TRUE;
         sprite->data[0] = a1;
         sprite->data[1] = z;
-        if (graphicsInfo->paletteSlot == 10)
-        {
-            LoadSpecialObjectReflectionPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot);
-        }
-        else if (graphicsInfo->paletteSlot >= 16)
+        if (graphicsInfo->paletteSlot >= 16)
         {
             sub_808EAB0(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot | 0xf0);
         }
@@ -1824,7 +1640,6 @@ void sub_808E16C(s16 x, s16 y)
 static void sub_808E1B8(u8 eventObjectId, s16 x, s16 y)
 {
     u8 spriteId;
-    u8 paletteSlot;
     struct Sprite *sprite;
     struct EventObject *eventObject;
     struct SpriteTemplate spriteTemplate;
@@ -1848,22 +1663,10 @@ static void sub_808E1B8(u8 eventObjectId, s16 x, s16 y)
     spriteFrameImage.size = graphicsInfo->size;
     MakeObjectTemplateFromEventObjectGraphicsInfoWithCallbackIndex(eventObject->graphicsId, eventObject->movementType, &spriteTemplate, &subspriteTables);
     spriteTemplate.images = &spriteFrameImage;
-    *(u16 *)&spriteTemplate.paletteTag = 0xFFFF;
-    paletteSlot = graphicsInfo->paletteSlot;
-    if (paletteSlot == 0)
+    if (spriteTemplate.paletteTag != 0xffff)
     {
-        LoadPlayerObjectReflectionPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot);
+        LoadEventObjectPalette(spriteTemplate.paletteTag, graphicsInfo->filter);
     }
-    else if (paletteSlot == 10)
-    {
-        LoadSpecialObjectReflectionPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot);
-    }
-    else if (paletteSlot >= 16)
-    {
-        paletteSlot -= 16;
-        sub_808EAB0(graphicsInfo->paletteTag1, paletteSlot);
-    }
-    *(u16 *)&spriteTemplate.paletteTag = 0xFFFF;
     spriteId = CreateSprite(&spriteTemplate, 0, 0, 0);
     if (spriteId != MAX_SPRITES)
     {
@@ -1883,7 +1686,6 @@ static void sub_808E1B8(u8 eventObjectId, s16 x, s16 y)
         {
             SetSubspriteTables(sprite, subspriteTables);
         }
-        sprite->oam.paletteNum = paletteSlot;
         sprite->coordOffsetEnabled = TRUE;
         sprite->data[0] = eventObjectId;
         eventObject->spriteId = spriteId;
@@ -1928,11 +1730,7 @@ void EventObjectSetGraphicsId(struct EventObject *eventObject, u8 graphicsId)
     paletteSlot = graphicsInfo->paletteSlot;
     if (paletteSlot == 0)
     {
-        PatchObjectPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot);
-    }
-    else if (paletteSlot == 10)
-    {
-        LoadSpecialObjectReflectionPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot);
+        PatchObjectPalette(graphicsInfo->paletteTag1, graphicsInfo->paletteSlot, graphicsInfo->filter);
     }
     else if (paletteSlot >= 16)
     {
@@ -2010,9 +1808,10 @@ static void get_berry_tree_graphics(struct EventObject *eventObject, struct Spri
         if (berryId > ITEM_TO_BERRY(LAST_BERRY_INDEX))
             berryId = 0;
 
+		LoadEventObjectPalette(gBerryTreePaletteTagTablePointers[berryId][berryStage], 0);
         EventObjectSetGraphicsId(eventObject, gBerryTreeEventObjectGraphicsIdTablePointers[berryId][berryStage]);
         sprite->images = gBerryTreePicTablePointers[berryId];
-        sprite->oam.paletteNum = gBerryTreePaletteSlotTablePointers[berryId][berryStage];
+        sprite->oam.paletteNum = IndexOfSpritePaletteTag(gBerryTreePaletteTagTablePointers[berryId][berryStage]);
         StartSpriteAnim(sprite, berryStage);
     }
 }
@@ -2122,47 +1921,60 @@ void FreeAndReserveObjectSpritePalettes(void)
     gReservedSpritePaletteCount = 12;
 }
 
-static void LoadEventObjectPalette(u16 paletteTag)
+ void LoadEventObjectPalette(u16 paletteTag, bool8 doFilter)
 {
     u16 i = FindEventObjectPaletteIndexByTag(paletteTag);
 
     if (i != EVENT_OBJ_PAL_TAG_NONE) // always true
     {
-        sub_808E8F4(&sEventObjectSpritePalettes[i]);
+        sub_808E8F4(&sEventObjectSpritePalettes[i], doFilter);
     }
 }
 
-void Unused_LoadEventObjectPaletteSet(u16 *paletteTags)
+void Unused_LoadEventObjectPaletteSet(u16 *paletteTags, bool8 doFilter)
 {
     u8 i;
 
     for (i = 0; paletteTags[i] != EVENT_OBJ_PAL_TAG_NONE; i++)
     {
-        LoadEventObjectPalette(paletteTags[i]);
+        LoadEventObjectPalette(paletteTags[i], doFilter);
     }
 }
 
-static u8 sub_808E8F4(const struct SpritePalette *spritePalette)
+static u8 sub_808E8F4(const struct SpritePalette *spritePalette, bool8 doFilter)
 {
     if (IndexOfSpritePaletteTag(spritePalette->tag) != 0xFF)
     {
         return 0xFF;
     }
-    return LoadSpritePalette(spritePalette);
+	
+	if (doFilter) // OW sprite needs filtering
+		return LoadSpritePaletteAndTryFilter(spritePalette);
+	else
+		return LoadSpritePalette(spritePalette);
 }
 
-void PatchObjectPalette(u16 paletteTag, u8 paletteSlot)
+void PatchObjectPalette(u16 paletteTag, u8 paletteSlot, bool8 doFilter)
 {
     u8 paletteIndex = FindEventObjectPaletteIndexByTag(paletteTag);
 
-    LoadPalette(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 0x20);
+	// Does the sprite need to be affected by the day/night filter? (cut trees, boulders, reflections etc)
+	if (doFilter)
+		LoadPaletteWithDayNightFilter(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 1, FILTER_MODE_SPRITE);
+	else
+		LoadPalette(sEventObjectSpritePalettes[paletteIndex].data, 16 * paletteSlot + 0x100, 0x20);
 }
 
 void PatchObjectPaletteRange(const u16 *paletteTags, u8 minSlot, u8 maxSlot)
 {
     while (minSlot < maxSlot)
     {
-        PatchObjectPalette(*paletteTags, minSlot);
+		// Only reflections are tinted
+		if (minSlot == 1
+		 || minSlot >= 6)
+			PatchObjectPalette(*paletteTags, minSlot, TRUE);
+		else
+			PatchObjectPalette(*paletteTags, minSlot, FALSE);
         paletteTags++;
         minSlot++;
     }
@@ -2182,40 +1994,9 @@ static u8 FindEventObjectPaletteIndexByTag(u16 tag)
     return 0xFF;
 }
 
-void LoadPlayerObjectReflectionPalette(u16 tag, u8 slot)
-{
-    u8 i;
-
-    PatchObjectPalette(tag, slot);
-    for (i = 0; gPlayerReflectionPaletteSets[i].tag != EVENT_OBJ_PAL_TAG_NONE; i++)
-    {
-        if (gPlayerReflectionPaletteSets[i].tag == tag)
-        {
-            PatchObjectPalette(gPlayerReflectionPaletteSets[i].data[sCurrentReflectionType], gReflectionEffectPaletteMap[slot]);
-            return;
-        }
-    }
-}
-
-void LoadSpecialObjectReflectionPalette(u16 tag, u8 slot)
-{
-    u8 i;
-
-    sCurrentSpecialObjectPaletteTag = tag;
-    PatchObjectPalette(tag, slot);
-    for (i = 0; gSpecialObjectReflectionPaletteSets[i].tag != EVENT_OBJ_PAL_TAG_NONE; i++)
-    {
-        if (gSpecialObjectReflectionPaletteSets[i].tag == tag)
-        {
-            PatchObjectPalette(gSpecialObjectReflectionPaletteSets[i].data[sCurrentReflectionType], gReflectionEffectPaletteMap[slot]);
-            return;
-        }
-    }
-}
-
 static void sub_808EAB0(u16 tag, u8 slot)
 {
-    PatchObjectPalette(tag, slot);
+    PatchObjectPalette(tag, slot, FALSE);
 }
 
 void unref_sub_808EAC4(struct EventObject *eventObject, s16 x, s16 y)
@@ -2640,40 +2421,6 @@ void OverrideSecretBaseDecorationSpriteScript(u8 localId, u8 mapNum, u8 mapGroup
             break;
         }
     }
-}
-
-void InitEventObjectPalettes(u8 palSlot)
-{
-    FreeAndReserveObjectSpritePalettes();
-    sCurrentSpecialObjectPaletteTag = EVENT_OBJ_PAL_TAG_NONE;
-    sCurrentReflectionType = palSlot;
-    if (palSlot == 1)
-    {
-        PatchObjectPaletteRange(gObjectPaletteTagSets[sCurrentReflectionType], 0, 6);
-        gReservedSpritePaletteCount = 8;
-    }
-    else
-    {
-        PatchObjectPaletteRange(gObjectPaletteTagSets[sCurrentReflectionType], 0, 10);
-    }
-}
-
-u16 GetObjectPaletteTag(u8 palSlot)
-{
-    u8 i;
-
-    if (palSlot < 10)
-    {
-        return gObjectPaletteTagSets[sCurrentReflectionType][palSlot];
-    }
-    for (i = 0; gSpecialObjectReflectionPaletteSets[i].tag != EVENT_OBJ_PAL_TAG_NONE; i++)
-    {
-        if (gSpecialObjectReflectionPaletteSets[i].tag == sCurrentSpecialObjectPaletteTag)
-        {
-            return gSpecialObjectReflectionPaletteSets[i].data[sCurrentReflectionType];
-        }
-    }
-    return EVENT_OBJ_PAL_TAG_NONE;
 }
 
 movement_type_empty_callback(MovementType_None)
@@ -4416,7 +4163,7 @@ bool8 CopyablePlayerMovement_GoSpeed0(struct EventObject *eventObject, struct Sp
     }
     EventObjectMoveDestCoords(eventObject, direction, &x, &y);
     EventObjectSetSingleMovement(eventObject, sprite, GetWalkNormalMovementAction(direction));
-    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && !tileCallback(MapGridGetMetatileBehaviorAt(x, y))))
+    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && (!tileCallback(MapGridGetMetatileBehaviorAt(x, y) || !tileCallback(MapGridGetMetatileBehavior2At(x, y))))))
     {
         EventObjectSetSingleMovement(eventObject, sprite, GetFaceDirectionMovementAction(direction));
     }
@@ -4435,7 +4182,7 @@ bool8 CopyablePlayerMovement_GoSpeed1(struct EventObject *eventObject, struct Sp
     direction = state_to_direction(gInitialMovementTypeFacingDirections[eventObject->movementType], eventObject->directionSequenceIndex, direction);
     EventObjectMoveDestCoords(eventObject, direction, &x, &y);
     EventObjectSetSingleMovement(eventObject, sprite, GetWalkFastMovementAction(direction));
-    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && !tileCallback(MapGridGetMetatileBehaviorAt(x, y))))
+    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && (!tileCallback(MapGridGetMetatileBehaviorAt(x, y) || !tileCallback(MapGridGetMetatileBehavior2At(x, y))))))
     {
         EventObjectSetSingleMovement(eventObject, sprite, GetFaceDirectionMovementAction(direction));
     }
@@ -4454,7 +4201,7 @@ bool8 CopyablePlayerMovement_GoSpeed2(struct EventObject *eventObject, struct Sp
     direction = state_to_direction(gInitialMovementTypeFacingDirections[eventObject->movementType], eventObject->directionSequenceIndex, direction);
     EventObjectMoveDestCoords(eventObject, direction, &x, &y);
     EventObjectSetSingleMovement(eventObject, sprite, GetWalkFastestMovementAction(direction));
-    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && !tileCallback(MapGridGetMetatileBehaviorAt(x, y))))
+    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && (!tileCallback(MapGridGetMetatileBehaviorAt(x, y) || !tileCallback(MapGridGetMetatileBehavior2At(x, y))))))
     {
         EventObjectSetSingleMovement(eventObject, sprite, GetFaceDirectionMovementAction(direction));
     }
@@ -4473,7 +4220,7 @@ bool8 CopyablePlayerMovement_Slide(struct EventObject *eventObject, struct Sprit
     direction = state_to_direction(gInitialMovementTypeFacingDirections[eventObject->movementType], eventObject->directionSequenceIndex, direction);
     EventObjectMoveDestCoords(eventObject, direction, &x, &y);
     EventObjectSetSingleMovement(eventObject, sprite, GetSlideMovementAction(direction));
-    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && !tileCallback(MapGridGetMetatileBehaviorAt(x, y))))
+    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && (!tileCallback(MapGridGetMetatileBehaviorAt(x, y) || !tileCallback(MapGridGetMetatileBehavior2At(x, y))))))
     {
         EventObjectSetSingleMovement(eventObject, sprite, GetFaceDirectionMovementAction(direction));
     }
@@ -4504,7 +4251,7 @@ bool8 CopyablePlayerMovement_GoSpeed4(struct EventObject *eventObject, struct Sp
     direction = state_to_direction(gInitialMovementTypeFacingDirections[eventObject->movementType], eventObject->directionSequenceIndex, direction);
     EventObjectMoveDestCoords(eventObject, direction, &x, &y);
     EventObjectSetSingleMovement(eventObject, sprite, GetJumpMovementAction(direction));
-    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && !tileCallback(MapGridGetMetatileBehaviorAt(x, y))))
+    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && (!tileCallback(MapGridGetMetatileBehaviorAt(x, y) || !tileCallback(MapGridGetMetatileBehavior2At(x, y))))))
     {
         EventObjectSetSingleMovement(eventObject, sprite, GetFaceDirectionMovementAction(direction));
     }
@@ -4525,7 +4272,7 @@ bool8 CopyablePlayerMovement_Jump(struct EventObject *eventObject, struct Sprite
     y = eventObject->currentCoords.y;
     MoveCoordsInDirection(direction, &x, &y, 2, 2);
     EventObjectSetSingleMovement(eventObject, sprite, GetJump2MovementAction(direction));
-    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && !tileCallback(MapGridGetMetatileBehaviorAt(x, y))))
+    if (GetCollisionAtCoords(eventObject, x, y, direction) || (tileCallback != NULL && (!tileCallback(MapGridGetMetatileBehaviorAt(x, y) || !tileCallback(MapGridGetMetatileBehavior2At(x, y))))))
     {
         EventObjectSetSingleMovement(eventObject, sprite, GetFaceDirectionMovementAction(direction));
     }
@@ -4927,7 +4674,9 @@ static bool8 IsCoordOutsideEventObjectMovementRange(struct EventObject *eventObj
 static bool8 IsMetatileDirectionallyImpassable(struct EventObject *eventObject, s16 x, s16 y, u8 direction)
 {
     if (gOppositeDirectionBlockedMetatileFuncs[direction - 1](eventObject->currentMetatileBehavior)
-        || gDirectionBlockedMetatileFuncs[direction - 1](MapGridGetMetatileBehaviorAt(x, y)))
+	 || gOppositeDirectionBlockedMetatileFuncs[direction - 1](eventObject->currentMetatileBehavior2)
+     || gDirectionBlockedMetatileFuncs[direction - 1](MapGridGetMetatileBehaviorAt(x, y))
+	 || gDirectionBlockedMetatileFuncs[direction - 1](MapGridGetMetatileBehavior2At(x, y)))
     {
         return TRUE;
     }
@@ -7645,7 +7394,9 @@ static void GetAllGroundEffectFlags_OnFinishStep(struct EventObject *eventObj, u
 static void EventObjectUpdateMetatileBehaviors(struct EventObject *eventObj)
 {
     eventObj->previousMetatileBehavior = MapGridGetMetatileBehaviorAt(eventObj->previousCoords.x, eventObj->previousCoords.y);
+	eventObj->previousMetatileBehavior2 = MapGridGetMetatileBehavior2At(eventObj->previousCoords.x, eventObj->previousCoords.y);
     eventObj->currentMetatileBehavior = MapGridGetMetatileBehaviorAt(eventObj->currentCoords.x, eventObj->currentCoords.y);
+	eventObj->currentMetatileBehavior2 = MapGridGetMetatileBehavior2At(eventObj->currentCoords.x, eventObj->currentCoords.y);
 }
 
 static void GetGroundEffectFlags_Reflection(struct EventObject *eventObj, u32 *flags)
@@ -7670,36 +7421,38 @@ static void GetGroundEffectFlags_Reflection(struct EventObject *eventObj, u32 *f
 
 static void GetGroundEffectFlags_TallGrassOnSpawn(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsTallGrass(eventObj->currentMetatileBehavior))
+    if (MetatileBehavior_IsTallGrass(eventObj->currentMetatileBehavior) || MetatileBehavior_IsTallGrass(eventObj->currentMetatileBehavior2))
         *flags |= GROUND_EFFECT_FLAG_TALL_GRASS_ON_SPAWN;
 }
 
 static void GetGroundEffectFlags_TallGrassOnBeginStep(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsTallGrass(eventObj->currentMetatileBehavior))
+    if (MetatileBehavior_IsTallGrass(eventObj->currentMetatileBehavior) || MetatileBehavior_IsTallGrass(eventObj->currentMetatileBehavior2))
         *flags |= GROUND_EFFECT_FLAG_TALL_GRASS_ON_MOVE;
 }
 
 static void GetGroundEffectFlags_LongGrassOnSpawn(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior))
+    if (MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior) || MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior2))
         *flags |= GROUND_EFFECT_FLAG_LONG_GRASS_ON_SPAWN;
 }
 
 static void GetGroundEffectFlags_LongGrassOnBeginStep(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior))
+    if (MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior) || MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior2))
         *flags |= GROUND_EFFECT_FLAG_LONG_GRASS_ON_MOVE;
 }
 
 static void GetGroundEffectFlags_Tracks(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsDeepSand(eventObj->previousMetatileBehavior))
+    if (MetatileBehavior_IsDeepSand(eventObj->previousMetatileBehavior) || MetatileBehavior_IsDeepSand(eventObj->previousMetatileBehavior2))
     {
         *flags |= GROUND_EFFECT_FLAG_DEEP_SAND;
     }
     else if (MetatileBehavior_IsSandOrDeepSand(eventObj->previousMetatileBehavior)
-             || MetatileBehavior_IsFootprints(eventObj->previousMetatileBehavior))
+          || MetatileBehavior_IsSandOrDeepSand(eventObj->previousMetatileBehavior2)
+		  || MetatileBehavior_IsFootprints(eventObj->previousMetatileBehavior)
+		  || MetatileBehavior_IsFootprints(eventObj->previousMetatileBehavior2))
     {
         *flags |= GROUND_EFFECT_FLAG_SAND;
     }
@@ -7707,8 +7460,10 @@ static void GetGroundEffectFlags_Tracks(struct EventObject *eventObj, u32 *flags
 
 static void GetGroundEffectFlags_SandHeap(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsDeepSand(eventObj->currentMetatileBehavior)
-        && MetatileBehavior_IsDeepSand(eventObj->previousMetatileBehavior))
+    if ((MetatileBehavior_IsDeepSand(eventObj->currentMetatileBehavior)
+	 || MetatileBehavior_IsDeepSand(eventObj->currentMetatileBehavior2))
+     && (MetatileBehavior_IsDeepSand(eventObj->previousMetatileBehavior)
+	 || MetatileBehavior_IsDeepSand(eventObj->previousMetatileBehavior2)))
     {
         if (!eventObj->inSandPile)
         {
@@ -7725,10 +7480,14 @@ static void GetGroundEffectFlags_SandHeap(struct EventObject *eventObj, u32 *fla
 
 static void GetGroundEffectFlags_ShallowFlowingWater(struct EventObject *eventObj, u32 *flags)
 {
-    if ((MetatileBehavior_IsShallowFlowingWater(eventObj->currentMetatileBehavior)
-         && MetatileBehavior_IsShallowFlowingWater(eventObj->previousMetatileBehavior))
-        || (MetatileBehavior_IsPacifidlogLog(eventObj->currentMetatileBehavior)
-            && MetatileBehavior_IsPacifidlogLog(eventObj->previousMetatileBehavior)))
+    if (((MetatileBehavior_IsShallowFlowingWater(eventObj->currentMetatileBehavior)
+	 || MetatileBehavior_IsShallowFlowingWater(eventObj->currentMetatileBehavior2))
+     && (MetatileBehavior_IsShallowFlowingWater(eventObj->previousMetatileBehavior)
+	 || MetatileBehavior_IsShallowFlowingWater(eventObj->previousMetatileBehavior2)))
+     || ((MetatileBehavior_IsPacifidlogLog(eventObj->currentMetatileBehavior)
+	 || MetatileBehavior_IsPacifidlogLog(eventObj->currentMetatileBehavior2))
+     && (MetatileBehavior_IsPacifidlogLog(eventObj->previousMetatileBehavior)
+	 || MetatileBehavior_IsPacifidlogLog(eventObj->previousMetatileBehavior2))))
     {
         if (!eventObj->inShallowFlowingWater)
         {
@@ -7745,8 +7504,10 @@ static void GetGroundEffectFlags_ShallowFlowingWater(struct EventObject *eventOb
 
 static void GetGroundEffectFlags_Puddle(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsPuddle(eventObj->currentMetatileBehavior)
-        && MetatileBehavior_IsPuddle(eventObj->previousMetatileBehavior))
+    if ((MetatileBehavior_IsPuddle(eventObj->currentMetatileBehavior)
+     || MetatileBehavior_IsPuddle(eventObj->currentMetatileBehavior2))
+     && (MetatileBehavior_IsPuddle(eventObj->previousMetatileBehavior)
+     || MetatileBehavior_IsPuddle(eventObj->previousMetatileBehavior2)))
     {
         *flags |= GROUND_EFFECT_FLAG_PUDDLE;
     }
@@ -7754,14 +7515,17 @@ static void GetGroundEffectFlags_Puddle(struct EventObject *eventObj, u32 *flags
 
 static void GetGroundEffectFlags_Ripple(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_HasRipples(eventObj->currentMetatileBehavior))
+    if (MetatileBehavior_HasRipples(eventObj->currentMetatileBehavior)
+	 || MetatileBehavior_HasRipples(eventObj->currentMetatileBehavior2))
         *flags |= GROUND_EFFECT_FLAG_RIPPLES;
 }
 
 static void GetGroundEffectFlags_ShortGrass(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsShortGrass(eventObj->currentMetatileBehavior)
-        && MetatileBehavior_IsShortGrass(eventObj->previousMetatileBehavior))
+    if ((MetatileBehavior_IsShortGrass(eventObj->previousMetatileBehavior)
+     || MetatileBehavior_IsShortGrass(eventObj->previousMetatileBehavior2))
+	 && (MetatileBehavior_IsShortGrass(eventObj->currentMetatileBehavior)
+     || MetatileBehavior_IsShortGrass(eventObj->currentMetatileBehavior2)))
     {
         if (!eventObj->inShortGrass)
         {
@@ -7778,8 +7542,10 @@ static void GetGroundEffectFlags_ShortGrass(struct EventObject *eventObj, u32 *f
 
 static void GetGroundEffectFlags_HotSprings(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsHotSprings(eventObj->currentMetatileBehavior)
-        && MetatileBehavior_IsHotSprings(eventObj->previousMetatileBehavior))
+    if ((MetatileBehavior_IsHotSprings(eventObj->currentMetatileBehavior)
+	 || MetatileBehavior_IsHotSprings(eventObj->currentMetatileBehavior2))
+	 && (MetatileBehavior_IsHotSprings(eventObj->previousMetatileBehavior)
+	 || MetatileBehavior_IsHotSprings(eventObj->previousMetatileBehavior2)))
     {
         if (!eventObj->inHotSprings)
         {
@@ -7796,7 +7562,7 @@ static void GetGroundEffectFlags_HotSprings(struct EventObject *eventObj, u32 *f
 
 static void GetGroundEffectFlags_Seaweed(struct EventObject *eventObj, u32 *flags)
 {
-    if (MetatileBehavior_IsSeaweed(eventObj->currentMetatileBehavior))
+    if (MetatileBehavior_IsSeaweed(eventObj->currentMetatileBehavior) || MetatileBehavior_IsSeaweed(eventObj->currentMetatileBehavior2))
         *flags |= GROUND_EFFECT_FLAG_SEAWEED;
 }
 
@@ -7828,7 +7594,7 @@ static void GetGroundEffectFlags_JumpLanding(struct EventObject *eventObj, u32 *
 
         for (i = 0; i < ARRAY_COUNT(metatileFuncs); i++)
         {
-            if (metatileFuncs[i](eventObj->currentMetatileBehavior))
+            if (metatileFuncs[i](eventObj->currentMetatileBehavior) || metatileFuncs[i](eventObj->currentMetatileBehavior2))
             {
                 *flags |= jumpLandingFlags[i];
                 return;
@@ -7848,12 +7614,14 @@ static u8 EventObjectCheckForReflectiveSurface(struct EventObject *eventObj)
     s16 j;
     u8 result;
     u8 b;
+	u8 c;
     s16 one;
 
-#define RETURN_REFLECTION_TYPE_AT(x, y)              \
-    b = MapGridGetMetatileBehaviorAt(x, y);          \
-    result = GetReflectionTypeByMetatileBehavior(b); \
-    if (result != 0)                                 \
+#define RETURN_REFLECTION_TYPE_AT(x, y)                 \
+    b = MapGridGetMetatileBehaviorAt(x, y);             \
+	c = MapGridGetMetatileBehavior2At(x, y);            \
+    result = GetReflectionTypeByMetatileBehavior(b, c); \
+    if (result != 0)                                    \
         return result;
 
     for (i = 0, one = 1; i < height; i++)
@@ -7873,11 +7641,11 @@ static u8 EventObjectCheckForReflectiveSurface(struct EventObject *eventObj)
 #undef RETURN_REFLECTION_TYPE_AT
 }
 
-static u8 GetReflectionTypeByMetatileBehavior(u32 behavior)
+static u8 GetReflectionTypeByMetatileBehavior(u32 behavior, u32 behavior2)
 {
-    if (MetatileBehavior_IsIce(behavior))
+    if (MetatileBehavior_IsIce(behavior) || MetatileBehavior_IsIce(behavior2))
         return 1;
-    else if (MetatileBehavior_IsReflective(behavior))
+    else if (MetatileBehavior_IsReflective(behavior) || MetatileBehavior_IsReflective(behavior2))
         return 2;
     else
         return 0;
@@ -7892,7 +7660,7 @@ u8 GetLedgeJumpDirection(s16 x, s16 y, u8 z)
         MetatileBehavior_IsJumpEast,
     };
 
-    u8 b;
+    u8 b, c;
     u8 index = z;
 
     if (index == 0)
@@ -7902,8 +7670,9 @@ u8 GetLedgeJumpDirection(s16 x, s16 y, u8 z)
 
     index--;
     b = MapGridGetMetatileBehaviorAt(x, y);
+	c = MapGridGetMetatileBehavior2At(x, y);
 
-    if (unknown_08376040[index](b) == 1)
+    if (unknown_08376040[index](b) == 1 || unknown_08376040[index](c) == 1)
         return index + 1;
 
     return 0;
@@ -7914,10 +7683,12 @@ static void SetEventObjectSpriteOamTableForLongGrass(struct EventObject *eventOb
     if (eventObj->disableCoveringGroundEffects)
         return;
 
-    if (!MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior))
+    if (!MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior)
+	 || !MetatileBehavior_IsLongGrass(eventObj->currentMetatileBehavior2))
         return;
 
-    if (!MetatileBehavior_IsLongGrass(eventObj->previousMetatileBehavior))
+    if (!MetatileBehavior_IsLongGrass(eventObj->previousMetatileBehavior)
+	 || !MetatileBehavior_IsLongGrass(eventObj->previousMetatileBehavior2))
         return;
 
     sprite->subspriteTableNum = 4;
@@ -8081,12 +7852,12 @@ void GroundEffect_StepOnLongGrass(struct EventObject *eventObj, struct Sprite *s
 
 void GroundEffect_WaterReflection(struct EventObject *eventObj, struct Sprite *sprite)
 {
-    SetUpReflection(eventObj, sprite, 0);
+    SetUpReflection(eventObj, sprite, FALSE);
 }
 
 void GroundEffect_IceReflection(struct EventObject *eventObj, struct Sprite *sprite)
 {
-    SetUpReflection(eventObj, sprite, 1);
+    SetUpReflection(eventObj, sprite, TRUE);
 }
 
 void GroundEffect_FlowingWater(struct EventObject *eventObj, struct Sprite *sprite)

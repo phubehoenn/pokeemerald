@@ -44,15 +44,16 @@ u8 gSelectedEventObject;
 static void GetPlayerPosition(struct MapPosition *);
 static void GetInFrontOfPlayerPosition(struct MapPosition *);
 static u16 GetPlayerCurMetatileBehavior(int);
-static bool8 TryStartInteractionScript(struct MapPosition*, u16, u8);
-static const u8 *GetInteractionScript(struct MapPosition*, u8, u8);
-static const u8 *GetInteractedEventObjectScript(struct MapPosition *, u8, u8);
+static u16 GetPlayerCurMetatileBehavior2(int);
+static bool8 TryStartInteractionScript(struct MapPosition*, u16, u16, u8);
+static const u8 *GetInteractionScript(struct MapPosition*, u8, u8, u8);
+static const u8 *GetInteractedEventObjectScript(struct MapPosition *, u8, u8, u8);
 static const u8 *GetInteractedBackgroundEventScript(struct MapPosition *, u8, u8);
 static const u8 *GetInteractedMetatileScript(struct MapPosition *, u8, u8);
 static const u8 *GetInteractedWaterScript(struct MapPosition *, u8, u8);
 static bool32 TrySetupDiveDownScript(void);
 static bool32 TrySetupDiveEmergeScript(void);
-static bool8 TryStartStepBasedScript(struct MapPosition *, u16, u16);
+static bool8 TryStartStepBasedScript(struct MapPosition *, u16, u16, u16);
 static bool8 CheckStandardWildEncounter(u16);
 static bool8 TryArrowWarp(struct MapPosition *, u16, u8);
 static bool8 IsWarpMetatileBehavior(u16);
@@ -85,6 +86,8 @@ void FieldClearPlayerInput(struct FieldInput *input)
     input->input_field_1_2 = FALSE;
     input->input_field_1_3 = FALSE;
     input->dpadDirection = 0;
+	input->pressedLButton = FALSE;
+    input->pressedRButton = FALSE;
 }
 
 void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
@@ -92,8 +95,9 @@ void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
     u8 tileTransitionState = gPlayerAvatar.tileTransitionState;
     u8 runningState = gPlayerAvatar.runningState;
     bool8 forcedMove = MetatileBehavior_IsForcedMovementTile(GetPlayerCurMetatileBehavior(runningState));
+	bool8 forcedMove2 = MetatileBehavior_IsForcedMovementTile(GetPlayerCurMetatileBehavior2(runningState));
 
-    if ((tileTransitionState == T_TILE_CENTER && forcedMove == FALSE) || tileTransitionState == T_NOT_MOVING)
+    if ((tileTransitionState == T_TILE_CENTER && forcedMove == FALSE && forcedMove2 == FALSE) || tileTransitionState == T_NOT_MOVING)
     {
         if (GetPlayerSpeed() != 4)
         {
@@ -105,6 +109,10 @@ void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
                 input->pressedAButton = TRUE;
             if (newKeys & B_BUTTON)
                 input->pressedBButton = TRUE;
+			if (newKeys & L_BUTTON)
+                input->pressedLButton = TRUE;
+			if (newKeys & R_BUTTON)
+                input->pressedRButton = TRUE;
         }
 
         if (heldKeys & (DPAD_UP | DPAD_DOWN | DPAD_LEFT | DPAD_RIGHT))
@@ -114,11 +122,11 @@ void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
         }
     }
 
-    if (forcedMove == FALSE)
+    if (forcedMove == FALSE && forcedMove2 == FALSE)
     {
         if (tileTransitionState == T_TILE_CENTER && runningState == MOVING)
             input->tookStep = TRUE;
-        if (forcedMove == FALSE && tileTransitionState == T_TILE_CENTER)
+        if (forcedMove == FALSE && forcedMove2 == FALSE && tileTransitionState == T_TILE_CENTER)
             input->checkStandardWildEncounter = TRUE;
     }
 
@@ -137,6 +145,7 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     struct MapPosition position;
     u8 playerDirection;
     u16 metatileBehavior;
+	u16 metatileBehavior2;
 
     gSpecialVar_LastTalked = 0;
     gSelectedEventObject = 0;
@@ -144,6 +153,7 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     playerDirection = GetPlayerFacingDirection();
     GetPlayerPosition(&position);
     metatileBehavior = MapGridGetMetatileBehaviorAt(position.x, position.y);
+	metatileBehavior2 = MapGridGetMetatileBehavior2At(position.x, position.y);
 
     if (CheckForTrainersWantingBattle() == TRUE)
         return TRUE;
@@ -157,25 +167,26 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     {
         IncrementGameStat(GAME_STAT_STEPS);
         IncrementBirthIslandRockStepCount();
-        if (TryStartStepBasedScript(&position, metatileBehavior, playerDirection) == TRUE)
+        if (TryStartStepBasedScript(&position, metatileBehavior, metatileBehavior2, playerDirection) == TRUE)
             return TRUE;
     }
-    if (input->checkStandardWildEncounter && CheckStandardWildEncounter(metatileBehavior) == TRUE)
+    if (input->checkStandardWildEncounter && (CheckStandardWildEncounter(metatileBehavior) == TRUE || CheckStandardWildEncounter(metatileBehavior2) == TRUE))
         return TRUE;
     if (input->heldDirection && input->dpadDirection == playerDirection)
     {
-        if (TryArrowWarp(&position, metatileBehavior, playerDirection) == TRUE)
+        if (TryArrowWarp(&position, metatileBehavior, playerDirection) == TRUE || TryArrowWarp(&position, metatileBehavior2, playerDirection) == TRUE)
             return TRUE;
     }
 
     GetInFrontOfPlayerPosition(&position);
     metatileBehavior = MapGridGetMetatileBehaviorAt(position.x, position.y);
-    if (input->pressedAButton && TryStartInteractionScript(&position, metatileBehavior, playerDirection) == TRUE)
+	metatileBehavior2 = MapGridGetMetatileBehavior2At(position.x, position.y);
+    if (input->pressedAButton && (TryStartInteractionScript(&position, metatileBehavior, metatileBehavior2, playerDirection) == TRUE))
         return TRUE;
 
     if (input->heldDirection2 && input->dpadDirection == playerDirection)
     {
-        if (TryDoorWarp(&position, metatileBehavior, playerDirection) == TRUE)
+        if (TryDoorWarp(&position, metatileBehavior, playerDirection) == TRUE || TryDoorWarp(&position, metatileBehavior2, playerDirection) == TRUE)
             return TRUE;
     }
     if (input->pressedAButton && TrySetupDiveDownScript() == TRUE)
@@ -186,7 +197,11 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
         ShowStartMenu();
         return TRUE;
     }
-    if (input->pressedSelectButton && UseRegisteredKeyItemOnField() == TRUE)
+	// Select pressed - use registered start menu option
+    if (input->pressedSelectButton && UseRegisteredMenuOption() == TRUE)
+        return TRUE;
+	// L or R button pressed - use registered key item (will be updated to use any item rather than just key items, & seperate items for L and R)
+	if ((input->pressedLButton || input->pressedRButton) && UseRegisteredKeyItemOnField() == TRUE)
         return TRUE;
 
     return FALSE;
@@ -218,9 +233,17 @@ static u16 GetPlayerCurMetatileBehavior(int runningState)
     return MapGridGetMetatileBehaviorAt(x, y);
 }
 
-static bool8 TryStartInteractionScript(struct MapPosition *position, u16 metatileBehavior, u8 direction)
+static u16 GetPlayerCurMetatileBehavior2(int runningState)
 {
-    const u8 *script = GetInteractionScript(position, metatileBehavior, direction);
+    s16 x, y;
+
+    PlayerGetDestCoords(&x, &y);
+    return MapGridGetMetatileBehavior2At(x, y);
+}
+
+static bool8 TryStartInteractionScript(struct MapPosition *position, u16 metatileBehavior, u16 metatileBehavior2, u8 direction)
+{
+    const u8 *script = GetInteractionScript(position, metatileBehavior, metatileBehavior2, direction);
     if (script == NULL)
         return FALSE;
 
@@ -238,9 +261,9 @@ static bool8 TryStartInteractionScript(struct MapPosition *position, u16 metatil
     return TRUE;
 }
 
-static const u8 *GetInteractionScript(struct MapPosition *position, u8 metatileBehavior, u8 direction)
+static const u8 *GetInteractionScript(struct MapPosition *position, u8 metatileBehavior, u8 metatileBehavior2, u8 direction)
 {
-    const u8 *script = GetInteractedEventObjectScript(position, metatileBehavior, direction);
+    const u8 *script = GetInteractedEventObjectScript(position, metatileBehavior, metatileBehavior2, direction);
     if (script != NULL)
         return script;
 
@@ -264,7 +287,8 @@ const u8 *GetInteractedLinkPlayerScript(struct MapPosition *position, u8 metatil
     u8 eventObjectId;
     s32 i;
 
-    if (!MetatileBehavior_IsCounter(MapGridGetMetatileBehaviorAt(position->x, position->y)))
+    if (!MetatileBehavior_IsCounter(MapGridGetMetatileBehaviorAt(position->x, position->y))
+	 && !MetatileBehavior_IsCounter(MapGridGetMetatileBehavior2At(position->x, position->y)))
         eventObjectId = GetEventObjectIdByXYZ(position->x, position->y, position->height);
     else
         eventObjectId = GetEventObjectIdByXYZ(position->x + gDirectionToVectors[direction].x, position->y + gDirectionToVectors[direction].y, position->height);
@@ -284,7 +308,7 @@ const u8 *GetInteractedLinkPlayerScript(struct MapPosition *position, u8 metatil
     return GetEventObjectScriptPointerByEventObjectId(eventObjectId);
 }
 
-static const u8 *GetInteractedEventObjectScript(struct MapPosition *position, u8 metatileBehavior, u8 direction)
+static const u8 *GetInteractedEventObjectScript(struct MapPosition *position, u8 metatileBehavior, u8 metatileBehavior2, u8 direction)
 {
     u8 eventObjectId;
     const u8 *script;
@@ -292,7 +316,7 @@ static const u8 *GetInteractedEventObjectScript(struct MapPosition *position, u8
     eventObjectId = GetEventObjectIdByXYZ(position->x, position->y, position->height);
     if (eventObjectId == EVENT_OBJECTS_COUNT || gEventObjects[eventObjectId].localId == EVENT_OBJ_ID_PLAYER)
     {
-        if (MetatileBehavior_IsCounter(metatileBehavior) != TRUE)
+        if (MetatileBehavior_IsCounter(metatileBehavior) != TRUE && MetatileBehavior_IsCounter(metatileBehavior2) != TRUE)
             return NULL;
 
         // Look for an event object on the other side of the counter.
@@ -481,15 +505,15 @@ static bool32 TrySetupDiveEmergeScript(void)
     return FALSE;
 }
 
-static bool8 TryStartStepBasedScript(struct MapPosition *position, u16 metatileBehavior, u16 direction)
+static bool8 TryStartStepBasedScript(struct MapPosition *position, u16 metatileBehavior, u16 metatileBehavior2, u16 direction)
 {
     if (TryStartCoordEventScript(position) == TRUE)
         return TRUE;
-    if (TryStartWarpEventScript(position, metatileBehavior) == TRUE)
+    if (TryStartWarpEventScript(position, metatileBehavior) == TRUE || TryStartWarpEventScript(position, metatileBehavior2) == TRUE)
         return TRUE;
-    if (TryStartMiscWalkingScripts(metatileBehavior) == TRUE)
+    if (TryStartMiscWalkingScripts(metatileBehavior) == TRUE || TryStartMiscWalkingScripts(metatileBehavior2) == TRUE)
         return TRUE;
-    if (TryStartStepCountScript(metatileBehavior) == TRUE)
+    if (TryStartStepCountScript(metatileBehavior) == TRUE || TryStartStepCountScript(metatileBehavior2) == TRUE)
         return TRUE;
     if (UpdateRepelCounter() == TRUE)
         return TRUE;
@@ -938,9 +962,9 @@ static struct BgEvent *GetBackgroundEventAtPosition(struct MapHeader *mapHeader,
     return NULL;
 }
 
-bool8 dive_warp(struct MapPosition *position, u16 metatileBehavior)
+bool8 dive_warp(struct MapPosition *position, u16 metatileBehavior, u16 metatileBehavior2)
 {
-    if (gMapHeader.mapType == MAP_TYPE_UNDERWATER && !MetatileBehavior_IsUnableToEmerge(metatileBehavior))
+    if (gMapHeader.mapType == MAP_TYPE_UNDERWATER && (!MetatileBehavior_IsUnableToEmerge(metatileBehavior) || !MetatileBehavior_IsUnableToEmerge(metatileBehavior2)))
     {
         if (SetDiveWarpEmerge(position->x - 7, position->y - 7))
         {
@@ -950,7 +974,7 @@ bool8 dive_warp(struct MapPosition *position, u16 metatileBehavior)
             return TRUE;
         }
     }
-    else if (MetatileBehavior_IsDiveable(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsDiveable(metatileBehavior) == TRUE || MetatileBehavior_IsDiveable(metatileBehavior2) == TRUE)
     {
         if (SetDiveWarpDive(position->x - 7, position->y - 7))
         {
@@ -967,15 +991,17 @@ u8 TrySetDiveWarp(void)
 {
     s16 x, y;
     u8 metatileBehavior;
+	u8 metatileBehavior2;
 
     PlayerGetDestCoords(&x, &y);
     metatileBehavior = MapGridGetMetatileBehaviorAt(x, y);
-    if (gMapHeader.mapType == MAP_TYPE_UNDERWATER && !MetatileBehavior_IsUnableToEmerge(metatileBehavior))
+	metatileBehavior2 = MapGridGetMetatileBehavior2At(x, y);
+    if (gMapHeader.mapType == MAP_TYPE_UNDERWATER && (!MetatileBehavior_IsUnableToEmerge(metatileBehavior) || !MetatileBehavior_IsUnableToEmerge(metatileBehavior2)))
     {
         if (SetDiveWarpEmerge(x - 7, y - 7) == TRUE)
             return 1;
     }
-    else if (MetatileBehavior_IsDiveable(metatileBehavior) == TRUE)
+    else if (MetatileBehavior_IsDiveable(metatileBehavior) == TRUE || MetatileBehavior_IsDiveable(metatileBehavior2) == TRUE)
     {
         if (SetDiveWarpDive(x - 7, y - 7) == TRUE)
             return 2;
@@ -990,16 +1016,16 @@ const u8 *GetEventObjectScriptPointerPlayerFacing(void)
 
     direction = GetPlayerMovementDirection();
     GetInFrontOfPlayerPosition(&position);
-    return GetInteractedEventObjectScript(&position, MapGridGetMetatileBehaviorAt(position.x, position.y), direction);
+    return GetInteractedEventObjectScript(&position, MapGridGetMetatileBehaviorAt(position.x, position.y), MapGridGetMetatileBehavior2At(position.x, position.y), direction);
 }
 
 int SetCableClubWarp(void)
 {
     struct MapPosition position;
 
-    GetPlayerMovementDirection();  //unnecessary
+    //GetPlayerMovementDirection();  //unnecessary
     GetPlayerPosition(&position);
-    MapGridGetMetatileBehaviorAt(position.x, position.y);  //unnecessary
+    //MapGridGetMetatileBehaviorAt(position.x, position.y);  //unnecessary
     SetupWarp(&gMapHeader, GetWarpEventAtMapPosition(&gMapHeader, &position), &position);
     return 0;
 }

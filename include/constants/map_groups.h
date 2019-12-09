@@ -587,6 +587,24 @@
 // Map Group 33
 #define MAP_ROUTE124_DIVING_TREASURE_HUNTERS_HOUSE (0 | (33 << 8))
 
-#define MAP_GROUPS_COUNT 34
+// Map Group 34
+#define MAP_TESTMAP1A (0 | (34 << 8))
+#define MAP_TESTMAP2A (1 | (34 << 8))
+#define MAP_TESTMAP3A (2 | (34 << 8))
+#define MAP_TESTMAP4A (3 | (34 << 8))
+#define MAP_TESTMAP1B (4 | (34 << 8))
+#define MAP_TESTMAP2B (5 | (34 << 8))
+#define MAP_TESTMAP3B (6 | (34 << 8))
+#define MAP_TESTMAP4B (7 | (34 << 8))
+#define MAP_TESTMAP1C (8 | (34 << 8))
+#define MAP_TESTMAP2C (9 | (34 << 8))
+#define MAP_TESTMAP3C (10 | (34 << 8))
+#define MAP_TESTMAP4C (11 | (34 << 8))
+#define MAP_TESTMAP1D (12 | (34 << 8))
+#define MAP_TESTMAP2D (13 | (34 << 8))
+#define MAP_TESTMAP3D (14 | (34 << 8))
+#define MAP_TESTMAP4D (15 | (34 << 8))
+
+#define MAP_GROUPS_COUNT 35
 
 #endif // GUARD_CONSTANTS_MAP_GROUPS_H

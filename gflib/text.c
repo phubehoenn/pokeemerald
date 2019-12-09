@@ -1658,7 +1658,7 @@ u16 RenderText(struct TextPrinter *textPrinter)
                 textPrinter->printerTemplate.currentChar++;
                 currChar |= *textPrinter->printerTemplate.currentChar << 8;
                 textPrinter->printerTemplate.currentChar++;
-                PlayBGM(currChar);
+                PlayBGM(currChar, 2);
                 return 2;
             case 12:
                 currChar = *textPrinter->printerTemplate.currentChar | 0x100;

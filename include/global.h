@@ -462,18 +462,40 @@ struct SaveBlock2
     /*0x10*/ u8 playTimeMinutes;
     /*0x11*/ u8 playTimeSeconds;
     /*0x12*/ u8 playTimeVBlanks;
-    /*0x13*/ u8 optionsButtonMode;  // OPTIONS_BUTTON_MODE_[NORMAL/LR/L_EQUALS_A]
-    /*0x14*/ u16 optionsTextSpeed:3; // OPTIONS_TEXT_SPEED_[SLOW/MID/FAST]
-             u16 optionsWindowFrameType:5; // Specifies one of the 20 decorative borders for text boxes
-             u16 optionsSound:1; // OPTIONS_SOUND_[MONO/STEREO]
-             u16 optionsBattleStyle:1; // OPTIONS_BATTLE_STYLE_[SHIFT/SET]
-             u16 optionsBattleSceneOff:1; // whether battle animations are disabled
-             u16 regionMapZoom:1; // whether the map is zoomed in
+	/*0x13*/ u8 optionsBikeMode:1;		   // OPTIONS_BIKE_MODE_[HOLD_B/AUTO]
+	/*0x13*/ u8 optionsFullParty:1;		   // OPTIONS_FULL_PARTY_[SWAP/SEND_TO_PC]
+	/*0x13*/ u8 optionsMusic:2;			   // 0 = EVERYWHERE, 1 = BATTLES ONLY, 2 = OFF
+	/*0x13*/ u8 optionsKeyboard:3;		   // 0 = QWERTY, 1 = QWERTY+, 2 = ABC, 3 = ABC+, 5 = VANILLA
+	/*0x13*/ u8 filler1b:1;		   		   // Unused
+    /*0x14*/ u16 optionsQuickFlee:1;       // [ON/OFF] gives an option to run before a mon is sent out
+	/*0x14*/ u16 optionsLowHPSound:1;	   // [ON/OFF] stops beeping sound on low HP
+	/*0x14*/ u16 optionsKeypadSound:1;     // [ON/OFF] stops keypad beeping sound
+    /*0x14*/ u16 optionsWindowFrameType:5; // Specifies one of the 20 decorative borders for text boxes
+    /*0x15*/ u16 optionsSound:1; 		   // OPTIONS_SOUND_[MONO/STEREO]
+    /*0x15*/ u16 optionsBattleStyle:1; 	   // OPTIONS_BATTLE_STYLE_[SHIFT/SET]
+    /*0x15*/ u16 optionsBattleSceneOff:1;  // [ON/OFF] whether battle animations are disabled
+    /*0x15*/ u16 regionMapZoom:1; 		   // whether the map is zoomed in
+	/*0x15*/ u16 nuzlockeMode:2;		   // 0-3 Off/Nuzlocke/Hardlocke/Deadlocke
+	/*0x15*/ u16 gameMode:2;			   // 0-3 Story/Sandbox/Random/Super Random
     /*0x18*/ struct Pokedex pokedex;
-    /*0x90*/ u8 filler_90[0x8];
+    /*0x90*/ u16 screenFilterColor;		   // Overrides the day/night filter with the color specified
+	/*0x92*/ u8 screenFilterCoeff;		   // Specifies how opaque the overriden color is
+	/*0x93*/ u8 freezeNuzlocke:1;		   // Nuzlocke mode can't be changed when this is enabled
+	/*0x93*/ u8 waitStatus:1;			   // 0 = WAIT_UNABLE, 1 = WAIT_ABLE
+	/*0x93*/ u8 waitTime:6;				   // Holds the amount of time the player can wait
+	/*0x94*/ u8 timeYear:3;			       // 0-7. Randomised at the start of the game. Different world events happen depending on the current year. Rolls over to 0
+	/*0x94*/ u8 timeSeason:2;			   // 0 = SPRING, 1 = SUMMER, 2 = FALL, 3 = WINTER
+	/*0x94*/ u8 timeWeek:1;			       // 0 = First half of season, 1 = second half of season
+	/*0x94*/ u8 timeMinute:2;			   // 0-2. 3 real minutes in 1 hour
+	/*0x95*/ u8 timeHour:5;			       // 0-23 for 12AM to 11PM
+	/*0x95*/ u8 timeDay:3;				   // 0-6 for Monday to Sunday
+    /*0x96*/ u8 timeSeconds:6;			   // 0-59
+	/*0x97*/ u8 dayNightStatus:2;		   // 0 = DAWN, 1 = DAY, 2 = DUSK, 3 = NIGHT
+	/*0x97*/ u8 startMenuRegister:4;	   // Stores the registered start menu option
     /*0x98*/ struct Time localTimeOffset;
     /*0xA0*/ struct Time lastBerryTreeUpdate;
-    /*0xA8*/ u32 field_A8; // Written to, but never read.
+    /*0xA8*/ u16 nuzlockeCounter;
+    /*0xAA*/ u16 filler16;
     /*0xAC*/ u32 encryptionKey;
     /*0xB0*/ struct PlayersApprentice playerApprentice;
     /*0xDC*/ struct Apprentice apprentices[APPRENTICE_COUNT];
@@ -1005,6 +1027,7 @@ struct TradeRoomPlayer
     u8 facing;
     struct MapPosition pos;
     u16 field_C;
+	u16 field_D;
 };
 
 #endif // GUARD_GLOBAL_H

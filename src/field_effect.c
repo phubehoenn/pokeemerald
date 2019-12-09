@@ -34,6 +34,7 @@
 #define subsprite_table(ptr) {.subsprites = ptr, .subspriteCount = (sizeof ptr) / (sizeof(struct Subsprite))}
 
 EWRAM_DATA s32 gFieldEffectArguments[8] = {0};
+EWRAM_DATA u16 gReflectionPaletteBuffer[0x10] = {0};
 
 // Static type declarations
 
@@ -771,8 +772,9 @@ void FieldEffectScript_LoadTiles(u8 **script)
 void FieldEffectScript_LoadFadedPalette(u8 **script)
 {
     struct SpritePalette *palette = (struct SpritePalette *)FieldEffectScript_ReadWord(script);
-    LoadSpritePalette(palette);
-    UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(palette->tag));
+    TagSpritePalette(palette);
+	LoadPaletteWithDayNightFilter(palette->data, 16 * IndexOfSpritePaletteTag(palette->tag) + 0x100, 1, FILTER_MODE_SPRITE);
+	
     (*script) += 4;
 }
 
@@ -1776,14 +1778,16 @@ static bool8 sub_80B7114(struct Task *task)
     s16 x;
     s16 y;
     u8 behavior;
+	u8 behavior2;
     CameraObjectReset2();
     eventObject = &gEventObjects[gPlayerAvatar.eventObjectId];
     EventObjectSetHeldMovement(eventObject, GetFaceDirectionMovementAction(DIR_EAST));
     PlayerGetDestCoords(&x, &y);
     behavior = MapGridGetMetatileBehaviorAt(x, y);
+	behavior2 = MapGridGetMetatileBehavior2At(x, y);
     task->data[0]++;
     task->data[1] = 16;
-    if (behavior == 0x6b)
+    if (behavior == 0x6b || behavior2 == 0x6b)
     {
         behavior = 1;
         task->data[0] = 3;
@@ -1938,7 +1942,7 @@ static bool8 sub_80B7478(struct Task *task, struct EventObject *eventObject)
     {
         return FALSE;
     }
-    if (MetatileBehavior_IsWaterfall(eventObject->currentMetatileBehavior))
+    if (MetatileBehavior_IsWaterfall(eventObject->currentMetatileBehavior) || MetatileBehavior_IsWaterfall(eventObject->currentMetatileBehavior2))
     {
         task->data[0] = 3;
         return TRUE;
@@ -1987,7 +1991,7 @@ static bool8 dive_3_unknown(struct Task *task)
     PlayerGetDestCoords(&mapPosition.x, &mapPosition.y);
     if (!FieldEffectActiveListContains(FLDEFF_FIELD_MOVE_SHOW_MON))
     {
-        dive_warp(&mapPosition, gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior);
+        dive_warp(&mapPosition, gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior, gEventObjects[gPlayerAvatar.eventObjectId].currentMetatileBehavior2);
         DestroyTask(FindTaskIdByFunc(Task_Dive));
         FieldEffectActiveListRemove(FLDEFF_USE_DIVE);
     }
@@ -3113,10 +3117,13 @@ u8 sub_80B8F98(void)
 
 u8 FldEff_NPCFlyOut(void)
 {
-    u8 spriteId = CreateSprite(gFieldEffectObjectTemplatePointers[26], 0x78, 0, 1);
-    struct Sprite *sprite = &gSprites[spriteId];
+    u8 spriteId;
+    struct Sprite *sprite;
 
-    sprite->oam.paletteNum = 0;
+    LoadFieldEffectPalette(26);
+    spriteId = CreateSprite(gFieldEffectObjectTemplatePointers[26], 0x78, 0, 1);
+    sprite = &gSprites[spriteId];
+
     sprite->oam.priority = 1;
     sprite->callback = sub_80B9128;
     sprite->data[1] = gFieldEffectArguments[0];
@@ -3286,9 +3293,10 @@ static u8 sub_80B94C4(void)
 {
     u8 spriteId;
     struct Sprite *sprite;
+	
+	LoadFieldEffectPalette(26);
     spriteId = CreateSprite(gFieldEffectObjectTemplatePointers[26], 0xff, 0xb4, 0x1);
     sprite = &gSprites[spriteId];
-    sprite->oam.paletteNum = 0;
     sprite->oam.priority = 1;
     sprite->callback = sub_80B957C;
     return spriteId;

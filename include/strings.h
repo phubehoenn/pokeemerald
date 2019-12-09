@@ -215,6 +215,7 @@ extern const u8 gText_MenuPokedex[];
 extern const u8 gText_MenuPokemon[];
 extern const u8 gText_MenuBag[];
 extern const u8 gText_MenuPokenav[];
+extern const u8 gText_MenuWait[];
 extern const u8 gText_MenuPlayer[];
 extern const u8 gText_MenuSave[];
 extern const u8 gText_MenuOption[];
@@ -231,6 +232,7 @@ extern const u8 gText_Floor7[];
 extern const u8 gText_Peak[];
 extern const u8 gText_SafariBallStock[];
 extern const u8 gText_BattlePyramidFloor[];
+extern const u8 gText_Fainted[];
 
 extern const u8 gText_MenuOptionPokedex[];
 extern const u8 gText_MenuOptionPokemon[];
@@ -240,8 +242,46 @@ extern const u8 gText_MenuOptionSave[];
 extern const u8 gText_MenuOptionOption[];
 extern const u8 gText_MenuOptionExit[];
 
+// Clock strings
+extern const u8 gText_TimeAM[];
+extern const u8 gText_TimePM[];
+
+extern const u8 gText_TimeDNSpacer[];
+extern const u8 gText_TimeDawn[];
+extern const u8 gText_TimeDay[];
+extern const u8 gText_TimeDusk[];
+extern const u8 gText_TimeNight[];
+	
+extern const u8 gText_TimeDaySpacer[];
+extern const u8 gText_TimeMonday[];
+extern const u8 gText_TimeTuesday[];
+extern const u8 gText_TimeWednesday[];
+extern const u8 gText_TimeThursday[];
+extern const u8 gText_TimeFriday[];
+extern const u8 gText_TimeSaturday[];
+extern const u8 gText_TimeSunday[];
+
+extern const u8 gText_TimeSeasonSpacer[];
+extern const u8 gText_TimeEarly[];
+extern const u8 gText_TimeLate[];
+	
+extern const u8 gText_TimeSpring[];
+extern const u8 gText_TimeSummer[];
+extern const u8 gText_TimeFall[];
+extern const u8 gText_TimeWinter[];
+
+// wait menu texts
+extern const u8 gText_HowLongToWait[];
+extern const u8 gText_YouCantWaitNow[];
+extern const u8 gText_WaitingTooOften[];
+extern const u8 gText_HoursRemaining[];
+extern const u8 gText_Hour[];
+extern const u8 gText_S[];
+extern const u8 gText_NotEnoughTime[];
+
 // save menu texts
 extern const u8 gText_ConfirmSave[];
+extern const u8 gText_ConfirmSaveNuzlocke[];
 extern const u8 gText_DifferentSaveFile[];
 extern const u8 gText_AlreadySavedFile[];
 extern const u8 gText_SavingDontTurnOff[];
@@ -258,29 +298,72 @@ extern const u8 gText_BattlePyramidConfirmRest[];
 extern const u8 gText_BattlePyramidConfirmRetire[];
 
 // option menu texts
-extern const u8 gText_TextSpeedSlow[];
-extern const u8 gText_TextSpeedMid[];
-extern const u8 gText_TextSpeedFast[];
-extern const u8 gText_BattleSceneOn[];
-extern const u8 gText_BattleSceneOff[];
+extern const u8 gText_On[];
+extern const u8 gText_Off[];
+extern const u8 gText_Battles[];
+extern const u8 gText_HoldB[];
+extern const u8 gText_Auto[];
+extern const u8 gText_SwapPC[];
+extern const u8 gText_SendToPC[];
+	
 extern const u8 gText_BattleStyleShift[];
 extern const u8 gText_BattleStyleSet[];
 extern const u8 gText_SoundMono[];
 extern const u8 gText_SoundStereo[];
-extern const u8 gText_FrameTypeNumber[];
 extern const u8 gText_FrameType[];
-extern const u8 gText_ButtonTypeNormal[];
-extern const u8 gText_ButtonTypeLR[];
-extern const u8 gText_ButtonTypeLEqualsA[];
-extern const u8 gText_Option[];
-extern const u8 gText_OptionMenu[];
-extern const u8 gText_TextSpeed[];
-extern const u8 gText_BattleScene[];
+extern const u8 gText_FrameTypeNumber[];
+
+extern const u8 gText_BikeMode[];
+extern const u8 gText_FullParty[];
 extern const u8 gText_BattleStyle[];
-extern const u8 gText_Sound[];
+extern const u8 gText_BattleScene[];
+extern const u8 gText_QuickFlee[];
+extern const u8 gText_Keyboard[];
 extern const u8 gText_Frame[];
+extern const u8 gText_Music[];
+extern const u8 gText_LowHPSound[];
+extern const u8 gText_KeypadSound[];
+extern const u8 gText_SoundOutput[];
+extern const u8 gText_ResetDefaults[];
+extern const u8 gText_DowngradeToHardlockeMode[];
+extern const u8 gText_DowngradeToNuzlockeMode[];
+extern const u8 gText_DisableNuzlockeMode[];
+extern const u8 gText_FreezeNuzlockeMode[];
 extern const u8 gText_OptionMenuCancel[];
-extern const u8 gText_ButtonMode[];
+
+extern const u8 gText_BikeModeDescription[];
+extern const u8 gText_FullPartyDescription[];
+extern const u8 gText_BattleStyleDescription[];
+extern const u8 gText_BattleSceneDescription[];
+extern const u8 gText_QuickFleeDescription[];
+extern const u8 gText_MusicDescription[];
+extern const u8 gText_LowHPSoundDescription[];
+extern const u8 gText_KeypadSoundDescription[];
+extern const u8 gText_SoundOutputDescription[];
+extern const u8 gText_KeyboardDescription[];
+extern const u8 gText_FrameDescription[];
+extern const u8 gText_ResetDefaultsDescription[];
+extern const u8 gText_DisableNuzlockeModeDescription[];
+extern const u8 gText_DowngradeToHardlockeModeDescription[];
+extern const u8 gText_DowngradeToNuzlockeModeDescription[];
+extern const u8 gText_FreezeNuzlockeModeDescription[];
+extern const u8 gText_CancelDescription[];
+extern const u8 gText_AreYouSure[];
+extern const u8 gText_CantBeChanged[];
+extern const u8 gText_Nuzlocke[];
+extern const u8 gText_Deadlocke[];
+
+extern const u8 gKeyboardText_QWERTY[];
+extern const u8 gKeyboardText_QWERTYPlus[];
+extern const u8 gKeyboardText_ABC[];
+extern const u8 gKeyboardText_ABCPlus[];
+extern const u8 gKeyboardText_Vanilla[];
+
+extern const u8 gText_MaleSymbol[];
+extern const u8 gText_FemaleSymbol[];
+
+extern const u8 gText_SelectorArrow3[];
+extern const u8 gText_YesNo[];
 
 extern const u8 gText_MaleSymbol[];
 extern const u8 gText_FemaleSymbol[];
@@ -296,6 +379,13 @@ extern const u8 gText_BatteryRunDry[];
 extern const u8 gText_MainMenuNewGame[];
 extern const u8 gText_MainMenuOption[];
 extern const u8 gText_MainMenuContinue[];
+extern const u8 gText_MainMenuStory[];
+extern const u8 gText_MainMenuSandbox[];
+extern const u8 gText_MainMenuRandom[];
+extern const u8 gText_MainMenuSuperRandom[];
+extern const u8 gText_MainMenuNuzlocke[];
+extern const u8 gText_MainMenuHardlocke[];
+extern const u8 gText_MainMenuDeadlocke[];
 extern const u8 gText_MainMenuMysteryGift2[];
 extern const u8 gText_MainMenuMysteryEvents[];
 extern const u8 gText_MainMenuMysteryGift[];
@@ -880,6 +970,7 @@ extern const u8 gText_Gabby[];
 extern const u8 gText_Anna[];
 
 extern const u8 gText_DadsAdvice[];
+extern const u8 gText_CantUseRevive[];
 extern const u8 gText_CantDismountBike[];
 extern const u8 gText_ItemFinderNothing[];
 extern const u8 gText_ItemFinderNearby[];

@@ -21,12 +21,14 @@
 #include "link.h"
 #include "load_save.h"
 #include "main.h"
+#include "map_name_popup.h"
 #include "menu.h"
 #include "new_game.h"
 #include "option_menu.h"
 #include "overworld.h"
 #include "palette.h"
 #include "party_menu.h"
+#include "play_time.h"
 #include "pokedex.h"
 #include "pokenav.h"
 #include "safari_zone.h"
@@ -54,15 +56,24 @@ enum
     MENU_ACTION_POKEMON,
     MENU_ACTION_BAG,
     MENU_ACTION_POKENAV,
+	MENU_ACTION_WAIT,
     MENU_ACTION_PLAYER,
     MENU_ACTION_SAVE,
     MENU_ACTION_OPTION,
-    MENU_ACTION_EXIT,
+    MENU_ACTION_EXIT, //options past this point can't be registered - this is option 8
     MENU_ACTION_RETIRE_SAFARI,
     MENU_ACTION_PLAYER_LINK,
     MENU_ACTION_REST_FRONTIER,
     MENU_ACTION_RETIRE_FRONTIER,
     MENU_ACTION_PYRAMID_BAG
+};
+
+// Wait status
+enum
+{
+    WAIT_IN_PROGRESS,
+	WAIT_DONE,
+	WAIT_RETURN
 };
 
 // Save status
@@ -74,18 +85,33 @@ enum
     SAVE_ERROR
 };
 
+// Clock strings
+const u8 *gAMPMLookup[2] = { gText_TimeAM, gText_TimePM };
+const u8 *gDayLookup[7] = { gText_TimeMonday, gText_TimeTuesday, gText_TimeWednesday, gText_TimeThursday, gText_TimeFriday, gText_TimeSaturday, gText_TimeSunday };
+const u8 *gDNStatusLookup[4] = { gText_TimeDawn, gText_TimeDay, gText_TimeDusk, gText_TimeNight };
+const u8 *gEarlyLateLookup[2] = { gText_TimeEarly, gText_TimeLate };
+const u8 *gSeasonLookup[4] = { gText_TimeSpring, gText_TimeSummer, gText_TimeFall, gText_TimeWinter };
+extern const u8 gText_TimeDNSpacer[];
+extern const u8 gText_TimeDaySpacer[];
+extern const u8 gText_TimeSeasonSpacer[];
+
 // IWRAM common
 bool8 (*gMenuCallback)(void);
 
 // EWRAM
 EWRAM_DATA static u8 sSafariBallsWindowId = 0;
 EWRAM_DATA static u8 sBattlePyramidFloorWindowId = 0;
+EWRAM_DATA static u8 sNuzlockeWindowId = 0;
+EWRAM_DATA static u8 sClockWindowId = 0;
+EWRAM_DATA static u8 sTimeLeftWindowId = 0;
+EWRAM_DATA static u8 sWaitListWindowId = 0;
 EWRAM_DATA static u8 sStartMenuCursorPos = 0;
+EWRAM_DATA static u8 sStartMenuScroll = 0;
 EWRAM_DATA static u8 sNumStartMenuActions = 0;
-EWRAM_DATA static u8 sCurrentStartMenuActions[9] = {0};
+EWRAM_DATA static u8 sCurrentStartMenuActions[10] = {0};
 EWRAM_DATA static u8 sUnknown_02037619[2] = {0};
 
-EWRAM_DATA static u8 (*sSaveDialogCallback)(void) = NULL;
+EWRAM_DATA static u8 (*sDialogCallback)(void) = NULL;
 EWRAM_DATA static u8 sSaveDialogTimer = 0;
 EWRAM_DATA static bool8 sSavingComplete = FALSE;
 EWRAM_DATA static u8 sSaveInfoWindowId = 0;
@@ -95,6 +121,7 @@ static bool8 StartMenuPokedexCallback(void);
 static bool8 StartMenuPokemonCallback(void);
 static bool8 StartMenuBagCallback(void);
 static bool8 StartMenuPokeNavCallback(void);
+static bool8 StartMenuWaitCallback(void);
 static bool8 StartMenuPlayerNameCallback(void);
 static bool8 StartMenuSaveCallback(void);
 static bool8 StartMenuOptionCallback(void);
@@ -105,12 +132,19 @@ static bool8 StartMenuBattlePyramidRetireCallback(void);
 static bool8 StartMenuBattlePyramidBagCallback(void);
 
 // Menu callbacks
+static bool8 WaitStartCallback(void);
+static bool8 WaitCallback(void);
 static bool8 SaveStartCallback(void);
 static bool8 SaveCallback(void);
 static bool8 BattlePyramidRetireStartCallback(void);
 static bool8 BattlePyramidRetireReturnCallback(void);
 static bool8 BattlePyramidRetireCallback(void);
 static bool8 HandleStartMenuInput(void);
+
+// Wait dialog callbacks
+static u8 WaitTryToWaitCallback(void);
+static u8 WaitCantWaitCallback(void);
+static u8 WaitDoWaitMenuCallback(void);
 
 // Save dialog callbacks
 static u8 SaveConfirmSaveCallback(void);
@@ -139,6 +173,9 @@ static void sub_80A08A4(u8 taskId);
 // Some other callback
 static bool8 sub_809FA00(void);
 
+// Script
+extern const u8 EventScript_NoRegisteredMenuOption[];
+
 static const struct WindowTemplate sSafariBallsWindowTemplate = {0, 1, 1, 9, 4, 0xF, 8};
 
 static const u8* const sPyramindFloorNames[] =
@@ -156,12 +193,25 @@ static const u8* const sPyramindFloorNames[] =
 static const struct WindowTemplate sPyramidFloorWindowTemplate_2 = {0, 1, 1, 0xA, 4, 0xF, 8};
 static const struct WindowTemplate sPyramidFloorWindowTemplate_1 = {0, 1, 1, 0xC, 4, 0xF, 8};
 
+// Clock window
+static const struct WindowTemplate sInfoWindowTemplate = {0, 2, 17, 26, 2, 0xF, 8};
+
+// Window to count fainted mons in Nuzlocke mode
+static const struct WindowTemplate sNuzlockeWindowTemplate = {0, 1, 1, 6, 4, 0xF, 62};
+
+// "Time left" wait window
+static const struct WindowTemplate sTimeLeftWindowTemplate = {0, 1, 1, 7, 4, 0xF, 62};
+
+// Wait list window
+static const struct WindowTemplate sWaitListWindowTemplate = {0, 23, 1, 28, 10, 0xF, 62};
+
 static const struct MenuAction sStartMenuItems[] =
 {
     {gText_MenuPokedex, {.u8_void = StartMenuPokedexCallback}},
     {gText_MenuPokemon, {.u8_void = StartMenuPokemonCallback}},
     {gText_MenuBag, {.u8_void = StartMenuBagCallback}},
     {gText_MenuPokenav, {.u8_void = StartMenuPokeNavCallback}},
+	{gText_MenuWait, {.u8_void = StartMenuWaitCallback}},
     {gText_MenuPlayer, {.u8_void = StartMenuPlayerNameCallback}},
     {gText_MenuSave, {.u8_void = StartMenuSaveCallback}},
     {gText_MenuOption, {.u8_void = StartMenuOptionCallback}},
@@ -206,13 +256,18 @@ static void BuildBattlePyramidStartMenu(void);
 static void BuildMultiBattleRoomStartMenu(void);
 static void ShowSafariBallsWindow(void);
 static void ShowPyramidFloorWindow(void);
+static void ShowNuzlockeWindow(void);
+static void CopyHourStrings(void);
+static void ShowClockWindow(void);
 static void RemoveExtraStartMenuWindows(void);
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count);
 static bool32 InitStartMenuStep(void);
-static void InitStartMenu(void);
+static void InitStartMenu(u8 step);
 static void CreateStartMenuTask(TaskFunc followupFunc);
 static void InitSave(void);
+static u8 RunWaitCallback(void);
 static u8 RunSaveCallback(void);
+static void ShowWaitMessage(const u8 *message, u8 (*waitCallback)(void));
 static void ShowSaveMessage(const u8 *message, u8 (*saveCallback)(void));
 static void sub_80A0014(void);
 static void HideSaveInfoWindow(void);
@@ -291,8 +346,15 @@ static void BuildNormalStartMenu(void)
         AddStartMenuAction(MENU_ACTION_POKENAV);
     }
 
+	AddStartMenuAction(MENU_ACTION_WAIT);
     AddStartMenuAction(MENU_ACTION_PLAYER);
-    AddStartMenuAction(MENU_ACTION_SAVE);
+	
+	// No save option on Deadlocke mode
+	if (gSaveBlock2Ptr->nuzlockeMode < NUZLOCKE_MODE_DEADLOCKE)
+	{
+		AddStartMenuAction(MENU_ACTION_SAVE);
+	}
+	
     AddStartMenuAction(MENU_ACTION_OPTION);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
@@ -303,6 +365,7 @@ static void BuildSafariZoneStartMenu(void)
     AddStartMenuAction(MENU_ACTION_POKEDEX);
     AddStartMenuAction(MENU_ACTION_POKEMON);
     AddStartMenuAction(MENU_ACTION_BAG);
+	AddStartMenuAction(MENU_ACTION_WAIT);
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_OPTION);
     AddStartMenuAction(MENU_ACTION_EXIT);
@@ -392,8 +455,128 @@ static void ShowPyramidFloorWindow(void)
     CopyWindowToVram(sBattlePyramidFloorWindowId, 2);
 }
 
+// Color themes for each nuzlocke mode
+const u8 gGreen[] = _("{COLOR GREEN}");
+const u8 gBlue[] = _("{COLOR BLUE}");
+const u8 gRed[] = _("{COLOR RED}"); //also used for coloring info pane stuff & for coloring the registered option text
+
+// Creates the window to show the number of Pokemon lost in nuzlocke mode
+static void ShowNuzlockeWindow(void)
+{
+    sNuzlockeWindowId = AddWindow(&sNuzlockeWindowTemplate);
+    PutWindowTilemap(sNuzlockeWindowId);
+    DrawStdWindowFrame(sNuzlockeWindowId, FALSE);
+	// Start string with relevant text colors (above) to reflect the nuzlocke mode you're on
+	switch(gSaveBlock2Ptr->nuzlockeMode)
+	{
+		case NUZLOCKE_MODE_NUZLOCKE:
+			StringExpandPlaceholders(gStringVar4, gGreen);
+			break;
+		case NUZLOCKE_MODE_HARDLOCKE:
+			StringExpandPlaceholders(gStringVar4, gBlue);
+			break;
+		case NUZLOCKE_MODE_DEADLOCKE:
+			StringExpandPlaceholders(gStringVar4, gRed);
+			break;
+	}
+	// Append "FAINTED:\n"
+    StringAppend(gStringVar4, gText_Fainted);
+	// Convert fainted counter to string, store in gStringVar1
+	ConvertIntToDecimalStringN(gStringVar1, gSaveBlock1Ptr->nuzlockeCounter, STR_CONV_MODE_LEFT_ALIGN, 5);
+	// Append the counter to the gStringVar4
+	StringAppend(gStringVar4, gStringVar1);
+	// Finally print
+    AddTextPrinterParameterized(sNuzlockeWindowId, 1, gStringVar4, 0, 1, 0xFF, NULL);
+    CopyWindowToVram(sNuzlockeWindowId, 2);
+}
+
+// Copies hour strings to gStringVar2
+static void CopyHourStrings(void)
+{
+	int hour;
+	bool8 isPM = FALSE; //FALSE = AM, TRUE = PM
+	bool8 isLate = FALSE; //FALSE = early season, TRUE = late season
+	
+	// Get current hour
+	hour = gSaveBlock2Ptr->timeHour;
+	// If hour = 0, add 12 for 12AM (midnight)
+	if (hour == 0)
+		hour += 12;
+	else
+	{
+		// If 1pm or after, subtract 12 then set it to PM
+		if (hour > 12)
+		{
+			hour -= 12;
+			isPM = TRUE;
+		}
+		// If 12pm or earlier, enable PM
+		else if (hour == 12)
+			isPM = TRUE;
+		// Otherwise is below 12pm, do nothing
+	}
+	// Finally convert to integer, store in gStringVar1
+	ConvertIntToDecimalStringN(gStringVar1, hour, STR_CONV_MODE_RIGHT_ALIGN, 2);
+	// Then append to gStringVar2
+	StringAppend(gStringVar2, gStringVar1);
+	// Then append AM or PM
+	StringAppend(gStringVar2, gAMPMLookup[isPM]);
+	// Append day/night status spacer
+	StringAppend(gStringVar2, gText_TimeDNSpacer);
+	// Append day/night status
+	StringAppend(gStringVar2, gDNStatusLookup[gSaveBlock2Ptr->dayNightStatus]);
+}
+	
+// Creates the information pane at the bottom which displays time, weather etc
+static void ShowClockWindow(void)
+{
+	int hour;
+	bool8 isPM = FALSE; //FALSE = AM, TRUE = PM
+	bool8 isLate = FALSE; //FALSE = early season, TRUE = late season
+	
+    sClockWindowId = AddWindow(&sInfoWindowTemplate);
+    PutWindowTilemap(sClockWindowId);
+    DrawStdWindowFrame(sClockWindowId, FALSE);
+	
+	// Begin by turning hour red
+	StringExpandPlaceholders(gStringVar4, gRed);
+	// Copy hour strings to gStringVar2
+	CopyHourStrings();
+	// Append day spacer
+	StringAppend(gStringVar4, gText_TimeDaySpacer);
+	// Append day
+	StringAppend(gStringVar4, gDayLookup[gSaveBlock2Ptr->timeDay]);
+	// Append season spacer
+	StringAppend(gStringVar4, gText_TimeSeasonSpacer);
+	// If Friday-Sunday & Week 1, it's late season
+	if (gSaveBlock2Ptr->timeDay > TIME_DAY_THURSDAY
+	 && gSaveBlock2Ptr->timeWeek == TIME_WEEK_1)
+	{
+		isLate = TRUE;
+		StringAppend(gStringVar4, gEarlyLateLookup[isLate]);
+	}
+	// If Monday-Wednesday & Week 0, it's early season
+	else if (gSaveBlock2Ptr->timeDay < TIME_DAY_THURSDAY
+	 && gSaveBlock2Ptr->timeWeek == TIME_WEEK_0)
+	{
+		StringAppend(gStringVar4, gEarlyLateLookup[isLate]);
+	}
+	// Make season text red
+	StringAppend(gStringVar4, gRed);
+	// Append season
+	StringAppend(gStringVar4, gSeasonLookup[gSaveBlock2Ptr->timeSeason]);
+	
+	// Print text
+    AddTextPrinterParameterized(sClockWindowId, 1, gStringVar4, 0, 1, 0xFF, NULL);
+    CopyWindowToVram(sClockWindowId, 2);
+}
+
 static void RemoveExtraStartMenuWindows(void)
 {
+	// Remove clock window
+	ClearStdWindowAndFrameToTransparent(sClockWindowId, FALSE);
+    RemoveWindow(sClockWindowId);
+		
     if (GetSafariZoneFlag())
     {
         ClearStdWindowAndFrameToTransparent(sSafariBallsWindowId, FALSE);
@@ -405,22 +588,40 @@ static void RemoveExtraStartMenuWindows(void)
         ClearStdWindowAndFrameToTransparent(sBattlePyramidFloorWindowId, FALSE);
         RemoveWindow(sBattlePyramidFloorWindowId);
     }
+	if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+	{
+		ClearStdWindowAndFrameToTransparent(sNuzlockeWindowId, FALSE);
+        RemoveWindow(sNuzlockeWindowId);
+	}
 }
 
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count)
 {
     s8 index = *pIndex;
+	bool8 red = FALSE;
 
     do
     {
-        if (sStartMenuItems[sCurrentStartMenuActions[index]].func.u8_void == StartMenuPlayerNameCallback)
+		// is it the player's name being printed?
+        if (sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].func.u8_void == StartMenuPlayerNameCallback)
         {
-            PrintPlayerNameOnWindow(GetStartMenuWindowId(), sStartMenuItems[sCurrentStartMenuActions[index]].text, 8, (index << 4) + 9);
+			// make it red if trainer card is registered
+			if (gSaveBlock2Ptr->startMenuRegister == sCurrentStartMenuActions[index + sStartMenuScroll])
+				red = TRUE;
+			PrintPlayerNameOnWindow(GetStartMenuWindowId(), sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text, 8, (index << 4) + 1, red);
         }
+		// any other menu option
         else
         {
-            StringExpandPlaceholders(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index]].text);
-            AddTextPrinterParameterized(GetStartMenuWindowId(), 1, gStringVar4, 8, (index << 4) + 9, 0xFF, NULL);
+			// make red if registered
+			if (gSaveBlock2Ptr->startMenuRegister == sCurrentStartMenuActions[index + sStartMenuScroll])
+			{
+				StringExpandPlaceholders(gStringVar4, gRed);
+				StringAppend(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text);
+			}
+			else
+				StringExpandPlaceholders(gStringVar4, sStartMenuItems[sCurrentStartMenuActions[index + sStartMenuScroll]].text);
+            AddTextPrinterParameterized(GetStartMenuWindowId(), 1, gStringVar4, 8, (index << 4) + 1, 0xFF, NULL);
         }
 
         index++;
@@ -441,10 +642,13 @@ static bool32 PrintStartMenuActions(s8 *pIndex, u32 count)
 static bool32 InitStartMenuStep(void)
 {
     s8 value = sUnknown_02037619[0];
+	u8 length;
 
     switch (value)
     {
     case 0:
+		// Stop clock updating when menu is opened
+		gMain.stopClockUpdating = TRUE;
         sUnknown_02037619[0]++;
         break;
     case 1:
@@ -453,15 +657,21 @@ static bool32 InitStartMenuStep(void)
         break;
     case 2:
         sub_81973A4();
-        DrawStdWindowFrame(sub_81979C4(sNumStartMenuActions), FALSE);
+		// Create start menu window
+        DrawStdWindowFrame(sub_81979C4(sNumStartMenuActions), FALSE); // Never more than 7 options
         sUnknown_02037619[1] = 0;
         sUnknown_02037619[0]++;
         break;
     case 3:
         if (GetSafariZoneFlag())
             ShowSafariBallsWindow();
-        if (InBattlePyramid())
+        else if (InBattlePyramid())
             ShowPyramidFloorWindow();
+		// Show nuzlocke window if in Nuzlocke mode
+		else if (gSaveBlock2Ptr->nuzlockeMode != NUZLOCKE_MODE_OFF)
+			ShowNuzlockeWindow();
+		// Always show info window
+		ShowClockWindow();
         sUnknown_02037619[0]++;
         break;
     case 4:
@@ -469,7 +679,12 @@ static bool32 InitStartMenuStep(void)
             sUnknown_02037619[0]++;
         break;
     case 5:
-        sStartMenuCursorPos = sub_81983AC(GetStartMenuWindowId(), 1, 0, 9, 16, sNumStartMenuActions, sStartMenuCursorPos);
+		// Create no more than 7 options
+		if (sNumStartMenuActions > 7)
+			length = 7;
+		else
+			length = sNumStartMenuActions;
+        sStartMenuCursorPos = sub_81983AC(GetStartMenuWindowId(), 1, 0, 1, 16, length, sStartMenuCursorPos);
         CopyWindowToVram(GetStartMenuWindowId(), TRUE);
         return TRUE;
     }
@@ -477,9 +692,9 @@ static bool32 InitStartMenuStep(void)
     return FALSE;
 }
 
-static void InitStartMenu(void)
+static void InitStartMenu(u8 step)
 {
-    sUnknown_02037619[0] = 0;
+    sUnknown_02037619[0] = step; // Step = 4 when updating the start menu whilst scrolling
     sUnknown_02037619[1] = 0;
     while (!InitStartMenuStep())
         ;
@@ -556,38 +771,93 @@ static bool8 HandleStartMenuInput(void)
     if (gMain.newKeys & DPAD_UP)
     {
         PlaySE(SE_SELECT);
-        sStartMenuCursorPos = Menu_MoveCursor(-1);
+		// If cursor is at the top & menu is scrolled down, decrease scroll counter by 1
+		if (sStartMenuCursorPos == 0
+		 && sStartMenuScroll != 0)
+		{
+			sStartMenuScroll--;
+			// Clear start menu
+			FillWindowPixelBuffer(GetStartMenuWindowId(), PIXEL_FILL(1));
+			// Update text
+			InitStartMenu(4);
+		}
+		// Try to move cursor up
+		else
+			sStartMenuCursorPos = Menu_MoveCursorNoWrapAround(-1);
     }
 
     if (gMain.newKeys & DPAD_DOWN)
     {
         PlaySE(SE_SELECT);
-        sStartMenuCursorPos = Menu_MoveCursor(1);
+		// If cursor is at the bottom & last menu item isn't exit, increase scroll counter by 1
+		if (sStartMenuCursorPos > 5
+		 && sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll]].func.u8_void != StartMenuExitCallback)
+		{
+			sStartMenuScroll++;
+			// Clear start menu
+			FillWindowPixelBuffer(GetStartMenuWindowId(), PIXEL_FILL(1));
+			// Update text
+			InitStartMenu(4);
+		}
+		// Try to move cursor down
+		else
+			sStartMenuCursorPos = Menu_MoveCursorNoWrapAround(1);
     }
 
     if (gMain.newKeys & A_BUTTON)
     {
         PlaySE(SE_SELECT);
-        if (sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos]].func.u8_void == StartMenuPokedexCallback)
+        if (sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll]].func.u8_void == StartMenuPokedexCallback)
         {
             if (GetNationalPokedexCount(FLAG_GET_SEEN) == 0)
                 return FALSE;
         }
 
-        gMenuCallback = sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos]].func.u8_void;
+        gMenuCallback = sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll]].func.u8_void;
 
         if (gMenuCallback != StartMenuSaveCallback
-            && gMenuCallback != StartMenuExitCallback
-            && gMenuCallback != StartMenuSafariZoneRetireCallback
-            && gMenuCallback != StartMenuBattlePyramidRetireCallback)
+		 && gMenuCallback != StartMenuWaitCallback
+         && gMenuCallback != StartMenuExitCallback
+         && gMenuCallback != StartMenuSafariZoneRetireCallback
+         && gMenuCallback != StartMenuBattlePyramidRetireCallback)
         {
            FadeScreen(1, 0);
         }
 
         return FALSE;
     }
-
-    if (gMain.newKeys & (START_BUTTON | B_BUTTON))
+	
+	// Try to register option when select is pressed
+	if (gMain.newKeys & SELECT_BUTTON)
+    {
+		// Exit, retire (safari zone & pyramid), pyramid bag and link player name cannot be registered. These are options 0x8 onwards
+        if (sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll] > 7)
+        {
+			// Give player feedback by playing a sound effect
+			PlaySE(SE_BOO);
+        }
+		else
+		{
+			// Clear registered option if select is pressed over the same option that is registered
+			if (gSaveBlock2Ptr->startMenuRegister == sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll])
+			{
+				gSaveBlock2Ptr->startMenuRegister = 0xF; // 0xF means no option is registered
+			}
+			// Any other option will be registered
+			else
+			{
+				// Stores the option where the cursor is to saveblock 2
+				gSaveBlock2Ptr->startMenuRegister = sCurrentStartMenuActions[sStartMenuCursorPos + sStartMenuScroll];
+			}
+			PlaySE(SE_SELECT);
+			// Clear start menu
+			FillWindowPixelBuffer(GetStartMenuWindowId(), PIXEL_FILL(1));
+			// Update text - this is needed to display the option as blue when it is registered instantly
+			InitStartMenu(4);
+		}
+    }
+	
+	if (gMain.newKeys & (START_BUTTON | B_BUTTON))
     {
         RemoveExtraStartMenuWindows();
         HideStartMenu();
@@ -654,6 +924,13 @@ static bool8 StartMenuPokeNavCallback(void)
 
         return TRUE;
     }
+
+    return FALSE;
+}
+
+static bool8 StartMenuWaitCallback(void)
+{
+    gMenuCallback = WaitStartCallback; // Display wait menu
 
     return FALSE;
 }
@@ -766,6 +1043,123 @@ static bool8 StartMenuBattlePyramidBagCallback(void)
     return FALSE;
 }
 
+// First called by wait option in start menu
+static bool8 WaitStartCallback(void)
+{
+    sDialogCallback = WaitTryToWaitCallback;
+    gMenuCallback = WaitCallback;
+
+    return FALSE;
+}
+
+// Works out where player is in the wait process
+static bool8 WaitCallback(void)
+{
+    switch (RunWaitCallback())
+    {
+	// Player is still navigating wait menu
+    case WAIT_IN_PROGRESS:
+        return FALSE;
+	// Player has waited successfully
+	case WAIT_DONE:
+		gMain.stopClockUpdating = FALSE;
+		//UnfreezeScreenPostSaveOrWait();
+		EnableBothScriptContexts();
+		break;
+	// Player chose not to/can't wait
+    case WAIT_RETURN:
+        //Go back to start menu
+        //Menu_EraseScreen();
+		InitStartMenu(0);
+		gMenuCallback = HandleStartMenuInput;
+    }
+
+    return FALSE;
+}
+
+static u8 WaitTryToWaitCallback(void)
+{
+	// Close start menu & extra windows
+    RemoveExtraStartMenuWindows();
+    ClearStdWindowAndFrame(GetStartMenuWindowId(), TRUE);
+    RemoveStartMenuWindow();
+	switch(gSaveBlock2Ptr->waitStatus)
+	{
+	case WAIT_ABLE:
+		if (gSaveBlock2Ptr->waitTime == 0) //no wait time left
+			ShowWaitMessage(gText_WaitingTooOften, WaitCantWaitCallback);
+		else
+			ShowWaitMessage(gText_HowLongToWait, WaitDoWaitMenuCallback);
+		break;
+	default:
+	case WAIT_UNABLE:
+		ShowWaitMessage(gText_YouCantWaitNow, WaitCantWaitCallback);
+	}
+	return WAIT_IN_PROGRESS;
+}
+
+// Player can't wait - return to start menu/overworld
+static u8 WaitCantWaitCallback(void)
+{
+	if (gMain.newKeys & (A_BUTTON | B_BUTTON))
+	{
+		// Remove textbox
+		sub_80A0014();
+		return WAIT_RETURN;
+	}
+}
+
+// Player can wait - display wait menu
+static u8 WaitDoWaitMenuCallback(void)
+{
+	int i;
+	
+	// Draw hours left window
+	sTimeLeftWindowId = AddWindow(&sTimeLeftWindowTemplate);
+    PutWindowTilemap(sTimeLeftWindowId);
+    DrawStdWindowFrame(sTimeLeftWindowId, FALSE);
+	
+	// Draw list window
+	sWaitListWindowId = AddWindow(&sWaitListWindowTemplate);
+    PutWindowTilemap(sWaitListWindowId);
+    DrawStdWindowFrame(sWaitListWindowId, FALSE);
+	
+	// Copies number of hours available to wait to gStringVar1
+	ConvertIntToDecimalStringN(gStringVar1, gSaveBlock2Ptr->waitTime, STR_CONV_MODE_RIGHT_ALIGN, 2);
+	
+	// Copy hour strings to gStringVar2
+	CopyHourStrings();
+	
+	// Does there need to be a space added?
+	if (gSaveBlock2Ptr->waitTime >= 10)
+		StringAppend(gStringVar1, CHAR_SPACE);
+		
+	// Append "HOUR"
+	StringAppend(gStringVar1, gText_Hour);
+	
+	// Does there need to be an S added?
+	if (gSaveBlock2Ptr->waitTime != 1)
+	{
+		StringAppend(gStringVar1, gText_S);
+	}
+	
+	//Menu_PrintText(gWaitText_HoursRemaining, 1, 1);
+	
+	//for (i = 0; i < 5; i++)
+	//{
+	//	Menu_PrintText(gWaitMenuText[i], 23, 1 + i * 2);
+	//}
+	
+	//sWaitMenuCursorPos = InitMenu(0, 0x17, 1, 5, 0, 6);
+	
+	// Print
+	CopyWindowToVram(sTimeLeftWindowId, 2);
+	CopyWindowToVram(sWaitListWindowId, 2);
+	
+	//dialogCallback = WaitMenu_InputProcessCallback;
+	return WAIT_IN_PROGRESS;
+}
+
 static bool8 SaveStartCallback(void)
 {
     InitSave();
@@ -782,7 +1176,7 @@ static bool8 SaveCallback(void)
         return FALSE;
     case SAVE_CANCELED: // Back to start menu
         ClearDialogWindowAndFrameToTransparent(0, FALSE);
-        InitStartMenu();
+        InitStartMenu(0);
         gMenuCallback = HandleStartMenuInput;
         return FALSE;
     case SAVE_SUCCESS:
@@ -807,7 +1201,7 @@ static bool8 BattlePyramidRetireStartCallback(void)
 
 static bool8 BattlePyramidRetireReturnCallback(void)
 {
-    InitStartMenu();
+    InitStartMenu(0);
     gMenuCallback = HandleStartMenuInput;
 
     return FALSE;
@@ -837,8 +1231,19 @@ static bool8 BattlePyramidRetireCallback(void)
 static void InitSave(void)
 {
     save_serialize_map();
-    sSaveDialogCallback = SaveConfirmSaveCallback;
+    sDialogCallback = SaveConfirmSaveCallback;
     sSavingComplete = FALSE;
+}
+
+static u8 RunWaitCallback(void)
+{
+    // True if text is still printing
+    if (RunTextPrintersAndIsPrinter0Active() == TRUE)
+    {
+        return WAIT_IN_PROGRESS;
+    }
+	
+    return sDialogCallback();
 }
 
 static u8 RunSaveCallback(void)
@@ -850,13 +1255,24 @@ static u8 RunSaveCallback(void)
     }
 
     sSavingComplete = FALSE;
-    return sSaveDialogCallback();
+    return sDialogCallback();
 }
 
-void SaveGame(void) // Called from cable_club.s
+void SaveGame(void) // Called when save is used via select and from cable_club.s
 {
+	// Make sure window borders load correctly if used via select
+	if (gMain.optionRegister)
+		sub_81973A4();
     InitSave();
     CreateTask(SaveGameTask, 0x50);
+}
+
+static void ShowWaitMessage(const u8 *message, u8 (*waitCallback)(void))
+{
+    StringExpandPlaceholders(gStringVar4, message);
+    sub_819786C(0, TRUE);
+    AddTextPrinterForMessage_2(TRUE);
+    sDialogCallback = waitCallback;
 }
 
 static void ShowSaveMessage(const u8 *message, u8 (*saveCallback)(void))
@@ -865,7 +1281,7 @@ static void ShowSaveMessage(const u8 *message, u8 (*saveCallback)(void))
     sub_819786C(0, TRUE);
     AddTextPrinterForMessage_2(TRUE);
     sSavingComplete = TRUE;
-    sSaveDialogCallback = saveCallback;
+    sDialogCallback = saveCallback;
 }
 
 static void SaveGameTask(u8 taskId)
@@ -887,6 +1303,10 @@ static void SaveGameTask(u8 taskId)
 
     DestroyTask(taskId);
     EnableBothScriptContexts();
+	// Allow clock to update again
+	gMain.stopClockUpdating = FALSE;
+	// Clear option register
+	gMain.optionRegister = FALSE;
 }
 
 static void sub_80A0014(void)
@@ -956,7 +1376,7 @@ static u8 SaveConfirmSaveCallback(void)
 static u8 SaveYesNoCallback(void)
 {
     DisplayYesNoMenuDefaultYes(); // Show Yes/No menu
-    sSaveDialogCallback = SaveConfirmInputCallback;
+    sDialogCallback = SaveConfirmInputCallback;
     return SAVE_IN_PROGRESS;
 }
 
@@ -971,14 +1391,14 @@ static u8 SaveConfirmInputCallback(void)
         case 2:
             if (gDifferentSaveFile == FALSE)
             {
-                sSaveDialogCallback = SaveFileExistsCallback;
+                sDialogCallback = SaveFileExistsCallback;
                 return SAVE_IN_PROGRESS;
             }
 
-            sSaveDialogCallback = SaveSavingMessageCallback;
+            sDialogCallback = SaveSavingMessageCallback;
             return SAVE_IN_PROGRESS;
         default:
-            sSaveDialogCallback = SaveFileExistsCallback;
+            sDialogCallback = SaveFileExistsCallback;
             return SAVE_IN_PROGRESS;
         }
     case -1: // B Button
@@ -1009,14 +1429,14 @@ static u8 SaveFileExistsCallback(void)
 static u8 SaveConfirmOverwriteDefaultNoCallback(void)
 {
     DisplayYesNoMenuWithDefault(1); // Show Yes/No menu (No selected as default)
-    sSaveDialogCallback = SaveOverwriteInputCallback;
+    sDialogCallback = SaveOverwriteInputCallback;
     return SAVE_IN_PROGRESS;
 }
 
 static u8 SaveConfirmOverwriteCallback(void)
 {
     DisplayYesNoMenuDefaultYes(); // Show Yes/No menu
-    sSaveDialogCallback = SaveOverwriteInputCallback;
+    sDialogCallback = SaveOverwriteInputCallback;
     return SAVE_IN_PROGRESS;
 }
 
@@ -1025,7 +1445,7 @@ static u8 SaveOverwriteInputCallback(void)
     switch (Menu_ProcessInputNoWrapClearOnChoose())
     {
     case 0: // Yes
-        sSaveDialogCallback = SaveSavingMessageCallback;
+        sDialogCallback = SaveSavingMessageCallback;
         return SAVE_IN_PROGRESS;
     case -1: // B Button
     case 1: // No
@@ -1078,7 +1498,7 @@ static u8 SaveSuccessCallback(void)
     if (!IsTextPrinterActive(0))
     {
         PlaySE(SE_SAVE);
-        sSaveDialogCallback = SaveReturnSuccessCallback;
+        sDialogCallback = SaveReturnSuccessCallback;
     }
 
     return SAVE_IN_PROGRESS;
@@ -1102,7 +1522,7 @@ static u8 SaveErrorCallback(void)
     if (!IsTextPrinterActive(0))
     {
         PlaySE(SE_BOO);
-        sSaveDialogCallback = SaveReturnErrorCallback;
+        sDialogCallback = SaveReturnErrorCallback;
     }
 
     return SAVE_IN_PROGRESS;
@@ -1123,7 +1543,7 @@ static u8 SaveReturnErrorCallback(void)
 
 static void InitBattlePyramidRetire(void)
 {
-    sSaveDialogCallback = BattlePyramidConfirmRetireCallback;
+    sDialogCallback = BattlePyramidConfirmRetireCallback;
     sSavingComplete = FALSE;
 }
 
@@ -1139,7 +1559,7 @@ static u8 BattlePyramidConfirmRetireCallback(void)
 static u8 BattlePyramidRetireYesNoCallback(void)
 {
     DisplayYesNoMenuWithDefault(1); // Show Yes/No menu (No selected as default)
-    sSaveDialogCallback = BattlePyramidRetireInputCallback;
+    sDialogCallback = BattlePyramidRetireInputCallback;
 
     return SAVE_IN_PROGRESS;
 }
@@ -1327,7 +1747,7 @@ static void ShowSaveInfoWindow(void)
     AddTextPrinterParameterized(sSaveInfoWindowId, 1, gText_SavingPlayer, 0, yOffset, 0xFF, NULL);
     sub_819A344(0, gStringVar4, color);
     xOffset = GetStringRightAlignXOffset(1, gStringVar4, 0x70);
-    PrintPlayerNameOnWindow(sSaveInfoWindowId, gStringVar4, xOffset, yOffset);
+    PrintPlayerNameOnWindow(sSaveInfoWindowId, gStringVar4, xOffset, yOffset, FALSE);
 
     // Print badge count
     yOffset = 0x21;
@@ -1382,6 +1802,8 @@ static void HideStartMenuWindow(void)
 {
     ClearStdWindowAndFrame(GetStartMenuWindowId(), TRUE);
     RemoveStartMenuWindow();
+	// Clock can run again
+	gMain.stopClockUpdating = FALSE;
     ScriptUnfreezeEventObjects();
     ScriptContext2_Disable();
 }
@@ -1396,4 +1818,65 @@ void AppendToList(u8 *list, u8 *pos, u8 newEntry)
 {
     list[*pos] = newEntry;
     (*pos)++;
+}
+
+// Select is pressed in the overworld
+bool32 UseRegisteredMenuOption(void)
+{
+	// Hide map name in case it's being shown
+	HideMapNamePopUpWindow();
+	
+	// 0xF means no option is registered
+	if (gSaveBlock2Ptr->startMenuRegister != 0xF)
+	{
+		gMain.optionRegister = TRUE;
+		PlaySE(SE_SELECT);
+		RunRegisteredStartOption();
+		return;
+	}
+	// If nothing is registered, run script
+	else
+		ScriptContext1_SetupScript(EventScript_NoRegisteredMenuOption);
+	return TRUE;
+}
+
+// Runs the start menu option that is bound to select
+void RunRegisteredStartOption(void)
+{
+	// Stop clock updating as an option is run
+	gMain.stopClockUpdating = TRUE;
+	ScriptContext2_Enable();
+	
+	if (!gPaletteFade.active)
+    {	
+		// Save/wait are called differently
+		if (sStartMenuItems[gSaveBlock2Ptr->startMenuRegister].func.u8_void == StartMenuSaveCallback)
+			SaveGame();
+		// Create task if not save/wait
+		else
+			CreateTask(RegisteredOptionTask, 0x50);	
+	}
+
+	// No need to fade screen for save/wait
+	if (sStartMenuItems[gSaveBlock2Ptr->startMenuRegister].func.u8_void != StartMenuSaveCallback
+	 && sStartMenuItems[gSaveBlock2Ptr->startMenuRegister].func.u8_void != StartMenuWaitCallback)
+		FadeScreen(1, 0);
+}
+
+// Creates the task itself
+void RegisteredOptionTask(u8 taskId)
+{
+    struct Task *task = &gTasks[taskId];
+
+    switch (task->data[0])
+    {
+    case 0:
+        gMenuCallback = sStartMenuItems[gSaveBlock2Ptr->startMenuRegister].func.u8_void;
+        task->data[0]++;
+        break;
+    case 1:
+        if (gMenuCallback() == 1)
+            DestroyTask(taskId);
+        break;
+    }
 }

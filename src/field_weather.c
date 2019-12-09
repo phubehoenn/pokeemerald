@@ -161,8 +161,7 @@ void StartWeather(void)
 {
     if (!FuncIsActiveTask(Task_WeatherMain))
     {
-        u8 index = AllocSpritePalette(0x1200);
-        CpuCopy32(gUnknown_083970E8, &gPlttBufferUnfaded[0x100 + index * 16], 32);
+        u8 index = UpdateWeatherPal();
         BuildGammaShiftTables();
         gWeatherPtr->altGammaSpritePalIndex = index;
         gWeatherPtr->weatherPicSpritePalIndex = AllocSpritePalette(0x1201);
@@ -184,6 +183,18 @@ void StartWeather(void)
         gWeatherPtr->weatherChangeComplete = TRUE;
         gWeatherPtr->taskId = CreateTask(Task_WeatherInit, 80);
     }
+}
+
+// Weather must use day/night filter
+u8 UpdateWeatherPal(void)
+{
+	u8 index = 15;
+	if (gWeatherPtr->currWeather == WEATHER_SANDSTORM)
+		LoadPaletteWithDayNightFilter(gSandstormWeatherPalette, 16 * index + 0x100, 1, FILTER_MODE_SPRITE);
+	else if (gWeatherPtr->currWeather == WEATHER_CLOUDS)
+		LoadPaletteWithDayNightFilter(gCloudsWeatherPalette, 16 * index + 0x100, 1, FILTER_MODE_REFLECTION); // Clouds are reflections in water, so mode = 2
+	else
+		LoadPaletteWithDayNightFilter(gUnknown_083970E8, 16 * index + 0x100, 1, FILTER_MODE_SPRITE);
 }
 
 void SetNextWeather(u8 weather)
@@ -857,10 +868,12 @@ u8 sub_80ABF20(void)
         return 0;
 }
 
-void LoadCustomWeatherSpritePalette(const u16 *palette)
+void LoadCustomWeatherSpritePalette(const struct SpritePalette *palette)
 {
-    LoadPalette(palette, 0x100 + gWeatherPtr->weatherPicSpritePalIndex * 16, 32);
-    UpdateSpritePaletteWithWeather(gWeatherPtr->weatherPicSpritePalIndex);
+	// Weather uses day/night filter. This routine loads sandstorm palette
+    //LoadPaletteWithDayNightFilter(palette, 0x100 + gWeatherPtr->weatherPicSpritePalIndex * 16, 1);
+	LoadSpritePalette(palette);
+    UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(palette->tag));
 }
 
 static void LoadDroughtWeatherPalette(u8 *gammaIndexPtr, u8 *a1)

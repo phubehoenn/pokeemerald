@@ -168,6 +168,12 @@ void DisplayDadsAdviceCannotUseItemMessage(u8 taskId, bool8 isUsingRegisteredKey
     DisplayCannotUseItemMessage(taskId, isUsingRegisteredKeyItemOnField, gText_DadsAdvice);
 }
 
+// Used when attempting to use a revive item on the field in Nuzlocke mode
+void DisplayCannotUseReviveMessage(u8 taskId, bool8 isUsingRegisteredKeyItemOnField)
+{
+    DisplayCannotUseItemMessage(taskId, isUsingRegisteredKeyItemOnField, gText_CantUseRevive);
+}
+
 void DisplayCannotDismountBikeMessage(u8 taskId, bool8 isUsingRegisteredKeyItemOnField)
 {
     DisplayCannotUseItemMessage(taskId, isUsingRegisteredKeyItemOnField, gText_CantDismountBike);
@@ -210,9 +216,19 @@ void ItemUseOutOfBattle_Bike(u8 taskId)
     s16 coordsY;
     s16 coordsX;
     u8 behavior;
+	u8 behavior2;
     PlayerGetDestCoords(&coordsX, &coordsY);
     behavior = MapGridGetMetatileBehaviorAt(coordsX, coordsY);
-    if (FlagGet(FLAG_SYS_CYCLING_ROAD) == TRUE || MetatileBehavior_IsVerticalRail(behavior) == TRUE || MetatileBehavior_IsHorizontalRail(behavior) == TRUE || MetatileBehavior_IsIsolatedVerticalRail(behavior) == TRUE || MetatileBehavior_IsIsolatedHorizontalRail(behavior) == TRUE)
+	behavior2 = MapGridGetMetatileBehavior2At(coordsX, coordsY);
+    if (FlagGet(FLAG_SYS_CYCLING_ROAD) == TRUE
+	 || MetatileBehavior_IsVerticalRail(behavior) == TRUE
+	 || MetatileBehavior_IsVerticalRail(behavior2) == TRUE
+	 || MetatileBehavior_IsHorizontalRail(behavior) == TRUE
+	 || MetatileBehavior_IsHorizontalRail(behavior2) == TRUE
+	 || MetatileBehavior_IsIsolatedVerticalRail(behavior) == TRUE
+	 || MetatileBehavior_IsIsolatedVerticalRail(behavior2) == TRUE
+	 || MetatileBehavior_IsIsolatedHorizontalRail(behavior) == TRUE
+	 || MetatileBehavior_IsIsolatedHorizontalRail(behavior2) == TRUE)
         DisplayCannotDismountBikeMessage(taskId, data[3]);
     else
     {
@@ -241,11 +257,13 @@ bool32 CanFish(void)
 {
     s16 x, y;
     u16 tileBehavior;
+	u16 tileBehavior2;
 
     GetXYCoordsOneStepInFrontOfPlayer(&x, &y);
     tileBehavior = MapGridGetMetatileBehaviorAt(x, y);
+	tileBehavior2 = MapGridGetMetatileBehavior2At(x, y);
 
-    if (MetatileBehavior_IsWaterfall(tileBehavior))
+    if (MetatileBehavior_IsWaterfall(tileBehavior) || MetatileBehavior_IsWaterfall(tileBehavior2))
         return FALSE;
 
     if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_UNDERWATER))
@@ -258,9 +276,9 @@ bool32 CanFish(void)
     }
     else
     {
-        if (MetatileBehavior_IsSurfableWaterOrUnderwater(tileBehavior) && !MapGridIsImpassableAt(x, y))
+        if ((MetatileBehavior_IsSurfableWaterOrUnderwater(tileBehavior) || MetatileBehavior_IsSurfableWaterOrUnderwater(tileBehavior2)) && !MapGridIsImpassableAt(x, y))
             return TRUE;
-        if (MetatileBehavior_8089510(tileBehavior) == TRUE)
+        if (MetatileBehavior_8089510(tileBehavior) == TRUE || MetatileBehavior_8089510(tileBehavior2) == TRUE)
             return TRUE;
     }
 

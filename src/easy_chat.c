@@ -4733,7 +4733,7 @@ static void sub_811E828(void)
     if (GetEasyChatScreenFrameId() != 4)
         return;
 
-    spriteId = AddPseudoEventObject(graphicsId, SpriteCallbackDummy, 76, 40, 0);
+    spriteId = AddPseudoEventObject(graphicsId, SpriteCallbackDummy, 76, 40, 0, FALSE);
     if (spriteId != MAX_SPRITES)
     {
         gSprites[spriteId].oam.priority = 0;
@@ -4745,7 +4745,8 @@ static void sub_811E828(void)
         SpriteCallbackDummy,
         52,
         40,
-        0);
+        0,
+		FALSE);
 
     if (spriteId != MAX_SPRITES)
     {

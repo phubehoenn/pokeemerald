@@ -1350,7 +1350,7 @@ static void sub_8080018(void)
         {
             sBerryBlenderData->field_154 = GetCurrentMapMusic();
         }
-        PlayBGM(MUS_CYCLING);
+        PlayBGM(MUS_CYCLING, TRUE);
         break;
     }
 
@@ -1647,7 +1647,7 @@ static void sub_80808D4(void)
         if (GetCurrentMapMusic() != MUS_CYCLING)
             sBerryBlenderData->field_154 = GetCurrentMapMusic();
 
-        PlayBGM(MUS_CYCLING);
+        PlayBGM(MUS_CYCLING, TRUE);
         PlaySE(SE_MOTER);
         Blender_ControlHitPitch();
         break;
@@ -2009,12 +2009,7 @@ static void sub_8081744(void)
 
     if (sBerryBlenderData->gameEndState == 0)
     {
-        if (gSaveBlock2Ptr->optionsButtonMode == OPTIONS_BUTTON_MODE_L_EQUALS_A && gMain.newKeys & A_BUTTON)
-        {
-            if ((gMain.heldKeysRaw & (A_BUTTON | L_BUTTON)) != (A_BUTTON | L_BUTTON))
-                A_pressed = TRUE;
-        }
-        else if (gMain.newKeys & A_BUTTON)
+        if (gMain.newKeys & A_BUTTON)
         {
             A_pressed = TRUE;
         }
@@ -3567,7 +3562,7 @@ static void sub_8083F3C(u8 taskId)
     }
     if (IsFanfareTaskInactive())
     {
-        PlayBGM(sBerryBlenderData->field_154);
+        PlayBGM(sBerryBlenderData->field_154, 2);
         DestroyTask(taskId);
     }
 }

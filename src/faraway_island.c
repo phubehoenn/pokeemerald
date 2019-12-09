@@ -256,13 +256,19 @@ u32 GetMewMoveDirection(void)
 
 static bool8 CanMewWalkToCoords(s16 x, s16 y)
 {
+	bool8 check;
+	
     if (gEventObjects[gPlayerAvatar.eventObjectId].currentCoords.x == x
      && gEventObjects[gPlayerAvatar.eventObjectId].currentCoords.y == y)
     {
         return FALSE;
     }
 
-    return MetatileBehavior_IsPokeGrass(MapGridGetMetatileBehaviorAt(x, y));
+	check = MetatileBehavior_IsPokeGrass(MapGridGetMetatileBehaviorAt(x, y));
+	if (!check)
+		check = MetatileBehavior_IsPokeGrass(MapGridGetMetatileBehavior2At(x, y));
+	
+    return check;
 }
 
 static u8 sub_81D4890(u8 ignoredDir)

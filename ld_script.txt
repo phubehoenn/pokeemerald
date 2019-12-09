@@ -119,6 +119,7 @@ SECTIONS {
         src/clock.o(.text);
         src/reset_rtc_screen.o(.text);
         src/start_menu.o(.text);
+		src/start_menu.o(.data);
         src/tileset_anims.o(.text);
         src/palette.o(.text);
         src/sound.o(.text);
@@ -138,6 +139,7 @@ SECTIONS {
         src/field_effect.o(.text);
         src/scanline_effect.o(.text);
         src/option_menu.o(.text);
+		src/option_menu.o(.data);
         src/pokedex.o(.text);
         src/trainer_card.o(.text);
         src/frontier_pass.o(.text);
@@ -325,6 +327,7 @@ SECTIONS {
         src/gym_leader_rematch.o(.text);
         src/unk_transition.o(.text);
         src/international_string_util.o(.text);
+		src/day_night_filter.o(.text);
     } =0
 
     script_data :
@@ -686,6 +689,8 @@ SECTIONS {
         data/mystery_event.o(.rodata);
         src/m4a_tables.o(.rodata);
         data/sound_data.o(.rodata);
+		src/play_time.o(.rodata);
+		src/day_night_filter.o(.rodata);
     } =0
 
     song_data :
