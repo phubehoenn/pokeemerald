@@ -37,12 +37,7 @@ static const struct UnknownStruct sBigMonSizeTable[] =
     { 1700,   1,   -26 },
 };
 
-static const u8 sGiftRibbonsMonDataIds[] =
-{
-    MON_DATA_GIFT_RIBBON_1, MON_DATA_GIFT_RIBBON_2, MON_DATA_GIFT_RIBBON_3,
-    MON_DATA_GIFT_RIBBON_4, MON_DATA_GIFT_RIBBON_5, MON_DATA_GIFT_RIBBON_6,
-    MON_DATA_GIFT_RIBBON_7
-};
+static const u8 sGiftRibbonsMonDataIds[] = { MON_DATA_GIFT_RIBBON_1, MON_DATA_GIFT_RIBBON_2, MON_DATA_GIFT_RIBBON_3, MON_DATA_GIFT_RIBBON_4 };
 
 extern const u8 gText_DecimalPoint[];
 extern const u8 gText_Marco[];

@@ -6,11 +6,26 @@
 
 struct PokemonSubstruct0
 {
-    u16 species;
-    u16 heldItem;
+    u32 species:13; //8192 species available to be used
+    u32 heldItem:12; //4096 items available to be used
+    u32 pokeball:7; //128 pokeballs max
     u32 experience;
     u8 ppBonuses;
-    u8 friendship;
+ 
+ /* 0x09 */ u32 coolRibbon:3;
+ /* 0x09 */ u32 beautyRibbon:3;
+ /* 0x09 */ u32 cuteRibbon:3;
+ /* 0x0A */ u32 smartRibbon:3;
+ /* 0x0A */ u32 toughRibbon:3;
+ /* 0x0A */ u32 championRibbon:1;
+ /* 0x0B */ u32 winningRibbon:1;
+ /* 0x0B */ u32 victoryRibbon:1;
+ /* 0x0B */ u32 artistRibbon:1;
+ /* 0x0B */ u32 effortRibbon:1;
+ /* 0x0B */ u32 giftRibbon1:1;
+ /* 0x0B */ u32 giftRibbon2:1;
+ /* 0x0B */ u32 giftRibbon3:1;
+ /* 0x0B */ u32 giftRibbon4:1;
 };
 
 struct PokemonSubstruct1
@@ -40,38 +55,24 @@ struct PokemonSubstruct3
  /* 0x00 */ u8 pokerus;
  /* 0x01 */ u8 metLocation;
 
- /* 0x02 */ u16 metLevel:7;
- /* 0x02 */ u16 metGame:4;
- /* 0x03 */ u16 pokeball:4;
- /* 0x03 */ u16 otGender:1;
-
- /* 0x04 */ u32 hpIV:5;
- /* 0x04 */ u32 attackIV:5;
- /* 0x05 */ u32 defenseIV:5;
- /* 0x05 */ u32 speedIV:5;
- /* 0x05 */ u32 spAttackIV:5;
- /* 0x06 */ u32 spDefenseIV:5;
- /* 0x07 */ u32 isEgg:1;
-
- /* 0x08 */ u32 coolRibbon:3;
- /* 0x08 */ u32 beautyRibbon:3;
- /* 0x08 */ u32 cuteRibbon:3;
- /* 0x09 */ u32 smartRibbon:3;
- /* 0x09 */ u32 toughRibbon:3;
- /* 0x09 */ u32 championRibbon:1;
- /* 0x0A */ u32 winningRibbon:1;
- /* 0x0A */ u32 victoryRibbon:1;
- /* 0x0A */ u32 artistRibbon:1;
- /* 0x0A */ u32 effortRibbon:1;
- /* 0x0A */ u32 giftRibbon1:1;
- /* 0x0A */ u32 giftRibbon2:1;
- /* 0x0A */ u32 giftRibbon3:1;
- /* 0x0A */ u32 giftRibbon4:1;
- /* 0x0B */ u32 giftRibbon5:1;
- /* 0x0B */ u32 giftRibbon6:1;
- /* 0x0B */ u32 giftRibbon7:1;
- /* 0x0B */ u32 fatefulEncounter:2;
- /* 0x0B */ u32 abilityNum:2;
+ /* 0x02 */ u8 metLevel:7; //Removed metGame because unneeded, moved pokeball from here to 0, moved friendship here from 0
+ /* 0x02 */ u8 otGender:1;
+ /* 0x03 */ u8 friendship;
+ 
+ /* 0x04 */ u32 type_1:5;
+ /* 0x04 */ u32 type_2:5;
+ /* 0x05 */ u32 hidden_type:5;
+ /* 0x06 */ u32 nature:5;
+ /* 0x06 */ u32 ability:10; //1024 abilities available
+ /* 0x07 */ u32 abilityNum:2;
+ 
+ /* 0x08 */ u32 hpIV:5;
+ /* 0x08 */ u32 attackIV:5;
+ /* 0x09 */ u32 defenseIV:5;
+ /* 0x0A */ u32 speedIV:5;
+ /* 0x0A */ u32 spAttackIV:5;
+ /* 0x0B */ u32 spDefenseIV:5;
+ /* 0x0B */ u32 isEgg:1;
  /* 0x0B */ u32 obedient:1;
 };
 

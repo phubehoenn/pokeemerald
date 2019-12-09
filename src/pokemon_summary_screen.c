@@ -119,7 +119,7 @@ static EWRAM_DATA struct PokemonSummaryScreenData
         u8 abilityNum; // 0x8
         u8 metLocation; // 0x9
         u8 metLevel; // 0xA
-        u8 metGame; // 0xB
+        u8 unused; // 0xB
         u32 pid; // 0xC
         u32 exp; // 0x10
         u16 moves[MAX_MON_MOVES]; // 0x14
@@ -132,7 +132,7 @@ static EWRAM_DATA struct PokemonSummaryScreenData
         u16 spdef; // 0x2A
         u16 speed; // 0x2C
         u16 item; // 0x2E
-        u16 friendship; // 0x30
+        u16 friendship; // 0x30 could save a byte here maybe?
         u8 OTGender; // 0x32
         u8 nature; // 0x33
         u8 ppBonuses; // 0x34
@@ -1512,7 +1512,6 @@ static bool8 ExtractMonDataToSummaryStruct(struct Pokemon *mon)
         sum->OTID = GetMonData(mon, MON_DATA_OT_ID);
         sum->metLocation = GetMonData(mon, MON_DATA_MET_LOCATION);
         sum->metLevel = GetMonData(mon, MON_DATA_MET_LEVEL);
-        sum->metGame = GetMonData(mon, MON_DATA_MET_GAME);
         sum->friendship = GetMonData(mon, MON_DATA_FRIENDSHIP);
         break;
     default:
@@ -3284,18 +3283,12 @@ static bool8 DoesMonOTMatchOwner(void)
 
 static bool8 DidMonComeFromGBAGames(void)
 {
-    struct PokeSummary *sum = &sMonSummaryScreen->summary;
-    if (sum->metGame > 0 && sum->metGame <= VERSION_LEAF_GREEN)
-        return TRUE;
-    return FALSE;
+    return TRUE;
 }
 
 bool8 DidMonComeFromRSE(void)
 {
-    struct PokeSummary *sum = &sMonSummaryScreen->summary;
-    if (sum->metGame > 0 && sum->metGame <= VERSION_EMERALD)
-        return TRUE;
-    return FALSE;
+    return TRUE;
 }
 
 static bool8 IsInGamePartnerMon(void)

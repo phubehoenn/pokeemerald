@@ -2405,9 +2405,6 @@ u8 GetRibbonCount(struct Pokemon *pokemon)
     nRibbons += GetMonData(pokemon, MON_DATA_GIFT_RIBBON_2);
     nRibbons += GetMonData(pokemon, MON_DATA_GIFT_RIBBON_3);
     nRibbons += GetMonData(pokemon, MON_DATA_GIFT_RIBBON_4);
-    nRibbons += GetMonData(pokemon, MON_DATA_GIFT_RIBBON_5);
-    nRibbons += GetMonData(pokemon, MON_DATA_GIFT_RIBBON_6);
-    nRibbons += GetMonData(pokemon, MON_DATA_GIFT_RIBBON_7);
     return nRibbons;
 }
 
@@ -2427,9 +2424,6 @@ u8 TV_MonDataIdxToRibbon(u8 monDataIdx)
     if (monDataIdx == MON_DATA_GIFT_RIBBON_2)   return 26;
     if (monDataIdx == MON_DATA_GIFT_RIBBON_3)   return 27;
     if (monDataIdx == MON_DATA_GIFT_RIBBON_4)   return 28;
-    if (monDataIdx == MON_DATA_GIFT_RIBBON_5)   return 29;
-    if (monDataIdx == MON_DATA_GIFT_RIBBON_6)   return 30;
-    if (monDataIdx == MON_DATA_GIFT_RIBBON_7)   return 31;
     return 0;
 }
 
