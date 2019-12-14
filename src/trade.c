@@ -44,6 +44,7 @@
 #include "union_room.h"
 #include "util.h"
 #include "window.h"
+#include "constants/abilities.h"
 #include "constants/contest.h"
 #include "constants/easy_chat.h"
 #include "constants/items.h"
@@ -57,18 +58,22 @@
 
 struct InGameTrade {
     /*0x00*/ u8 nickname[POKEMON_NAME_LENGTH + 1];
-    /*0x0C*/ u16 species;
-    /*0x0E*/ u8 ivs[NUM_STATS];
-    /*0x14*/ u8 abilityNum;
-    /*0x18*/ u32 otId;
-    /*0x1C*/ u8 conditions[CONTEST_CATEGORIES_COUNT];
-    /*0x24*/ u32 personality;
-    /*0x28*/ u16 heldItem;
-    /*0x2A*/ u8 mailNum;
-    /*0x2B*/ u8 otName[11];
-    /*0x36*/ u8 otGender;
-    /*0x37*/ u8 sheen;
-    /*0x38*/ u16 requestedSpecies;
+    /*0x0F*/ u16 species;
+	/*0x11*/ u16 requestedSpecies;
+	/*0x13*/ u8 nature;
+	/*0x14*/ u8 otGender;
+    /*0x15*/ u8 ivs[NUM_STATS];
+    /*0x1B*/ u16 heldItem;
+    /*0x1D*/ u32 otId;
+    /*0x22*/ u8 conditions[CONTEST_CATEGORIES_COUNT];
+    /*0x28*/ u32 personality;
+    /*0x2C*/ u16 mailNum;
+    /*0x2D*/ u8 otName[7];
+    /*0x39*/ u8 sheen;
+    /*0x3A*/ u8 type1;
+    /*0x3B*/ u8 type2;
+    /*0x3C*/ u8 hiddenType;
+    /*0x3D*/ u16 ability;
 };
 
 static EWRAM_DATA u8 *sMessageBoxAllocBuffer = NULL;
@@ -4640,7 +4645,11 @@ static void _CreateInGameTradePokemon(u8 whichPlayerMon, u8 whichInGameTrade)
     SetMonData(pokemon, MON_DATA_NICKNAME, inGameTrade->nickname);
     SetMonData(pokemon, MON_DATA_OT_NAME, inGameTrade->otName);
     SetMonData(pokemon, MON_DATA_OT_GENDER, &inGameTrade->otGender);
-    SetMonData(pokemon, MON_DATA_ABILITY_NUM, &inGameTrade->abilityNum);
+    SetMonData(pokemon, MON_DATA_ABILITY, &inGameTrade->ability);
+    SetMonData(pokemon, MON_DATA_NATURE, &inGameTrade->nature);
+    SetMonData(pokemon, MON_DATA_TYPE1, &inGameTrade->type1);
+    SetMonData(pokemon, MON_DATA_TYPE2, &inGameTrade->type2);
+    SetMonData(pokemon, MON_DATA_HIDDEN_TYPE, &inGameTrade->hiddenType);
     SetMonData(pokemon, MON_DATA_BEAUTY, &inGameTrade->conditions[1]);
     SetMonData(pokemon, MON_DATA_CUTE, &inGameTrade->conditions[2]);
     SetMonData(pokemon, MON_DATA_COOL, &inGameTrade->conditions[0]);

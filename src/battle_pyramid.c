@@ -26,6 +26,7 @@
 #include "malloc.h"
 #include "overworld.h"
 #include "event_scripts.h"
+#include "constants/abilities.h"
 #include "constants/battle_frontier.h"
 #include "constants/battle_pyramid.h"
 #include "constants/event_objects.h"
@@ -47,7 +48,7 @@ struct PyramidWildMon
 {
     u16 species;
     u8 lvl;
-    u8 abilityNum;
+    u16 ability;
     u16 moves[MAX_MON_MOVES];
 };
 
@@ -1371,30 +1372,10 @@ void GenerateBattlePyramidWildMon(void)
     {
         lvl = wildMons[id].lvl - 5 + ((Random() % 11));
     }
+	SetMonData(&gEnemyParty[0], MON_DATA_ABILITY, &wildMons[id].ability);
     SetMonData(&gEnemyParty[0],
                MON_DATA_EXP,
                &gExperienceTables[gBaseStats[wildMons[id].species].growthRate][lvl]);
-
-    switch (wildMons[id].abilityNum)
-    {
-    case 0:
-    case 1:
-        SetMonData(&gEnemyParty[0], MON_DATA_ABILITY_NUM, &wildMons[id].abilityNum);
-        break;
-    case ABILITY_RANDOM:
-    default:
-        if (gBaseStats[wildMons[id].species].abilities[1])
-        {
-            i = GetMonData(&gEnemyParty[0], MON_DATA_PERSONALITY, NULL) % 2;
-            SetMonData(&gEnemyParty[0], MON_DATA_ABILITY_NUM, &i);
-        }
-        else
-        {
-            i = 0;
-            SetMonData(&gEnemyParty[0], MON_DATA_ABILITY_NUM, &i);
-        }
-        break;
-    }
 
     for (i = 0; i < MAX_MON_MOVES; i++)
         SetMonMoveSlot(&gEnemyParty[0], wildMons[id].moves[i], i);

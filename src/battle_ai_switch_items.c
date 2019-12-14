@@ -188,8 +188,7 @@ static bool8 FindMonThatAbsorbsOpponentsMove(void)
 
     for (i = firstId; i < lastId; i++)
     {
-        u16 species;
-        u8 monAbility;
+        u16 monAbility;
 
         if (GetMonData(&party[i], MON_DATA_HP) == 0)
             continue;
@@ -206,11 +205,7 @@ static bool8 FindMonThatAbsorbsOpponentsMove(void)
         if (i == *(gBattleStruct->monToSwitchIntoId + battlerIn2))
             continue;
 
-        species = GetMonData(&party[i], MON_DATA_SPECIES);
-        if (GetMonData(&party[i], MON_DATA_ABILITY_NUM) != 0)
-            monAbility = gBaseStats[species].abilities[1];
-        else
-            monAbility = gBaseStats[species].abilities[0];
+        monAbility = GetMonData(&party[i], MON_DATA_ABILITY);
 
         if (absorbingTypeAbility == monAbility && Random() & 1)
         {
@@ -369,8 +364,8 @@ static bool8 FindMonWithFlagsAndSuperEffective(u16 flags, u8 moduloPercent)
 
     for (i = firstId; i < lastId; i++)
     {
-        u16 species;
-        u8 monAbility;
+        u8 defType1, defType2;
+        u16 monAbility;
 
         if (GetMonData(&party[i], MON_DATA_HP) == 0)
             continue;
@@ -387,13 +382,11 @@ static bool8 FindMonWithFlagsAndSuperEffective(u16 flags, u8 moduloPercent)
         if (i == *(gBattleStruct->monToSwitchIntoId + battlerIn2))
             continue;
 
-        species = GetMonData(&party[i], MON_DATA_SPECIES);
-        if (GetMonData(&party[i], MON_DATA_ABILITY_NUM) != 0)
-            monAbility = gBaseStats[species].abilities[1];
-        else
-            monAbility = gBaseStats[species].abilities[0];
+        defType1 = GetMonData(&party[i], MON_DATA_TYPE1);
+        defType2 = GetMonData(&party[i], MON_DATA_TYPE2);
+        monAbility = GetMonData(&party[i], MON_DATA_ABILITY);
 
-        CalcPartyMonTypeEffectivenessMultiplier(gLastLandedMoves[gActiveBattler], species, monAbility);
+        CalcPartyMonTypeEffectivenessMultiplier(gLastLandedMoves[gActiveBattler], defType1, defType2, monAbility);
         if (gMoveResultFlags & flags)
         {
             battlerIn1 = gLastHitBy[gActiveBattler];
@@ -433,7 +426,10 @@ static bool8 ShouldSwitch(void)
         return FALSE;
     if (IsAbilityOnOpposingSide(gActiveBattler, ABILITY_SHADOW_TAG))
         return FALSE;
-    if (IsAbilityOnOpposingSide(gActiveBattler, ABILITY_ARENA_TRAP)) // Misses the flying type and Levitate check.
+    if (IsAbilityOnOpposingSide(gActiveBattler, ABILITY_ARENA_TRAP)
+	 || IsAbilityOnOpposingSide(gActiveBattler, ABILITY_LEVITATE)
+	 || gBattleMons[gActiveBattler].type1 == TYPE_FLYING
+	 || gBattleMons[gActiveBattler].type2 == TYPE_FLYING) // Misses the flying type and Levitate check. (fixed)
         return FALSE;
     if (IsAbilityOnField(ABILITY_MAGNET_PULL))
     {
@@ -623,11 +619,10 @@ static u32 GestBestMonOffensive(struct Pokemon *party, int firstId, int lastId, 
         {
             if (!(gBitTable[i] & invalidMons) && !(gBitTable[i] & bits))
             {
-                u16 species = GetMonData(&party[i], MON_DATA_SPECIES);
                 u32 typeDmg = UQ_4_12(1.0);
 
-                u8 atkType1 = gBaseStats[species].type1;
-                u8 atkType2 = gBaseStats[species].type2;
+                u8 atkType1 = GetMonData(&party[i], MON_DATA_TYPE1);
+                u8 atkType2 = GetMonData(&party[i], MON_DATA_TYPE2);
                 u8 defType1 = gBattleMons[opposingBattler].type1;
                 u8 defType2 = gBattleMons[opposingBattler].type2;
 

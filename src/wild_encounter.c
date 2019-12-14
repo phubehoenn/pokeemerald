@@ -911,8 +911,12 @@ static bool8 TryGetRandomWildMonIndexByType(const struct WildPokemon *wildMon, u
 
     for (validMonCount = 0, i = 0; i < numMon; i++)
     {
-        if (gBaseStats[wildMon[i].species].type1 == type || gBaseStats[wildMon[i].species].type2 == type)
-            validIndexes[validMonCount++] = i;
+		if (gSaveBlock2Ptr->gameMode != GAME_MODE_SUPER_RANDOM)
+		{
+			if (gBaseStats[wildMon[i].species].type1 == type || gBaseStats[wildMon[i].species].type2 == type)
+				validIndexes[validMonCount++] = i;
+		}
+		// Would be nice to add an else here to do the above function but for a given type on super random
     }
 
     if (validMonCount == 0 || validMonCount == numMon)

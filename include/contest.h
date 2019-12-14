@@ -229,6 +229,8 @@ struct ContestPokemon
     /*0x2C*/ u8 unk2C[12];
     /*0x38*/ u32 personality;  // personality
     /*0x3C*/ u32 otId;  // otId
+    /*0x3D*/ u8 type1;  // type 1
+    /*0x3E*/ u8 type2;  // type 2
 };
 
 struct Shared1A004

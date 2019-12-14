@@ -116,10 +116,9 @@ static EWRAM_DATA struct PokemonSummaryScreenData
         u8 level; // 0x5
         u8 ribbonCount; // 0x6
         u8 ailment; // 0x7
-        u8 abilityNum; // 0x8
-        u8 metLocation; // 0x9
-        u8 metLevel; // 0xA
-        u8 unused; // 0xB
+        u8 metLocation; // 0x8
+        u8 metLevel; // 0x9
+        u16 ability; // 0xA
         u32 pid; // 0xC
         u32 exp; // 0x10
         u16 moves[MAX_MON_MOVES]; // 0x14
@@ -138,7 +137,11 @@ static EWRAM_DATA struct PokemonSummaryScreenData
         u8 ppBonuses; // 0x34
         u8 sanity; // 0x35
         u8 OTName[8]; // 0x36
-        u8 unk3E[9]; // 0x3E
+        u16 type1:5; // 0x3E
+        u16 type2:5; // 0x3E
+        u16 hiddenType:5; // 0x3F
+        u16 filler:1; // 0x3F
+        u8 unk40[7]; // 0x40
         u32 OTID; // 0x48
     } summary;
     u16 bgTilemapBuffers[4][2][0x400];
@@ -1461,7 +1464,10 @@ static bool8 ExtractMonDataToSummaryStruct(struct Pokemon *mon)
         sum->species2 = GetMonData(mon, MON_DATA_SPECIES2);
         sum->exp = GetMonData(mon, MON_DATA_EXP);
         sum->level = GetMonData(mon, MON_DATA_LEVEL);
-        sum->abilityNum = GetMonData(mon, MON_DATA_ABILITY_NUM);
+        sum->ability = GetMonData(mon, MON_DATA_ABILITY);
+        sum->type1 = GetMonData(mon, MON_DATA_TYPE1);
+        sum->type2 = GetMonData(mon, MON_DATA_TYPE2);
+        sum->hiddenType = GetMonData(mon, MON_DATA_HIDDEN_TYPE);
         sum->item = GetMonData(mon, MON_DATA_HELD_ITEM);
         sum->pid = GetMonData(mon, MON_DATA_PERSONALITY);
         sum->sanity = GetMonData(mon, MON_DATA_SANITY_IS_BAD_EGG);
@@ -3172,14 +3178,12 @@ static void PrintMonOTID(void)
 
 static void PrintMonAbilityName(void)
 {
-    u8 ability = GetAbilityBySpecies(sMonSummaryScreen->summary.species, sMonSummaryScreen->summary.abilityNum);
-    SummaryScreen_PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilityNames[ability], 0, 1, 0, 1);
+    SummaryScreen_PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilityNames[sMonSummaryScreen->summary.ability], 0, 1, 0, 1);
 }
 
 static void PrintMonAbilityDescription(void)
 {
-    u8 ability = GetAbilityBySpecies(sMonSummaryScreen->summary.species, sMonSummaryScreen->summary.abilityNum);
-    SummaryScreen_PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilityDescriptionPointers[ability], 0, 17, 0, 0);
+    SummaryScreen_PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilityDescriptionPointers[sMonSummaryScreen->summary.ability], 0, 17, 0, 0);
 }
 
 static void BufferMonTrainerMemo(void)
@@ -3891,10 +3895,10 @@ static void SetMonTypeIcons(void)
     }
     else
     {
-        SetMoveTypeSpritePosAndType(gBaseStats[summary->species].type1, 0x78, 0x30, 3);
-        if (gBaseStats[summary->species].type1 != gBaseStats[summary->species].type2)
+        SetMoveTypeSpritePosAndType(summary->type1, 0x78, 0x30, 3);
+        if (summary->type1 != summary->type2)
         {
-            SetMoveTypeSpritePosAndType(gBaseStats[summary->species].type2, 0xA0, 0x30, 4);
+            SetMoveTypeSpritePosAndType(summary->type2, 0xA0, 0x30, 4);
             SetSpriteInvisibility(4, FALSE);
         }
         else
@@ -3910,7 +3914,10 @@ static void SetMoveTypeIcons(void)
     struct PokeSummary *summary = &sMonSummaryScreen->summary;
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (summary->moves[i] != MOVE_NONE)
+		// Display hidden type if move is hidden power
+		if (summary->moves[i] == MOVE_HIDDEN_POWER)
+            SetMoveTypeSpritePosAndType(summary->hiddenType, 0x55, 0x20 + (i * 0x10), i + 3);
+        else if (summary->moves[i] != MOVE_NONE)
             SetMoveTypeSpritePosAndType(gBattleMoves[summary->moves[i]].type, 0x55, 0x20 + (i * 0x10), i + 3);
         else
             SetSpriteInvisibility(i + 3, TRUE);

@@ -806,10 +806,11 @@ static void SetBattlerData(u8 battlerId)
         if (BATTLE_HISTORY->abilities[battlerId] != ABILITY_NONE)
             gBattleMons[battlerId].ability = BATTLE_HISTORY->abilities[battlerId];
         // Check if mon can only have one ability.
-        else if (gBaseStats[gBattleMons[battlerId].species].abilities[1] == ABILITY_NONE
+        else if ((gBaseStats[gBattleMons[battlerId].species].abilities[1] == ABILITY_NONE
                  || gBaseStats[gBattleMons[battlerId].species].abilities[1] == gBaseStats[gBattleMons[battlerId].species].abilities[0])
+				 && gSaveBlock2Ptr->gameMode != GAME_MODE_SUPER_RANDOM)
             gBattleMons[battlerId].ability = gBaseStats[gBattleMons[battlerId].species].abilities[0];
-        // The ability is unknown.
+        // The ability is unknown. Always assumed to be unknown on super random game mode unless it's already been used
         else
             gBattleMons[battlerId].ability = ABILITY_NONE;
 
@@ -1616,7 +1617,8 @@ static s32 AI_GetAbility(u32 battlerId, bool32 guess)
     || gBattleMons[battlerId].ability == ABILITY_ARENA_TRAP)
         return gBattleMons[battlerId].ability;
 
-    if (gBaseStats[gBattleMons[battlerId].species].abilities[0] != ABILITY_NONE)
+    if (gBaseStats[gBattleMons[battlerId].species].abilities[0] != ABILITY_NONE
+	&& gSaveBlock2Ptr->gameMode != GAME_MODE_SUPER_RANDOM)
     {
         if (gBaseStats[gBattleMons[battlerId].species].abilities[1] != ABILITY_NONE)
         {
@@ -1629,7 +1631,7 @@ static s32 AI_GetAbility(u32 battlerId, bool32 guess)
             return gBaseStats[gBattleMons[battlerId].species].abilities[0]; // It's definitely ability 1.
         }
     }
-    return -1; // Unknown.
+    return -1; // Unknown. Unless already used, assumed to be unknown on super random game mode
 }
 
 static void Cmd_get_ability(void)

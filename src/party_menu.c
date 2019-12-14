@@ -4390,7 +4390,7 @@ void ItemUseCB_Medicine(u8 taskId, TaskFunc task)
 
 #define tState      data[0]
 #define tSpecies    data[1]
-#define tAbilityNum data[2]
+#define tAbility    data[2]
 #define tMonId      data[3]
 #define tOldFunc    4
 
@@ -4399,14 +4399,23 @@ void Task_AbilityCapsule(u8 taskId)
     static const u8 askText[] = _("Would you like to change {STR_VAR_1}'s\nability to {STR_VAR_2}?");
     static const u8 doneText[] = _("{STR_VAR_1}'s ability became\n{STR_VAR_2}!{PAUSE_UNTIL_PRESS}");
     s16 *data = gTasks[taskId].data;
+	u16 ability1, ability2, newAbility;
+	int i;
+	
+	// Get possible abilities
+	ability1 = GetAbilityBySpecies(tSpecies, 0);
+	if (gBaseStats[tSpecies].abilities[1] != 0)
+	{
+		ability2 = GetAbilityBySpecies(tSpecies, 1);
+		newAbility = (tAbility == ability1) ? ability2 : ability1;
+	}
 
     switch (tState)
     {
     case 0:
         // Can't use.
-        if (gBaseStats[tSpecies].abilities[0] == gBaseStats[tSpecies].abilities[1]
-            || gBaseStats[tSpecies].abilities[1] == 0
-            || tAbilityNum > 1
+        if ((ability1 == ability2)
+            || !ability2
             || !tSpecies)
         {
             gPartyMenuUseExitCallback = FALSE;
@@ -4418,7 +4427,7 @@ void Task_AbilityCapsule(u8 taskId)
         }
         gPartyMenuUseExitCallback = TRUE;
         GetMonNickname(&gPlayerParty[tMonId], gStringVar1);
-        StringCopy(gStringVar2, gAbilityNames[GetAbilityBySpecies(tSpecies, tAbilityNum)]);
+        StringCopy(gStringVar2, gAbilityNames[newAbility]);
         StringExpandPlaceholders(gStringVar4, askText);
         PlaySE(SE_SELECT);
         DisplayPartyMenuMessage(gStringVar4, 1);
@@ -4463,7 +4472,7 @@ void Task_AbilityCapsule(u8 taskId)
             tState++;
         break;
     case 5:
-        SetMonData(&gPlayerParty[tMonId], MON_DATA_ABILITY_NUM, &tAbilityNum);
+        SetMonData(&gPlayerParty[tMonId], MON_DATA_ABILITY, &newAbility);
         RemoveBagItem(gSpecialVar_ItemId, 1);
         gTasks[taskId].func = Task_ClosePartyMenu;
         break;
@@ -4477,14 +4486,14 @@ void ItemUseCB_AbilityCapsule(u8 taskId, TaskFunc task)
     tState = 0;
     tMonId = gPartyMenu.slotId;
     tSpecies = GetMonData(&gPlayerParty[tMonId], MON_DATA_SPECIES, NULL);
-    tAbilityNum = GetMonData(&gPlayerParty[tMonId], MON_DATA_ABILITY_NUM, NULL) ^ 1;
+    tAbility = GetMonData(&gPlayerParty[tMonId], MON_DATA_ABILITY, NULL);
     SetWordTaskArg(taskId, tOldFunc, (uintptr_t)(gTasks[taskId].func));
     gTasks[taskId].func = Task_AbilityCapsule;
 }
 
 #undef tState
 #undef tSpecies
-#undef tAbilityNum
+#undef tAbility
 #undef tMonId
 #undef tOldFunc
 

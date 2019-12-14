@@ -45,6 +45,7 @@
 #include "tv.h"
 #include "wallclock.h"
 #include "window.h"
+#include "constants/abilities.h"
 #include "constants/battle_frontier.h"
 #include "constants/decorations.h"
 #include "constants/event_objects.h"
@@ -63,7 +64,6 @@
 #include "constants/moves.h"
 #include "constants/party_menu.h"
 #include "constants/vars.h"
-#include "constants/battle_frontier.h"
 #include "constants/weather.h"
 #include "constants/metatile_labels.h"
 #include "palette.h"
@@ -1284,19 +1284,15 @@ bool8 CheckLeadMonTough(void)
 void IsGrassTypeInParty(void)
 {
     u8 i;
-    u16 species;
     struct Pokemon *pokemon;
     for (i = 0; i < PARTY_SIZE; i++)
     {
         pokemon = &gPlayerParty[i];
-        if (GetMonData(pokemon, MON_DATA_SANITY_HAS_SPECIES) && !GetMonData(pokemon, MON_DATA_IS_EGG))
+        if (GetMonData(pokemon, MON_DATA_SANITY_HAS_SPECIES) && !GetMonData(pokemon, MON_DATA_IS_EGG)
+		&& (GetMonData(pokemon, MON_DATA_TYPE1) == TYPE_GRASS || GetMonData(pokemon, MON_DATA_TYPE2) == TYPE_GRASS))
         {
-            species = GetMonData(pokemon, MON_DATA_SPECIES);
-            if (gBaseStats[species].type1 == TYPE_GRASS || gBaseStats[species].type2 == TYPE_GRASS)
-            {
-                gSpecialVar_Result = TRUE;
-                return;
-            }
+			gSpecialVar_Result = TRUE;
+			return;
         }
     }
     gSpecialVar_Result = FALSE;
@@ -1455,8 +1451,8 @@ void PutZigzagoonInPlayerParty(void)
 {
     u16 monData;
     CreateMon(&gPlayerParty[0], SPECIES_ZIGZAGOON, 7, 32, FALSE, 0, OT_ID_PLAYER_ID, 0);
-    monData = TRUE;
-    SetMonData(&gPlayerParty[0], MON_DATA_ABILITY_NUM, &monData);
+    monData = ABILITY_PICKUP;
+    SetMonData(&gPlayerParty[0], MON_DATA_ABILITY, &monData);
     monData = MOVE_TACKLE;
     SetMonData(&gPlayerParty[0], MON_DATA_MOVE1, &monData);
     monData = MOVE_NONE;

@@ -840,28 +840,28 @@ static bool8 DoesAbilityPreventStatus(struct Pokemon *mon, u32 status)
     return ret;
 }
 
-static bool8 DoesTypePreventStatus(u16 species, u32 status)
+static bool8 DoesTypePreventStatus(u8 type1, u8 type2, u32 status)
 {
     bool8 ret = FALSE;
 
     switch (status)
     {
     case STATUS1_TOXIC_POISON:
-        if (gBaseStats[species].type1 == TYPE_STEEL || gBaseStats[species].type1 == TYPE_POISON
-            || gBaseStats[species].type2 == TYPE_STEEL || gBaseStats[species].type2 == TYPE_POISON)
+        if (type1 == TYPE_STEEL || type1 == TYPE_POISON
+            || type2 == TYPE_STEEL || type2 == TYPE_POISON)
             ret = TRUE;
         break;
     case STATUS1_FREEZE:
-        if (gBaseStats[species].type1 == TYPE_ICE || gBaseStats[species].type2 == TYPE_ICE)
+        if (type1 == TYPE_ICE || type2 == TYPE_ICE)
             ret = TRUE;
         break;
     case STATUS1_PARALYSIS:
-        if (gBaseStats[species].type1 == TYPE_GROUND || gBaseStats[species].type1 == TYPE_ELECTRIC
-            || gBaseStats[species].type2 == TYPE_GROUND || gBaseStats[species].type2 == TYPE_ELECTRIC)
+        if (type1 == TYPE_GROUND || type1 == TYPE_ELECTRIC
+            || type2 == TYPE_GROUND || type2 == TYPE_ELECTRIC)
             ret = TRUE;
         break;
     case STATUS1_BURN:
-        if (gBaseStats[species].type1 == TYPE_FIRE || gBaseStats[species].type2 == TYPE_FIRE)
+        if (type1 == TYPE_FIRE || type2 == TYPE_FIRE)
             ret = TRUE;
         break;
     case STATUS1_SLEEP:
@@ -876,7 +876,7 @@ static bool8 TryInflictRandomStatus(void)
     u8 count;
     u8 indices[3];
     u32 status;
-    u16 species;
+    u8 type1, type2;
     bool8 statusChosen;
     struct Pokemon *mon;
 
@@ -928,8 +928,9 @@ static bool8 TryInflictRandomStatus(void)
                     && GetMonData(mon, MON_DATA_HP) != 0)
                 {
                     j++;
-                    species = GetMonData(mon, MON_DATA_SPECIES);
-                    if (!DoesTypePreventStatus(species, sStatusFlags))
+                    type1 = GetMonData(mon, MON_DATA_TYPE1);
+                    type2 = GetMonData(mon, MON_DATA_TYPE2);
+                    if (!DoesTypePreventStatus(type1, type2, sStatusFlags))
                     {
                         statusChosen = TRUE;
                         break;
@@ -970,8 +971,9 @@ static bool8 TryInflictRandomStatus(void)
             && GetMonData(mon, MON_DATA_HP) != 0)
         {
             j++;
-            species = GetMonData(mon, MON_DATA_SPECIES);
-            if (!DoesAbilityPreventStatus(mon, sStatusFlags) && !DoesTypePreventStatus(species, sStatusFlags))
+            type1 = GetMonData(mon, MON_DATA_TYPE1);
+			type2 = GetMonData(mon, MON_DATA_TYPE2);
+            if (!DoesAbilityPreventStatus(mon, sStatusFlags) && !DoesTypePreventStatus(type1, type2, sStatusFlags))
                 SetMonData(mon, MON_DATA_STATUS, &sStatusFlags);
         }
         if (j == count)
@@ -1112,7 +1114,7 @@ bool32 TryGenerateBattlePikeWildMon(bool8 checkKeenEyeIntimidate)
     u8 headerId = GetBattlePikeWildMonHeaderId();
     u32 lvlMode = gSaveBlock2Ptr->frontier.lvlMode;
     const struct PikeWildMon *const *const wildMons = sWildMons[lvlMode];
-    u32 abilityNum;
+    u16 ability;
     s32 pikeMonId = GetMonData(&gEnemyParty[0], MON_DATA_SPECIES, NULL);
     pikeMonId = SpeciesToPikeMonId(pikeMonId);
 
@@ -1142,11 +1144,11 @@ bool32 TryGenerateBattlePikeWildMon(bool8 checkKeenEyeIntimidate)
                MON_DATA_EXP,
                &gExperienceTables[gBaseStats[wildMons[headerId][pikeMonId].species].growthRate][monLevel]);
 
-    if (gBaseStats[wildMons[headerId][pikeMonId].species].abilities[1])
-        abilityNum = Random() % 2;
+	if (gBaseStats[wildMons[headerId][pikeMonId].species].abilities[1])
+		ability = GetAbilityBySpecies(wildMons[headerId][pikeMonId].species, Random() % 2);
     else
-        abilityNum = 0;
-    SetMonData(&gEnemyParty[0], MON_DATA_ABILITY_NUM, &abilityNum);
+		ability = GetAbilityBySpecies(wildMons[headerId][pikeMonId].species, 0);
+	SetMonData(&gEnemyParty[0], MON_DATA_ABILITY, &ability);
     for (i = 0; i < MAX_MON_MOVES; i++)
         SetMonMoveSlot(&gEnemyParty[0], wildMons[headerId][pikeMonId].moves[i], i);
 

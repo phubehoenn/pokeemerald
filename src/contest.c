@@ -2641,6 +2641,8 @@ void sub_80DA8C8(u8 partyIndex)
     gContestMons[gContestPlayerMonIndex].moves[3] = GetMonData(&gPlayerParty[partyIndex], MON_DATA_MOVE4);
     gContestMons[gContestPlayerMonIndex].personality = GetMonData(&gPlayerParty[partyIndex], MON_DATA_PERSONALITY);
     gContestMons[gContestPlayerMonIndex].otId = GetMonData(&gPlayerParty[partyIndex], MON_DATA_OT_ID);
+    gContestMons[gContestPlayerMonIndex].type1 = GetMonData(&gPlayerParty[partyIndex], MON_DATA_TYPE1);
+    gContestMons[gContestPlayerMonIndex].type2 = GetMonData(&gPlayerParty[partyIndex], MON_DATA_TYPE2);
 
     heldItem = GetMonData(&gPlayerParty[partyIndex], MON_DATA_HELD_ITEM);
     cool   = gContestMons[gContestPlayerMonIndex].cool;
@@ -5066,6 +5068,13 @@ static u16 SanitizeSpecies(u16 species)
     return species;
 }
 
+static u16 SanitizeType(u8 type)
+{
+    if (type >= NUMBER_OF_MON_TYPES)
+        type = TYPE_NORMAL;
+    return type;
+}
+
 static void sub_80DE864(u8 a)
 {
     s32 i;
@@ -5080,7 +5089,7 @@ static void sub_80DE864(u8 a)
     switch (move)
     {
     case MOVE_CURSE:
-        if (gBaseStats[species].type1 == TYPE_GHOST || gBaseStats[species].type2 == TYPE_GHOST)
+        if (SanitizeType(gContestMons[a].type1) == TYPE_GHOST || SanitizeType(gContestMons[a].type2) == TYPE_GHOST)
             gAnimMoveTurn = 0;
         else
             gAnimMoveTurn = 1;

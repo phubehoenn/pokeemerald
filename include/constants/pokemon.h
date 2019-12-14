@@ -184,7 +184,6 @@
 #define MON_DATA_HIDDEN_TYPE       56
 #define MON_DATA_NATURE            57
 #define MON_DATA_ABILITY           58
-#define MON_DATA_ABILITY_NUM       59
 #define MON_DATA_HP_IV             60
 #define MON_DATA_ATK_IV            61
 #define MON_DATA_DEF_IV            62

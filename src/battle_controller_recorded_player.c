@@ -566,7 +566,11 @@ static u32 CopyRecordedPlayerMonData(u8 monId, u8 *dst)
         battleMon.speed = GetMonData(&gPlayerParty[monId], MON_DATA_SPEED);
         battleMon.spAttack = GetMonData(&gPlayerParty[monId], MON_DATA_SPATK);
         battleMon.spDefense = GetMonData(&gPlayerParty[monId], MON_DATA_SPDEF);
-        battleMon.abilityNum = GetMonData(&gPlayerParty[monId], MON_DATA_ABILITY_NUM);
+        battleMon.type1 = GetMonData(&gPlayerParty[monId], MON_DATA_TYPE1);
+        battleMon.type2 = GetMonData(&gPlayerParty[monId], MON_DATA_TYPE2);
+        battleMon.hiddenType = GetMonData(&gPlayerParty[monId], MON_DATA_HIDDEN_TYPE);
+        battleMon.ability = GetMonData(&gPlayerParty[monId], MON_DATA_ABILITY);
+        battleMon.nature = GetMonData(&gPlayerParty[monId], MON_DATA_NATURE);
         battleMon.otId = GetMonData(&gPlayerParty[monId], MON_DATA_OT_ID);
         GetMonData(&gPlayerParty[monId], MON_DATA_NICKNAME, nickname);
         StringCopy10(battleMon.nickname, nickname);

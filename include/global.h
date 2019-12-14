@@ -239,8 +239,12 @@ struct BattleTowerPokemon
 {
     u16 species;
     u16 heldItem;
-    u16 moves[MAX_MON_MOVES];
     u8 level;
+    u16 moves[MAX_MON_MOVES];
+    u16 type1:5;
+    u16 type2:5;
+    u16 hiddenType:5;
+    u16 filler1b:1;
     u8 ppBonuses;
     u8 hpEV;
     u8 attackEV;
@@ -255,11 +259,12 @@ struct BattleTowerPokemon
     u32 speedIV:5;
     u32 spAttackIV:5;
     u32 spDefenseIV:5;
-    u32 gap:1;
-    u32 abilityNum:1;
+    u32 filler2b:2;
     u32 personality;
     u8 nickname[POKEMON_NAME_LENGTH + 1];
     u8 friendship;
+    u16 ability;
+    u8 nature;
 };
 
 #define NULL_BATTLE_TOWER_POKEMON { .nickname = __("$$$$$$$$$$$") }
@@ -314,7 +319,7 @@ struct RentalMon
     u16 monId;
     u32 personality;
     u8 ivs;
-    u8 abilityNum;
+    u16 ability;
 };
 
 struct BattleDomeTrainer
@@ -340,7 +345,7 @@ struct BattleFrontier
     /*0xCA9*/ u8 unused_CA9_c:1;
     /*0xCA9*/ u8 unused_CA9_d:1;
     /*0xCA9*/ u8 unused_CA9_e:1;
-    /*0xCA9*/ u8 unused_CA9_f:1;
+    /*0xCA9*/ u8 savedGame:1;
     /*0xCAA*/ u16 selectedPartyMons[MAX_FRONTIER_PARTY_SIZE];
     /*0xCB2*/ u16 curChallengeBattleNum; // Battle number / room number (Pike) / floor number (Pyramid)
     /*0xCB4*/ u16 trainerIds[20];
@@ -360,7 +365,7 @@ struct BattleFrontier
     /*0xD08*/ u8 field_D08_5:1;
     /*0xD08*/ u8 field_D08_6:1;
     /*0xD08*/ u8 field_D08_7:1;
-    /*0xD09*/ u8 filler_D09;
+    //*0xD09*/ u8 filler_D09;
     /*0xD0A*/ u8 field_D0A;
     /*0xD0B*/ u8 field_D0B;
     /*0xD0C*/ u16 domeWinStreaks[2][2];
@@ -368,7 +373,7 @@ struct BattleFrontier
     /*0xD1C*/ u16 domeTotalChampionships[2][2];
     /*0xD24*/ struct BattleDomeTrainer domeTrainers[DOME_TOURNAMENT_TRAINERS_COUNT];
     /*0xD64*/ u16 domeMonIds[DOME_TOURNAMENT_TRAINERS_COUNT][FRONTIER_PARTY_SIZE];
-    /*0xDC4*/ u16 unused_DC4;
+    //*0xDC4*/ u16 unused_DC4;
     /*0xDC6*/ u16 palacePrize;
     /*0xDC8*/ u16 palaceWinStreaks[2][2];
     /*0xDD0*/ u16 palaceRecordWinStreaks[2][2];
@@ -399,16 +404,16 @@ struct BattleFrontier
     /*0xE6E*/ u16 slateportTentPrize;
     /*0xE70*/ struct RentalMon rentalMons[PARTY_SIZE];
     /*0xEB8*/ u16 battlePoints;
-    /*0xEBA*/ u16 cardBattlePoints;
-    /*0xEBC*/ u32 battlesCount;
-    /*0xEC0*/ u16 field_EC0[16];
+    /*0xEBE*/ u16 cardBattlePoints;
+    /*0xEC2*/ u32 battlesCount;
+    /*0xEC6*/ u16 field_EC0[16];
     /*0xEE0*/ u8 trainerFlags;
     /*0xEE1*/ u8 opponentNames[2][PLAYER_NAME_LENGTH + 1];
     /*0xEF1*/ u8 opponentTrainerIds[2][TRAINER_ID_LENGTH];
-    /*0xEF9*/ u8 unk_EF9:7; // Never read
-    /*0xEF9*/ u8 savedGame:1;
-    /*0xEFA*/ u8 unused_EFA;
-    /*0xEFB*/ u8 unused_EFB;
+    //*0xEF9*/ u8 unk_EF9:7; // Never read
+    //*0xEF9*/ u8 savedGame:1;
+    //*0xEFA*/ u8 unused_EFA;
+    //*0xEFB*/ u8 unused_EFB;
     /*0xEFC*/ struct FrontierMonData field_EFC[FRONTIER_PARTY_SIZE];
 };
 

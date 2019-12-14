@@ -61,7 +61,7 @@ static void CalcDomeMonStats(u16 species, int level, int ivs, u8 evBits, u8 natu
 static void CreateDomeOpponentMons(u16 tournamentTrainerId);
 static int sub_818FCBC(u16 tournamentTrainerId, bool8 arg1);
 static int sub_818FDB8(u16 tournamentTrainerId, bool8 arg1);
-static int GetTypeEffectivenessPoints(int move, int species, int arg2);
+static int GetTypeEffectivenessPoints(int move, int defType1, int defType2, int defAbility, int arg2);
 static int sub_818FEB4(int *arr, bool8 arg1);
 static void Task_ShowOpponentInfo(u8 taskId);
 static void sub_8190CD4(u8 taskId);
@@ -2503,8 +2503,8 @@ static void InitDomeTrainers(void)
         statSums[0] += GetMonData(&gPlayerParty[trainerId], MON_DATA_SPDEF, NULL);
         statSums[0] += GetMonData(&gPlayerParty[trainerId], MON_DATA_SPEED, NULL);
         statSums[0] += GetMonData(&gPlayerParty[trainerId], MON_DATA_MAX_HP, NULL);
-        monTypesBits |= gBitTable[gBaseStats[GetMonData(&gPlayerParty[trainerId], MON_DATA_SPECIES, NULL)].type1];
-        monTypesBits |= gBitTable[gBaseStats[GetMonData(&gPlayerParty[trainerId], MON_DATA_SPECIES, NULL)].type2];
+        monTypesBits |= gBitTable[GetMonData(&gPlayerParty[trainerId], MON_DATA_TYPE1, NULL)];
+        monTypesBits |= gBitTable[GetMonData(&gPlayerParty[trainerId], MON_DATA_TYPE2, NULL)];
     }
 
     for (monTypesCount = 0, j = 0; j < 32; j++)
@@ -2536,8 +2536,8 @@ static void InitDomeTrainers(void)
             statSums[i] += statValues[STAT_SPDEF];
             statSums[i] += statValues[STAT_SPEED];
             statSums[i] += statValues[STAT_HP];
-            monTypesBits |= gBitTable[gBaseStats[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].species].type1];
-            monTypesBits |= gBitTable[gBaseStats[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].species].type2];
+            monTypesBits |= gBitTable[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].type1];
+            monTypesBits |= gBitTable[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].type2];
         }
 
         for (monTypesCount = 0, j = 0; j < 32; j++)
@@ -2771,12 +2771,16 @@ static int sub_818FCBC(u16 tournamentTrainerId, bool8 arg1)
                 if (gSaveBlock2Ptr->frontier.domeTrainers[tournamentTrainerId].trainerId == TRAINER_FRONTIER_BRAIN)
                 {
                     array[i] += GetTypeEffectivenessPoints(GetFrontierBrainMonMove(i, moveId),
-                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_SPECIES, NULL), 0);
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE1, NULL),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE2, NULL),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_ABILITY, NULL), 0);
                 }
                 else
                 {
                     array[i] += GetTypeEffectivenessPoints(gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentTrainerId][i]].moves[moveId],
-                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_SPECIES, NULL), 0);
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE1),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE2, NULL),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_ABILITY, NULL), 0);
                 }
             }
         }
@@ -2799,12 +2803,16 @@ static int sub_818FDB8(u16 tournamentTrainerId, bool8 arg1)
                 if (gSaveBlock2Ptr->frontier.domeTrainers[tournamentTrainerId].trainerId == TRAINER_FRONTIER_BRAIN)
                 {
                     array[i] += GetTypeEffectivenessPoints(GetFrontierBrainMonMove(i, moveId),
-                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_SPECIES, NULL), 1);
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE1, NULL),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE2, NULL),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_ABILITY, NULL), 1);
                 }
                 else
                 {
                     array[i] += GetTypeEffectivenessPoints(gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentTrainerId][i]].moves[moveId],
-                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_SPECIES, NULL), 1);
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE1, NULL),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_TYPE2, NULL),
+                                            GetMonData(&gPlayerParty[playerMonId], MON_DATA_ABILITY, NULL), 1);
                 }
             }
         }
@@ -2885,18 +2893,15 @@ static int sub_818FEB4(int *arr, bool8 arg1)
 #define TYPE_x2     40
 #define TYPE_x4     80
 
-static int GetTypeEffectivenessPoints(int move, int targetSpecies, int arg2)
+static int GetTypeEffectivenessPoints(int move, int defType1, int defType2, int defAbility, int arg2)
 {
-    int defType1, defType2, defAbility, moveType;
+    int moveType;
     int i = 0;
     int typePower = TYPE_x1;
 
     if (move == MOVE_NONE || move == 0xFFFF || gBattleMoves[move].power == 0)
         return 0;
-
-    defType1 = gBaseStats[targetSpecies].type1;
-    defType2 = gBaseStats[targetSpecies].type2;
-    defAbility = gBaseStats[targetSpecies].abilities[0];
+	
     moveType = gBattleMoves[move].type;
 
     if (defAbility == ABILITY_LEVITATE && moveType == TYPE_GROUND)
@@ -5179,22 +5184,20 @@ static u16 GetWinningMove(int winnerTournamentId, int loserTournamentId, u8 roun
             for (k = 0; k < 3; k++)
             {
                 u32 personality = 0;
-                u32 targetSpecies = 0;
-                u32 targetAbility = 0;
+                u8 type1 = 0;
+                u8 type2 = 0;
+                u32 defAbility = 0;
                 u32 typeMultiplier = 0;
                 do
                 {
                     personality = Random32();
                 } while (gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[loserTournamentId][k]].nature != GetNatureFromPersonality(personality));
 
-                targetSpecies = gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[loserTournamentId][k]].species;
+                type1 = gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[loserTournamentId][k]].type1;
+                type2 = gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[loserTournamentId][k]].type2;
+                defAbility = gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[loserTournamentId][k]].ability;
 
-                if (personality & 1)
-                    targetAbility = gBaseStats[targetSpecies].abilities[1];
-                else
-                    targetAbility = gBaseStats[targetSpecies].abilities[0];
-
-                typeMultiplier = CalcPartyMonTypeEffectivenessMultiplier(moveIds[i * 4 + j], targetSpecies, targetAbility);
+                typeMultiplier = CalcPartyMonTypeEffectivenessMultiplier(moveIds[i * 4 + j], type1, type2, defAbility);
                 if (typeMultiplier == UQ_4_12(0))
                     moveScores[i * 4 + j] += 0;
                 else if (typeMultiplier >= UQ_4_12(2))
@@ -5835,8 +5838,8 @@ static void sub_8194F58(void)
             statSums[i] += statValues[STAT_SPDEF];
             statSums[i] += statValues[STAT_SPEED];
             statSums[i] += statValues[STAT_HP];
-            monTypesBits |= gBitTable[gBaseStats[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].species].type1];
-            monTypesBits |= gBitTable[gBaseStats[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].species].type2];
+            monTypesBits |= gBitTable[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].type1];
+            monTypesBits |= gBitTable[gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[i][j]].type2];
         }
 
         // Because GF hates temporary vars, trainerId acts like monTypesCount here.
@@ -5953,7 +5956,9 @@ static void DecideRoundWinners(u8 roundId)
                     for (monId2 = 0; monId2 < 3; monId2++)
                     {
                         points1 += GetTypeEffectivenessPoints(gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId1][monId1]].moves[moveSlot],
-                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId2][monId2]].species, 2);
+                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId2][monId2]].type1,
+                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId2][monId2]].type2,
+                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId2][monId2]].ability, 2);
                     }
                 }
                 species = gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId1][monId1]].species;
@@ -5976,7 +5981,9 @@ static void DecideRoundWinners(u8 roundId)
                     for (monId2 = 0; monId2 < 3; monId2++)
                     {
                         points2 += GetTypeEffectivenessPoints(gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId2][monId1]].moves[moveSlot],
-                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId1][monId2]].species, 2);
+                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId1][monId2]].type1,
+                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId1][monId2]].type2,
+                                                gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId1][monId2]].ability, 2);
                     }
                 }
                 species = gFacilityTrainerMons[gSaveBlock2Ptr->frontier.domeMonIds[tournamentId2][monId1]].species;

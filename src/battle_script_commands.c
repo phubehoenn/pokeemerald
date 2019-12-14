@@ -4787,10 +4787,7 @@ static void Cmd_switchindataupdate(void)
         monData[i] = gBattleResources->bufferB[gActiveBattler][4 + i];
     }
 
-    gBattleMons[gActiveBattler].type1 = gBaseStats[gBattleMons[gActiveBattler].species].type1;
-    gBattleMons[gActiveBattler].type2 = gBaseStats[gBattleMons[gActiveBattler].species].type2;
     gBattleMons[gActiveBattler].type3 = TYPE_MYSTERY;
-    gBattleMons[gActiveBattler].ability = GetAbilityBySpecies(gBattleMons[gActiveBattler].species, gBattleMons[gActiveBattler].abilityNum);
 
     // check knocked off item
     i = GetBattlerSide(gActiveBattler);
@@ -7264,9 +7261,9 @@ static void Cmd_various(void)
             gBattleMons[gActiveBattler].speed = GetMonData(mon, MON_DATA_SPEED);
             gBattleMons[gActiveBattler].spAttack = GetMonData(mon, MON_DATA_SPATK);
             gBattleMons[gActiveBattler].spDefense = GetMonData(mon, MON_DATA_SPDEF);
-            gBattleMons[gActiveBattler].ability = GetMonAbility(mon);
-            gBattleMons[gActiveBattler].type1 = gBaseStats[gBattleMons[gActiveBattler].species].type1;
-            gBattleMons[gActiveBattler].type2 = gBaseStats[gBattleMons[gActiveBattler].species].type2;
+            gBattleMons[gActiveBattler].ability = GetMonData(mon, MON_DATA_ABILITY);
+            gBattleMons[gActiveBattler].type1 = GetMonData(mon, MON_DATA_TYPE1);
+            gBattleMons[gActiveBattler].type2 = GetMonData(mon, MON_DATA_TYPE2);
 
             gBattleStruct->mega.alreadyEvolved[GetBattlerPosition(gActiveBattler)] = TRUE;
             gBattleStruct->mega.evolvedPartyIds[GetBattlerSide(gActiveBattler)] |= gBitTable[gBattlerPartyIndexes[gActiveBattler]];
@@ -9658,20 +9655,10 @@ static void Cmd_healpartystatus(void)
         for (i = 0; i < PARTY_SIZE; i++)
         {
             u16 species = GetMonData(&party[i], MON_DATA_SPECIES2);
-            u8 abilityNum = GetMonData(&party[i], MON_DATA_ABILITY_NUM);
 
             if (species != SPECIES_NONE && species != SPECIES_EGG)
             {
-                u8 ability;
-
-                if (gBattlerPartyIndexes[gBattlerAttacker] == i)
-                    ability = gBattleMons[gBattlerAttacker].ability;
-                else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE
-                         && gBattlerPartyIndexes[gActiveBattler] == i
-                         && !(gAbsentBattlerFlags & gBitTable[gActiveBattler]))
-                    ability = gBattleMons[gActiveBattler].ability;
-                else
-                    ability = GetAbilityBySpecies(species, abilityNum);
+                u16 ability = GetMonData(&party[i], MON_DATA_ABILITY);
 
                 if (ability != ABILITY_SOUNDPROOF)
                     toHeal |= (1 << i);
@@ -10895,8 +10882,7 @@ static void Cmd_getsecretpowereffect(void)
 static void Cmd_pickup(void)
 {
     s32 i;
-    u16 species, heldItem;
-    u8 ability;
+    u16 species, heldItem, ability;
     u8 lvlDivBy10;
 
     if (InBattlePike())
@@ -10909,11 +10895,7 @@ static void Cmd_pickup(void)
         {
             species = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2);
             heldItem = GetMonData(&gPlayerParty[i], MON_DATA_HELD_ITEM);
-
-            if (GetMonData(&gPlayerParty[i], MON_DATA_ABILITY_NUM))
-                ability = gBaseStats[species].abilities[1];
-            else
-                ability = gBaseStats[species].abilities[0];
+            ability = GetMonData(&gPlayerParty[i], MON_DATA_ABILITY);
 
             if (ability == ABILITY_PICKUP
                 && species != 0
@@ -10932,14 +10914,10 @@ static void Cmd_pickup(void)
         {
             species = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2);
             heldItem = GetMonData(&gPlayerParty[i], MON_DATA_HELD_ITEM);
+            ability = GetMonData(&gPlayerParty[i], MON_DATA_ABILITY);
             lvlDivBy10 = (GetMonData(&gPlayerParty[i], MON_DATA_LEVEL)-1) / 10; //Moving this here makes it easier to add in abilities like Honey Gather
             if (lvlDivBy10 > 9)
                 lvlDivBy10 = 9;
-
-            if (GetMonData(&gPlayerParty[i], MON_DATA_ABILITY_NUM))
-                ability = gBaseStats[species].abilities[1];
-            else
-                ability = gBaseStats[species].abilities[0];
 
             if (ability == ABILITY_PICKUP
                 && species != 0
